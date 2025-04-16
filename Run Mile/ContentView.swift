@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    let usecase = DefaultHealthDataUseCase()
+    
     var body: some View {
         VStack {
             Image(systemName: "globe")
@@ -16,6 +18,15 @@ struct ContentView: View {
             Text("Hello, world!")
         }
         .padding()
+        .task {
+            do {
+                if try await !usecase.checkHealthAuthorization() {
+                    print("Be Requested already")
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
