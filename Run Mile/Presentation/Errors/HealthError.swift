@@ -12,4 +12,5 @@ enum HealthError: Error {
     case unknownError
     case notAvailableDevice
     case notPermissionAllowed
+    case failedToLoadWorkoutData
 }
