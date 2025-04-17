@@ -12,7 +12,7 @@ enum FontStyle {
         Font(
             UIFont.systemFont(
                 ofSize: 24,
-                weight: .medium,
+                weight: .bold,
                 width: .condensed
             )
         )

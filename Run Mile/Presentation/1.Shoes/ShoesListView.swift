@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct ShoesListView: View {
+    @StateObject private var viewModel: ShoesListViewModel = .init()
+    
     var body: some View {
         VStack {
             HStack {
@@ -18,7 +20,7 @@ struct ShoesListView: View {
                 Spacer()
                 
                 Button {
-                    
+                    viewModel.addShoesButtonTapped()
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: 24))
@@ -35,6 +37,9 @@ struct ShoesListView: View {
                 }
                 .padding(.horizontal, 20)
             }
+        }
+        .sheet(isPresented: $viewModel.isAddShoesSheetPresented) {
+            AddShoesView()
         }
     }
 }
