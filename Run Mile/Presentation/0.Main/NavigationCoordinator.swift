@@ -21,6 +21,8 @@ final class NavigationCoordinator: ObservableObject {
     @Published public var myPagePath = NavigationPath()
     
     @Published public var sheet: Sheet?
+    @Published public var isAlertPresented: Bool = false
+    public var alert: AlertData?
 }
 
 
@@ -40,6 +42,12 @@ extension NavigationCoordinator {
     @MainActor
     public func push(_ sheet: Sheet) {
         self.sheet = sheet
+    }
+    
+    @MainActor
+    public func push(_ alert: AlertData) {
+        self.alert = alert
+        isAlertPresented.toggle()
     }
     
     @MainActor

@@ -18,4 +18,20 @@ extension ChooseShoesViewModel {
     public func cancelButtonTapped() {
         NavigationCoordinator.shared.dismissSheet()
     }
+    
+    @MainActor
+    public func shoesCellTapped() {
+//        let alert = AlertData(
+//            title: "추가하시겠습니까?",
+//            message: nil,
+//            firstButton: .cancel {
+//                
+//            },
+//            secondButton: .ok {
+//                
+//            }
+//        )
+//        
+//        NavigationCoordinator.shared.push(alert)
+    }
 }
