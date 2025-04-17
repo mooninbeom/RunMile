@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C079A5C2DAF9F7F00B1EE0D /* Run_MileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C079A562DAF9F7F00B1EE0D /* Run_MileApp.swift */; };
 		2CE46E212DAE78D7008C6FBC /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 2CE46E202DAE78D7008C6FBC /* .gitignore */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2C079A562DAF9F7F00B1EE0D /* Run_MileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Run_MileApp.swift; sourceTree = "<group>"; };
 		2CE46DF32DAE7780008C6FBC /* Run Mile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Run Mile.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CE46E002DAE7782008C6FBC /* Run MileTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Run MileTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CE46E0A2DAE7782008C6FBC /* Run MileUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Run MileUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -80,6 +82,7 @@
 		2CE46DEA2DAE7780008C6FBC = {
 			isa = PBXGroup;
 			children = (
+				2C079A562DAF9F7F00B1EE0D /* Run_MileApp.swift */,
 				2CE46E202DAE78D7008C6FBC /* .gitignore */,
 				2CE46DF52DAE7780008C6FBC /* Run Mile */,
 				2CE46E032DAE7782008C6FBC /* Run MileTests */,
@@ -243,6 +246,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C079A5C2DAF9F7F00B1EE0D /* Run_MileApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,8 +416,10 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -447,8 +453,10 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

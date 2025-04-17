@@ -11,7 +11,8 @@ import SwiftUI
 struct Run_MileApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
+                .tint(.primary1)
         }
     }
 }
