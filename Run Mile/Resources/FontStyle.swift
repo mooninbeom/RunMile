@@ -87,5 +87,15 @@ enum FontStyle {
             )
         )
     }
+    
+    static func workoutSubtitle() -> Font {
+        Font(
+            UIFont.systemFont(
+                ofSize: 14,
+                weight: .bold,
+                width: .condensed
+            )
+        )
+    }
 }
 
