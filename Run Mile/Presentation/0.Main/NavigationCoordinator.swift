@@ -39,14 +39,11 @@ extension NavigationCoordinator {
     
     @MainActor
     public func push(_ sheet: Sheet) {
-        switch sheet {
-        case .addShoes:
-            self.sheet = sheet
-        }
+        self.sheet = sheet
     }
     
     @MainActor
-    public func popSheet() {
+    public func dismissSheet() {
         self.sheet = nil
     }
     
@@ -69,6 +66,8 @@ extension NavigationCoordinator {
         switch sheet {
         case .addShoes:
             AddShoesView()
+        case .chooseShoes:
+            ChooseShoesView()
         }
     }
 }
@@ -97,5 +96,6 @@ extension NavigationCoordinator {
         var id: Self { self }
         
         case addShoes
+        case chooseShoes
     }
 }

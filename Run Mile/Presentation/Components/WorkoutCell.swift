@@ -9,9 +9,11 @@ import SwiftUI
 
 
 struct WorkoutCell: View {
+    let action: () -> Void
+    
     var body: some View {
         Button {
-            
+            action()
         } label: {
             RoundedRectangle(cornerRadius: 15)
                 .foregroundStyle(.workoutCell)

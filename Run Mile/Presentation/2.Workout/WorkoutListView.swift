@@ -9,6 +9,9 @@ import SwiftUI
 
 
 struct WorkoutListView: View {
+    @StateObject private var viewModel: WorkoutListViewModel = .init()
+    
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("운동 등록")
@@ -23,8 +26,10 @@ struct WorkoutListView: View {
             ScrollView {
                 VStack(spacing: 0) {
                     ForEach(0..<10, id: \.self) { _ in
-                        WorkoutCell()
-                            .padding(.bottom, 15)
+                        WorkoutCell{
+                            viewModel.workoutCellTapped()
+                        }
+                        .padding(.bottom, 15)
                     }
                 }
                 .padding(.horizontal, 20)

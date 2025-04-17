@@ -31,8 +31,10 @@ struct ShoesDetailView: View {
                 .padding(.bottom, 15)
                 
                 ForEach(0..<10) { _ in
-                    WorkoutCell()
-                        .padding(.bottom, 10)
+                    WorkoutCell {
+                        
+                    }
+                    .padding(.bottom, 10)
                 }
             }
             .navigationTitle("아디제롱")
