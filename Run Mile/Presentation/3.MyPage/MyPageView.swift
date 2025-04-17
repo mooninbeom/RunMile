@@ -32,7 +32,7 @@ private struct HallOfFameCell: View {
             
         } label: {
             RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(.hallOfFame)
+                .foregroundStyle(.hallOfFame1)
                 .frame(height: 115)
                 .overlay {
                     VStack(spacing: 0) {

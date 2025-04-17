@@ -97,5 +97,25 @@ enum FontStyle {
             )
         )
     }
+    
+    static func cellDistance() -> Font {
+        Font(
+            UIFont.systemFont(
+                ofSize: 20,
+                weight: .bold,
+                width: .condensed
+            )
+        )
+    }
+    
+    static func shoeName() -> Font {
+        Font(
+            UIFont.systemFont(
+                ofSize: 16,
+                weight: .medium,
+                width: .condensed
+            )
+        )
+    }
 }
 
