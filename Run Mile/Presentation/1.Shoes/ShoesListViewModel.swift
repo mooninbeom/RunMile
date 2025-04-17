@@ -9,12 +9,13 @@ import Foundation
 
 
 final class ShoesListViewModel: ObservableObject {
-    @Published public var isAddShoesSheetPresented: Bool = false
+    
 }
 
 
 extension ShoesListViewModel {
+    @MainActor
     public func addShoesButtonTapped() {
-        self.isAddShoesSheetPresented.toggle()
+        NavigationCoordinator.shared.push(.addShoes)
     }
 }

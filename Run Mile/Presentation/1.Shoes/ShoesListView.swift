@@ -33,13 +33,14 @@ struct ShoesListView: View {
                 VStack(spacing: 15) {
                     ForEach(0..<10, id: \.self) { _ in
                         ShoesCell()
+                            .onTapGesture {
+                                NavigationCoordinator.shared
+                                    .push(.shoesDetail, tab: .shoes)
+                            }
                     }
                 }
                 .padding(.horizontal, 20)
             }
-        }
-        .sheet(isPresented: $viewModel.isAddShoesSheetPresented) {
-            AddShoesView()
         }
     }
 }

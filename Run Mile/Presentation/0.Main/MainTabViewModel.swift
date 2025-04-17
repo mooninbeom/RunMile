@@ -9,15 +9,5 @@ import Foundation
 
 
 final class MainTabViewModel: ObservableObject {
-    public var tabStatus: TabStaus = .shoes
-    
-    
-    
-    
-    
-    enum TabStaus: Equatable {
-        case shoes
-        case runDiary
-        case myPage
-    }
+
 }

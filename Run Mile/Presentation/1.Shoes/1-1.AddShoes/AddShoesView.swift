@@ -9,13 +9,22 @@ import SwiftUI
 
 
 struct AddShoesView: View {
-    @StateObject private var viewModel = AddShoesViewModel()
+    @StateObject private var viewModel: AddShoesViewModel = .init()
     
     var body: some View {
         VStack(spacing: 0) {
-            Text("신발 추가")
-                .font(FontStyle.cellDistance())
-                .padding(.top, 20)
+            HStack {
+                Spacer()
+                Text("신발 추가")
+                    .font(FontStyle.cellDistance())
+                Spacer()
+            }
+            .overlay(alignment: .leading) {
+                Button("취소") {
+                    viewModel.cancelButtonTapped()
+                }
+            }
+            .padding(.top, 20)
             
             RoundedRectangle(cornerRadius: 15)
                 .foregroundStyle(.white)

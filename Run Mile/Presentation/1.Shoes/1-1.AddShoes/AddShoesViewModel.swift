@@ -37,3 +37,11 @@ final class AddShoesViewModel: ObservableObject {
         }
     }
 }
+
+
+extension AddShoesViewModel {
+    @MainActor
+    public func cancelButtonTapped() {
+        NavigationCoordinator.shared.popSheet()
+    }
+}
