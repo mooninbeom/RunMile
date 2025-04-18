@@ -16,4 +16,5 @@ struct Shoes: Sendable, Identifiable {
     let goalMileage: Double
     let currentMileage: Double
     let workouts: [RunningData]
+    let isGradutate: Bool = false
 }

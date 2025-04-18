@@ -13,4 +13,8 @@ protocol ShoesDataRepository: Sendable {
     func fetchHOFShoes() async throws -> [Shoes]
     func fetchCurrentShoes() async throws -> [Shoes]
     func fetchSingleShoes(id: UUID) async throws -> Shoes
+    
+    func createShoes(shoes: Shoes) async throws
+    func updateShoes(shoes: Shoes) async throws
+    func deleteShoes(shoes: Shoes) async throws
 }

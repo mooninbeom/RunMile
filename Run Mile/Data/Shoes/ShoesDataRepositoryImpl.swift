@@ -18,9 +18,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     
     public func fetchAllShoes() async throws -> [Shoes] {
         let fetchedResult = realm.objects(ShoesDTO.self)
-        
         let result = toEntities(fetchedResult)
-        
         return result
     }
     
@@ -63,7 +61,54 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
                 
             )
         } else {
+            // TODO: 에러 처리
             throw NSError()
+        }
+    }
+    
+    public func createShoes(shoes: Shoes) async throws {
+        let dto = ShoesDTO()
+        dto.image = shoes.image
+        dto.shoesName = shoes.shoesName
+        dto.nickname = shoes.nickname
+        dto.goalMileage = shoes.goalMileage
+        dto.currentMileage = shoes.currentMileage
+        
+        try realm.write {
+            realm.add(dto)
+        }
+    }
+    
+    public func updateShoes(shoes: Shoes) async throws {
+        
+        var list = List<WorkoutDTO>()
+        shoes.workouts.forEach {
+            let workoutDTO = WorkoutDTO()
+            workoutDTO.id = $0.id
+            workoutDTO.distance = $0.distance
+            workoutDTO.date = $0.date
+            list.append(workoutDTO)
+        }
+        
+        let dto = ShoesDTO()
+        dto.image = shoes.image
+        dto.shoesName = shoes.shoesName
+        dto.nickname = shoes.nickname
+        dto.goalMileage = shoes.goalMileage
+        dto.currentMileage = shoes.currentMileage
+        dto.isGraduated = shoes.isGradutate
+        dto.workouts = list
+        
+        try realm.write {
+            realm.add(dto, update: .modified)
+        }
+    }
+    
+    public func deleteShoes(shoes: Shoes) async throws {
+        if let shoesDTO = realm.object(ofType: ShoesDTO.self, forPrimaryKey: shoes.id) {
+            try realm.write {
+                realm.delete(shoesDTO)
+            }
         }
     }
 }
