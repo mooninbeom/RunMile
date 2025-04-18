@@ -97,12 +97,21 @@ private struct ShoeInfoTextField: View {
             HStack {
                 TextField(category.placeholder, text: $text)
                     .font(FontStyle.placeholder())
-                
-                Text("km")
-                    .font(FontStyle.kilometer())
-                    .opacity(
-                        (category == .goalMileage || category == .runMileage) ? 1 : 0
+                    .keyboardType(
+                        (category == .goalMileage || category == .runMileage) ? .numberPad : .default
                     )
+                
+                switch category {
+                case .name:
+                    Text("\(text.count) / 30")
+                        .font(FontStyle.kilometer())
+                case .nickname:
+                    Text("\(text.count) / 15")
+                        .font(FontStyle.kilometer())
+                case .goalMileage, .runMileage:
+                    Text("km")
+                        .font(FontStyle.kilometer())
+                }
             }
             .padding(.bottom, 5)
             
@@ -114,6 +123,27 @@ private struct ShoeInfoTextField: View {
                 .font(FontStyle.miniPlaceholder())
                 .foregroundStyle(.primary2)
                 .opacity( category == .runMileage ? 1 : 0)
+        }
+        .onChange(of: text) {
+            switch category {
+            case .name:
+                text = text.count > 30 ? String(text.prefix(30)) : text
+            case .nickname:
+                text = text.count > 15 ? String(text.prefix(15)) : text
+            default:
+                if text.isEmpty { return }
+                let isNumber = text.allSatisfy{ "0123456789".contains($0) }
+                if isNumber {
+                    let num = Int(text)!
+                    if num > 1000 {
+                        text = "1000"
+                    } else {
+                        text = "\(num)"
+                    }
+                } else {
+                    text.removeAll()
+                }
+            }
         }
     }
 }
