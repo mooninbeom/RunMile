@@ -6,16 +6,34 @@
 //
 
 import Foundation
+import _PhotosUI_SwiftUI
 
 
 @Observable
 final class AddShoesViewModel {
+    private let useCase: AddShoesUseCase
+    
+    public var image: Data?
     public var name: String = ""
     public var nickname: String = ""
     public var goalMileage: String = ""
     public var runMileage: String = ""
     
+    public var photos: PhotosPickerItem? = nil {
+        didSet {
+            Task {
+                await photoPicked()
+            }
+        }
+    }
+    
     public var isPhotoSheetPresented: Bool = false
+    public var isPhotosPickerPresented: Bool = false
+    public var isCameraPresented: Bool = false
+    
+    init(useCase: AddShoesUseCase) {
+        self.useCase = useCase
+    }
     
     enum TextFieldCategory {
         case name
@@ -44,5 +62,31 @@ extension AddShoesViewModel {
     @MainActor
     public func cancelButtonTapped() {
         NavigationCoordinator.shared.dismissSheet()
+    }
+    
+    @MainActor
+    public func imageButtonTapped() {
+        self.isPhotoSheetPresented.toggle()
+    }
+    
+    @MainActor
+    public func photoPickerButtonTapped() {
+        self.isPhotosPickerPresented.toggle()
+    }
+    
+    @MainActor
+    public func cameraButtonTapped() {
+        self.isCameraPresented.toggle()
+    }
+    
+    public func photoPicked() async {
+        if let photo = self.photos {
+            do {
+                let result = try await useCase.photoToData(photo: photo)
+                self.image = result
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
 }

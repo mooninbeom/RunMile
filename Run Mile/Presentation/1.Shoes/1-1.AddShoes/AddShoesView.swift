@@ -6,10 +6,11 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 
 struct AddShoesView: View {
-    @State private var viewModel: AddShoesViewModel = .init()
+    @State private var viewModel: AddShoesViewModel = .init(useCase: DefaultAddShoesUseCase())
     
     var body: some View {
         VStack(spacing: 0) {
@@ -17,10 +18,7 @@ struct AddShoesView: View {
                 viewModel.cancelButtonTapped()
             }
             
-            RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(.white)
-                .frame(width: 170, height: 170)
-                .padding(.vertical, 20)
+            CustomPhotoPicker(viewModel: viewModel)
             
             ShoeInfoTextField(category: .name, text: $viewModel.name)
                 .padding(.vertical, 10)
@@ -46,17 +44,44 @@ private struct CustomPhotoPicker: View {
     @Bindable var viewModel: AddShoesViewModel
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(.white)
-                .frame(width: 170, height: 170)
-                .padding(.vertical, 20)
+        Group {
+            if let image = viewModel.image,
+               let uiImage = UIImage(data: image) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                RoundedRectangle(cornerRadius: 15)
+                    .overlay {
+                        Image(systemName: "photo")
+                            .font(.system(size: 48))
+                            .foregroundStyle(.primary2)
+                    }
+                    .foregroundStyle(.workoutCell)
+            }
+            
+            
+        }
+        .frame(width: 170, height: 170)
+        .padding(.vertical, 20)
+        .onTapGesture {
+            viewModel.imageButtonTapped()
         }
         .confirmationDialog(
             "사진 선택",
             isPresented: $viewModel.isPhotoSheetPresented
         ) {
-            
+            Button("사진 찍기", role: .none, action: viewModel.cameraButtonTapped)
+            Button("앨범에서 선택", role: .none, action: viewModel.photoPickerButtonTapped)
+            Button("취소", role: .cancel, action: {})
+        }
+        .photosPicker(
+            isPresented: $viewModel.isPhotosPickerPresented,
+            selection: $viewModel.photos,
+            matching: .images
+        )
+        .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
+            CameraPicker(image: $viewModel.image)
         }
     }
 }
