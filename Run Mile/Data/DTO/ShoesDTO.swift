@@ -17,5 +17,6 @@ final class ShoesDTO: Object {
     @Persisted public var nickname: String
     @Persisted public var goalMileage: Double
     @Persisted public var currentMileage: Double
+    @Persisted public var isGraduated: Bool = false
     @Persisted public var workouts: List<WorkoutDTO> = .init()
 }

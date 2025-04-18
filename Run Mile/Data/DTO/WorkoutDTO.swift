@@ -11,6 +11,6 @@ import RealmSwift
 
 final class WorkoutDTO: Object {
     @Persisted(primaryKey: true) public var id: UUID
-    @Persisted public var workoutDate: Date
+    @Persisted public var date: Date
     @Persisted public var distance: Double
 }
