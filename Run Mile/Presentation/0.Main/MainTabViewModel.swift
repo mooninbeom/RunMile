@@ -8,6 +8,7 @@
 import Foundation
 
 
-final class MainTabViewModel: ObservableObject {
+@Observable
+final class MainTabViewModel {
 
 }

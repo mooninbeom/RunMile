@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct WorkoutListView: View {
-    @StateObject private var viewModel: WorkoutListViewModel = .init()
+    @State private var viewModel: WorkoutListViewModel = .init()
     
     
     var body: some View {

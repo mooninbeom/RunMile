@@ -9,19 +9,20 @@ import Foundation
 import SwiftUI
 
 
-final class NavigationCoordinator: ObservableObject {
+@Observable
+final class NavigationCoordinator {
     static let shared = NavigationCoordinator()
     
     private init() {}
     
-    @Published public var tabStatus: TabStaus = .shoes
+    public var tabStatus: TabStaus = .shoes
     
-    @Published public var shoesPath = NavigationPath()
-    @Published public var workoutPath = NavigationPath()
-    @Published public var myPagePath = NavigationPath()
+    public var shoesPath = NavigationPath()
+    public var workoutPath = NavigationPath()
+    public var myPagePath = NavigationPath()
     
-    @Published public var sheet: Sheet?
-    @Published public var isAlertPresented: Bool = false
+    public var sheet: Sheet?
+    public var isAlertPresented: Bool = false
     public var alert: AlertData?
 }
 

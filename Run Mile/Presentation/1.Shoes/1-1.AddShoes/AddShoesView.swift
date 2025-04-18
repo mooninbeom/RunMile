@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct AddShoesView: View {
-    @StateObject private var viewModel: AddShoesViewModel = .init()
+    @State private var viewModel: AddShoesViewModel = .init()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -38,6 +38,26 @@ struct AddShoesView: View {
             }
         }
         .padding(.horizontal, 20)
+    }
+}
+
+
+private struct CustomPhotoPicker: View {
+    @Bindable var viewModel: AddShoesViewModel
+    
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 15)
+                .foregroundStyle(.white)
+                .frame(width: 170, height: 170)
+                .padding(.vertical, 20)
+        }
+        .confirmationDialog(
+            "사진 선택",
+            isPresented: $viewModel.isPhotoSheetPresented
+        ) {
+            
+        }
     }
 }
 

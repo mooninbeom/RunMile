@@ -7,8 +7,8 @@
 
 import Foundation
 
-
-final class ChooseShoesViewModel: ObservableObject {
+@Observable
+final class ChooseShoesViewModel {
     
 }
 

@@ -8,13 +8,14 @@
 import Foundation
 
 
-final class AddShoesViewModel: ObservableObject {
-    @Published public var name: String = ""
-    @Published public var nickname: String = ""
-    @Published public var goalMileage: String = ""
-    @Published public var runMileage: String = ""
+@Observable
+final class AddShoesViewModel {
+    public var name: String = ""
+    public var nickname: String = ""
+    public var goalMileage: String = ""
+    public var runMileage: String = ""
     
-    
+    public var isPhotoSheetPresented: Bool = false
     
     enum TextFieldCategory {
         case name

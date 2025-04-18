@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct ChooseShoesView: View {
-    @StateObject private var viewModel: ChooseShoesViewModel = .init()
+    @State private var viewModel: ChooseShoesViewModel = .init()
     
     
     var body: some View {

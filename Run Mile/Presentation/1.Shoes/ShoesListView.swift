@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct ShoesListView: View {
-    @StateObject private var viewModel: ShoesListViewModel = .init()
+    @State private var viewModel: ShoesListViewModel = .init()
     
     var body: some View {
         VStack {

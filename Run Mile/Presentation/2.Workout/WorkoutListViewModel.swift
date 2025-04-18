@@ -7,8 +7,8 @@
 
 import Foundation
 
-
-final class WorkoutListViewModel: ObservableObject {
+@Observable
+final class WorkoutListViewModel {
     
 }
 
