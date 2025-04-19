@@ -9,8 +9,8 @@ import SwiftUI
 
 
 struct MainTabView: View {
-    @StateObject private var navigationCoordinator: NavigationCoordinator = .shared
-    @StateObject private var viewModel: MainTabViewModel = .init()
+    @State private var navigationCoordinator: NavigationCoordinator = .shared
+    @State private var viewModel: MainTabViewModel = .init()
     
     var body: some View {
         TabView(selection: $navigationCoordinator.tabStatus) {

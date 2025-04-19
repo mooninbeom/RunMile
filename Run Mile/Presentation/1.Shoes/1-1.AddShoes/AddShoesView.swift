@@ -6,10 +6,15 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 
 struct AddShoesView: View {
-    @StateObject private var viewModel: AddShoesViewModel = .init()
+    @State private var viewModel: AddShoesViewModel = .init(
+        useCase: DefaultAddShoesUseCase(
+            repository: ShoesDataRepositoryImpl()
+        )
+    )
     
     var body: some View {
         VStack(spacing: 0) {
@@ -17,10 +22,7 @@ struct AddShoesView: View {
                 viewModel.cancelButtonTapped()
             }
             
-            RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(.white)
-                .frame(width: 170, height: 170)
-                .padding(.vertical, 20)
+            CustomPhotoPicker(viewModel: viewModel)
             
             ShoeInfoTextField(category: .name, text: $viewModel.name)
                 .padding(.vertical, 10)
@@ -33,11 +35,59 @@ struct AddShoesView: View {
             
             Spacer()
 
-            CompleteButton {
-                
-            }
+            CompleteButton(
+                viewModel: viewModel,
+                action: viewModel.saveButtonTapped
+            )
         }
         .padding(.horizontal, 20)
+    }
+}
+
+
+private struct CustomPhotoPicker: View {
+    @Bindable var viewModel: AddShoesViewModel
+    
+    var body: some View {
+        Group {
+            if let image = viewModel.image,
+               let uiImage = UIImage(data: image) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                RoundedRectangle(cornerRadius: 15)
+                    .overlay {
+                        Image(systemName: "photo")
+                            .font(.system(size: 48))
+                            .foregroundStyle(.primary2)
+                    }
+                    .foregroundStyle(.workoutCell)
+            }
+            
+            
+        }
+        .frame(width: 170, height: 170)
+        .padding(.vertical, 20)
+        .onTapGesture {
+            viewModel.imageButtonTapped()
+        }
+        .confirmationDialog(
+            "사진 선택",
+            isPresented: $viewModel.isPhotoSheetPresented
+        ) {
+            Button("사진 찍기", role: .none, action: viewModel.cameraButtonTapped)
+            Button("앨범에서 선택", role: .none, action: viewModel.photoPickerButtonTapped)
+            Button("취소", role: .cancel, action: {})
+        }
+        .photosPicker(
+            isPresented: $viewModel.isPhotosPickerPresented,
+            selection: $viewModel.photos,
+            matching: .images
+        )
+        .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
+            CameraPicker(image: $viewModel.image)
+        }
     }
 }
 
@@ -52,29 +102,66 @@ private struct ShoeInfoTextField: View {
             HStack {
                 TextField(category.placeholder, text: $text)
                     .font(FontStyle.placeholder())
-                
-                Text("km")
-                    .font(FontStyle.kilometer())
-                    .opacity(
-                        (category == .goalMileage || category == .runMileage) ? 1 : 0
+                    .keyboardType(
+                        (category == .goalMileage || category == .runMileage) ? .numberPad : .default
                     )
+                
+                switch category {
+                case .name:
+                    Text("\(text.count) / 30")
+                        .font(FontStyle.kilometer())
+                case .nickname:
+                    Text("\(text.count) / 15")
+                        .font(FontStyle.kilometer())
+                case .goalMileage, .runMileage:
+                    Text("km")
+                        .font(FontStyle.kilometer())
+                }
             }
             .padding(.bottom, 5)
             
-            Rectangle()
-                .foregroundStyle(.primary2)
-                .frame(height: 2)
+            if category == .runMileage {
+                Rectangle()
+                    .foregroundStyle(.hallOfFame3)
+                    .frame(height: 2)
+            } else {
+                Rectangle()
+                    .foregroundStyle( text.isEmpty ? .primary2 : .hallOfFame3)
+                    .frame(height: 2)
+            }
             
             Text("신발의 기존 마일리지가 있는 경우 기입해주세요!")
                 .font(FontStyle.miniPlaceholder())
-                .foregroundStyle(.primary2)
+                .foregroundStyle(.placeholder1)
                 .opacity( category == .runMileage ? 1 : 0)
+        }
+        .onChange(of: text) {
+            switch category {
+            case .name:
+                text = text.count > 30 ? String(text.prefix(30)) : text
+            case .nickname:
+                text = text.count > 15 ? String(text.prefix(15)) : text
+            default:
+                if text.isEmpty { return }
+                let isNumber = text.allSatisfy{ "0123456789".contains($0) }
+                if isNumber {
+                    let num = Int(text)!
+                    if num > 1000 {
+                        text = "1000"
+                    } else {
+                        text = "\(num)"
+                    }
+                } else {
+                    text.removeAll()
+                }
+            }
         }
     }
 }
 
 
 private struct CompleteButton: View {
+    @Bindable var viewModel: AddShoesViewModel
     let action: () -> Void
     
     var body: some View {
@@ -82,7 +169,7 @@ private struct CompleteButton: View {
             action()
         } label: {
             RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(.primary1)
+                .foregroundStyle( viewModel.isCompleteButtonAccessible ? .primary1 : .workoutCell)
                 .frame(height: 50)
                 .overlay {
                     Text("등록")
@@ -90,6 +177,7 @@ private struct CompleteButton: View {
                         .foregroundStyle(.white)
                 }
         }
+        .disabled(!viewModel.isCompleteButtonAccessible)
     }
 }
 

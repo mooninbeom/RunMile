@@ -6,15 +6,39 @@
 //
 
 import Foundation
+import SwiftUICore
+import _PhotosUI_SwiftUI
 
 
-final class AddShoesViewModel: ObservableObject {
-    @Published public var name: String = ""
-    @Published public var nickname: String = ""
-    @Published public var goalMileage: String = ""
-    @Published public var runMileage: String = ""
+@Observable
+final class AddShoesViewModel {
+    private let useCase: AddShoesUseCase
     
+    public var image: Data?
+    public var name: String = ""
+    public var nickname: String = ""
+    public var goalMileage: String = ""
+    public var runMileage: String = ""
     
+    public var photos: PhotosPickerItem? = nil {
+        didSet {
+            Task {
+                await photoPicked()
+            }
+        }
+    }
+    
+    public var isPhotoSheetPresented: Bool = false
+    public var isPhotosPickerPresented: Bool = false
+    public var isCameraPresented: Bool = false
+    
+    public var isCompleteButtonAccessible: Bool {
+        !name.isEmpty && !nickname.isEmpty && !goalMileage.isEmpty && !(image == nil)
+    }
+    
+    init(useCase: AddShoesUseCase) {
+        self.useCase = useCase
+    }
     
     enum TextFieldCategory {
         case name
@@ -43,5 +67,54 @@ extension AddShoesViewModel {
     @MainActor
     public func cancelButtonTapped() {
         NavigationCoordinator.shared.dismissSheet()
+    }
+    
+    @MainActor
+    public func imageButtonTapped() {
+        self.isPhotoSheetPresented.toggle()
+    }
+    
+    @MainActor
+    public func photoPickerButtonTapped() {
+        self.isPhotosPickerPresented.toggle()
+    }
+    
+    @MainActor
+    public func cameraButtonTapped() {
+        self.isCameraPresented.toggle()
+    }
+    
+    public func saveButtonTapped() {
+        let shoes = Shoes(
+            id: .init(),
+            image: self.image!,
+            shoesName: self.name,
+            nickname: self.nickname,
+            goalMileage: Double(self.goalMileage)!,
+            currentMileage: self.runMileage.isEmpty ? 0.0 : Double(self.runMileage)!,
+            workouts: []
+        )
+        Task {
+            do {
+                try await useCase.saveShoes(shoes: shoes)
+            } catch {
+                // TODO: 에러 처리
+                print(#function)
+            }
+            
+            await NavigationCoordinator.shared.dismissSheet()
+        }
+    }
+    
+    public func photoPicked() async {
+        if let photo = self.photos {
+            do {
+                let result = try await useCase.photoToData(photo: photo)
+                self.image = result
+            } catch {
+                // TODO: 에러 처리
+                print(error.localizedDescription)
+            }
+        }
     }
 }

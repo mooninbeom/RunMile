@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		2C079A5C2DAF9F7F00B1EE0D /* Run_MileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C079A562DAF9F7F00B1EE0D /* Run_MileApp.swift */; };
-		2C079E662DB1414F00B1EE0D /* Realm in Frameworks */ = {isa = PBXBuildFile; productRef = 2C079E652DB1414F00B1EE0D /* Realm */; };
-		2C079E682DB1414F00B1EE0D /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C079E672DB1414F00B1EE0D /* RealmSwift */; };
+		2C079FBF2DB2505700B1EE0D /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C079FBE2DB2505700B1EE0D /* RealmSwift */; };
+		2C079FC02DB2507700B1EE0D /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 2C079FBE2DB2505700B1EE0D /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		2CE46E212DAE78D7008C6FBC /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 2CE46E202DAE78D7008C6FBC /* .gitignore */; };
 /* End PBXBuildFile section */
 
@@ -29,6 +29,20 @@
 			remoteInfo = "Run Mile";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2C079FC12DB2507700B1EE0D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				2C079FC02DB2507700B1EE0D /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		2C079A562DAF9F7F00B1EE0D /* Run_MileApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Run_MileApp.swift; sourceTree = "<group>"; };
@@ -61,8 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C079E682DB1414F00B1EE0D /* RealmSwift in Frameworks */,
-				2C079E662DB1414F00B1EE0D /* Realm in Frameworks */,
+				2C079FBF2DB2505700B1EE0D /* RealmSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +128,7 @@
 				2CE46DEF2DAE7780008C6FBC /* Sources */,
 				2CE46DF02DAE7780008C6FBC /* Frameworks */,
 				2CE46DF12DAE7780008C6FBC /* Resources */,
+				2C079FC12DB2507700B1EE0D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -125,8 +139,7 @@
 			);
 			name = "Run Mile";
 			packageProductDependencies = (
-				2C079E652DB1414F00B1EE0D /* Realm */,
-				2C079E672DB1414F00B1EE0D /* RealmSwift */,
+				2C079FBE2DB2505700B1EE0D /* RealmSwift */,
 			);
 			productName = "Run Mile";
 			productReference = 2CE46DF32DAE7780008C6FBC /* Run Mile.app */;
@@ -211,7 +224,7 @@
 			mainGroup = 2CE46DEA2DAE7780008C6FBC;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				2C079E642DB1414F00B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */,
+				2C079FBD2DB2505700B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2CE46DF42DAE7780008C6FBC /* Products */;
@@ -421,6 +434,7 @@
 				DEVELOPMENT_TEAM = VF8R3A969C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "사진을 촬영하기 위해 사용자의 허락이 필요합니다!";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "앱에서 운동 기록을 가져오기 위해서는 사용자의 허락이 필요합니다!";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -458,6 +472,7 @@
 				DEVELOPMENT_TEAM = VF8R3A969C;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "사진을 촬영하기 위해 사용자의 허락이 필요합니다!";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "앱에서 운동 기록을 가져오기 위해서는 사용자의 허락이 필요합니다!";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -598,25 +613,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		2C079E642DB1414F00B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+		2C079FBD2DB2505700B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 20.0.2;
+				branch = master;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2C079E652DB1414F00B1EE0D /* Realm */ = {
+		2C079FBE2DB2505700B1EE0D /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2C079E642DB1414F00B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = Realm;
-		};
-		2C079E672DB1414F00B1EE0D /* RealmSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 2C079E642DB1414F00B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */;
+			package = 2C079FBD2DB2505700B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */;
 			productName = RealmSwift;
 		};
 /* End XCSwiftPackageProductDependency section */

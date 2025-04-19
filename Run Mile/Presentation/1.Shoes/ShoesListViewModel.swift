@@ -8,8 +8,16 @@
 import Foundation
 
 
-final class ShoesListViewModel: ObservableObject {
+@Observable
+final class ShoesListViewModel {
+    public var shoes: [Shoes] = []
     
+    
+    let useCase: ShoesListUseCase
+    
+    init(useCase: ShoesListUseCase) {
+        self.useCase = useCase
+    }
 }
 
 
@@ -17,5 +25,16 @@ extension ShoesListViewModel {
     @MainActor
     public func addShoesButtonTapped() {
         NavigationCoordinator.shared.push(.addShoes)
+    }
+    
+    public func onAppear() {
+        Task {
+            do {
+                let result = try await self.useCase.fetchShoes()
+                self.shoes = result
+            } catch {
+                // TODO: 에러 처리
+            }
+        }
     }
 }

@@ -9,7 +9,11 @@ import SwiftUI
 
 
 struct ShoesListView: View {
-    @StateObject private var viewModel: ShoesListViewModel = .init()
+    @State private var viewModel: ShoesListViewModel = .init(
+        useCase: DefaultShoesViewUseCase(
+            repository: ShoesDataRepositoryImpl()
+        )
+    )
     
     var body: some View {
         VStack {
@@ -31,8 +35,8 @@ struct ShoesListView: View {
             
             ScrollView {
                 VStack(spacing: 15) {
-                    ForEach(0..<10, id: \.self) { _ in
-                        ShoesCell()
+                    ForEach(viewModel.shoes) { shoes in
+                        ShoesCell(shoes: shoes)
                             .onTapGesture {
                                 NavigationCoordinator.shared
                                     .push(.shoesDetail, tab: .shoes)
@@ -42,12 +46,17 @@ struct ShoesListView: View {
                 .padding(.horizontal, 20)
             }
         }
+        .onAppear {
+            viewModel.onAppear()
+        }
     }
 }
 
 
 
 private struct ShoesCell: View {
+    let shoes: Shoes
+    
     var body: some View {
         RoundedRectangle(cornerRadius: 15)
             .frame(height: 200)
@@ -60,12 +69,15 @@ private struct ShoesCell: View {
                         
                         Spacer()
                         
-                        ShoeInfoView()
+                        ShoeInfoView(shoes: shoes)
                     }
                     
-                    Spacer()
+                    Spacer(minLength: 50)
                     
-                    MileageProgressView()
+                    MileageProgressView(
+                        currentMileage: shoes.currentMileage,
+                        goalMileage: shoes.goalMileage
+                    )
                 }
                 .padding(20)
             }
@@ -73,14 +85,16 @@ private struct ShoesCell: View {
 }
 
 private struct ShoeInfoView: View {
+    let shoes: Shoes
+    
     var body: some View {
         VStack(spacing: 0) {
-            Text("아디제로 보스턴 12")
+            Text(shoes.nickname)
                 .font(FontStyle.shoeName())
                 .padding(.bottom, 10)
                 
             HStack(spacing: 0) {
-                Text("250")
+                Text("\(Int(shoes.currentMileage))")
                     .font(FontStyle.cellDistance())
                     .foregroundStyle(.hallOfFame2)
                     .offset(y: -10)
@@ -89,7 +103,7 @@ private struct ShoeInfoView: View {
                     .frame(width: 3, height: 65)
                     .rotationEffect(.degrees(30))
                 
-                Text("1000")
+                Text("\(Int(shoes.goalMileage))")
                     .font(FontStyle.cellDistance())
                     .offset(y: 10)
                 
@@ -103,26 +117,29 @@ private struct ShoeInfoView: View {
 }
 
 private struct MileageProgressView: View {
+    let currentMileage: Double
+    let goalMileage: Double
+    
+    
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 10)
-                .frame(height: 10)
-                .foregroundStyle(.placeholder2)
-            
-            HStack {
+        GeometryReader { proxy in
+            ZStack {
                 RoundedRectangle(cornerRadius: 10)
                     .frame(height: 10)
+                    .foregroundStyle(.placeholder2)
+                
+                RoundedRectangle(cornerRadius: 10)
+                    .frame(width: proxy.size.width * (currentMileage / goalMileage), height: 10)
                     .foregroundStyle(.hallOfFame2)
                 
-                Spacer(minLength: 100)
             }
-        }
-        .overlay(alignment: .trailing) {
-            Image(systemName: "flag.fill")
-                .font(.system(size: 24))
-                .scaleEffect(x: -1)
-                .foregroundStyle(.primary1)
-                .offset(y: -16)
+            .overlay(alignment: .trailing) {
+                Image(systemName: "flag.fill")
+                    .font(.system(size: 24))
+                    .scaleEffect(x: -1)
+                    .foregroundStyle(.primary1)
+                    .offset(y: -16)
+            }
         }
     }
 }
