@@ -10,19 +10,15 @@ import RealmSwift
 
 
 actor ShoesDataRepositoryImpl: ShoesDataRepository {
-    private let realm: Realm!
-    
-    init() async throws {
-        self.realm = try await Realm.open()
-    }
-    
     public func fetchAllShoes() async throws -> [Shoes] {
+        let realm = try await Realm.open()
         let fetchedResult = realm.objects(ShoesDTO.self)
         let result = toEntities(fetchedResult)
         return result
     }
     
     public func fetchCurrentShoes() async throws -> [Shoes] {
+        let realm = try await Realm.open()
         let fetchedResult = realm.objects(ShoesDTO.self).where { !$0.isGraduated }
         let result = toEntities(fetchedResult)
         return result
@@ -30,12 +26,14 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     
     
     public func fetchHOFShoes() async throws -> [Shoes] {
+        let realm = try await Realm.open()
         let fetchedResult = realm.objects(ShoesDTO.self).where { $0.isGraduated }
         let result = toEntities(fetchedResult)
         return result
     }
     
     public func fetchSingleShoes(id: UUID) async throws -> Shoes {
+        let realm = try await Realm.open()
         let fetchedResult = realm.object(ofType: ShoesDTO.self, forPrimaryKey: id)
         
         if let result = fetchedResult {
@@ -67,6 +65,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     }
     
     public func createShoes(shoes: Shoes) async throws {
+        let realm = try await Realm.open()
         let dto = ShoesDTO()
         dto.image = shoes.image
         dto.shoesName = shoes.shoesName
@@ -80,8 +79,9 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     }
     
     public func updateShoes(shoes: Shoes) async throws {
+        let realm = try await Realm.open()
         
-        var list = List<WorkoutDTO>()
+        let list = List<WorkoutDTO>()
         shoes.workouts.forEach {
             let workoutDTO = WorkoutDTO()
             workoutDTO.id = $0.id
@@ -105,6 +105,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     }
     
     public func deleteShoes(shoes: Shoes) async throws {
+        let realm = try await Realm.open()
         if let shoesDTO = realm.object(ofType: ShoesDTO.self, forPrimaryKey: shoes.id) {
             try realm.write {
                 realm.delete(shoesDTO)

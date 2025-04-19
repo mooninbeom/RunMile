@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUICore
 import _PhotosUI_SwiftUI
 
 
@@ -30,6 +31,10 @@ final class AddShoesViewModel {
     public var isPhotoSheetPresented: Bool = false
     public var isPhotosPickerPresented: Bool = false
     public var isCameraPresented: Bool = false
+    
+    public var isCompleteButtonAccessible: Bool {
+        !name.isEmpty && !nickname.isEmpty && !goalMileage.isEmpty && !(image == nil)
+    }
     
     init(useCase: AddShoesUseCase) {
         self.useCase = useCase
@@ -79,12 +84,35 @@ extension AddShoesViewModel {
         self.isCameraPresented.toggle()
     }
     
+    public func saveButtonTapped() {
+        let shoes = Shoes(
+            id: .init(),
+            image: self.image!,
+            shoesName: self.name,
+            nickname: self.nickname,
+            goalMileage: Double(self.goalMileage)!,
+            currentMileage: self.runMileage.isEmpty ? 0.0 : Double(self.runMileage)!,
+            workouts: []
+        )
+        Task {
+            do {
+                try await useCase.saveShoes(shoes: shoes)
+            } catch {
+                // TODO: 에러 처리
+                print(#function)
+            }
+            
+            await NavigationCoordinator.shared.dismissSheet()
+        }
+    }
+    
     public func photoPicked() async {
         if let photo = self.photos {
             do {
                 let result = try await useCase.photoToData(photo: photo)
                 self.image = result
             } catch {
+                // TODO: 에러 처리
                 print(error.localizedDescription)
             }
         }

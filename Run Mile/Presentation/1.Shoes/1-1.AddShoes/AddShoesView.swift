@@ -10,7 +10,11 @@ import PhotosUI
 
 
 struct AddShoesView: View {
-    @State private var viewModel: AddShoesViewModel = .init(useCase: DefaultAddShoesUseCase())
+    @State private var viewModel: AddShoesViewModel = .init(
+        useCase: DefaultAddShoesUseCase(
+            repository: ShoesDataRepositoryImpl()
+        )
+    )
     
     var body: some View {
         VStack(spacing: 0) {
@@ -31,9 +35,10 @@ struct AddShoesView: View {
             
             Spacer()
 
-            CompleteButton {
-                
-            }
+            CompleteButton(
+                viewModel: viewModel,
+                action: viewModel.saveButtonTapped
+            )
         }
         .padding(.horizontal, 20)
     }
@@ -115,13 +120,19 @@ private struct ShoeInfoTextField: View {
             }
             .padding(.bottom, 5)
             
-            Rectangle()
-                .foregroundStyle(.primary2)
-                .frame(height: 2)
+            if category == .runMileage {
+                Rectangle()
+                    .foregroundStyle(.hallOfFame3)
+                    .frame(height: 2)
+            } else {
+                Rectangle()
+                    .foregroundStyle( text.isEmpty ? .primary2 : .hallOfFame3)
+                    .frame(height: 2)
+            }
             
             Text("신발의 기존 마일리지가 있는 경우 기입해주세요!")
                 .font(FontStyle.miniPlaceholder())
-                .foregroundStyle(.primary2)
+                .foregroundStyle(.placeholder1)
                 .opacity( category == .runMileage ? 1 : 0)
         }
         .onChange(of: text) {
@@ -150,6 +161,7 @@ private struct ShoeInfoTextField: View {
 
 
 private struct CompleteButton: View {
+    @Bindable var viewModel: AddShoesViewModel
     let action: () -> Void
     
     var body: some View {
@@ -157,7 +169,7 @@ private struct CompleteButton: View {
             action()
         } label: {
             RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(.primary1)
+                .foregroundStyle( viewModel.isCompleteButtonAccessible ? .primary1 : .workoutCell)
                 .frame(height: 50)
                 .overlay {
                     Text("등록")
@@ -165,6 +177,7 @@ private struct CompleteButton: View {
                         .foregroundStyle(.white)
                 }
         }
+        .disabled(!viewModel.isCompleteButtonAccessible)
     }
 }
 
