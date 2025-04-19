@@ -33,7 +33,7 @@ extension ShoesListViewModel {
                 let result = try await self.useCase.fetchShoes()
                 self.shoes = result
             } catch {
-                
+                // TODO: 에러 처리
             }
         }
     }
