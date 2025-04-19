@@ -9,18 +9,36 @@ import SwiftUI
 
 
 struct ShoesDetailView: View {
+    @State private var viewModel: ShoesDetailViewModel
+    
+    init(shoes: Shoes) {
+        self.viewModel = .init(shoes: shoes)
+    }
+    
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: 15)
-                    .frame(width: 170, height: 170)
-                    .padding(.bottom, 10)
                 
-                Text("Adizero Boston 12ㄹㅇㄴㅁㄹ")
+                if let uiImage = UIImage(data: viewModel.shoes.image) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 170, height: 170)
+                } else {
+                    RoundedRectangle(cornerRadius: 15)
+                        .frame(width: 170, height: 170)
+                        .padding(.bottom, 10)
+                }
+                
+                Text(viewModel.shoes.shoesName)
                     .font(FontStyle.shoeName())
                     .padding(.bottom, 40)
                 
-                ShoesMileageView()
+                ShoesMileageView(
+                    currentMileage: viewModel.shoes.currentMileage,
+                    goalMileage: viewModel.shoes.goalMileage
+                )
                 
                 HStack {
                     Text("등록된 운동")
@@ -30,14 +48,14 @@ struct ShoesDetailView: View {
                 }
                 .padding(.bottom, 15)
                 
-                ForEach(0..<10) { _ in
-                    WorkoutCell {
+                ForEach(viewModel.shoes.workouts) { workout in
+                    WorkoutCell(workout: workout) {
                         
                     }
                     .padding(.bottom, 10)
                 }
             }
-            .navigationTitle("아디제롱")
+            .navigationTitle(viewModel.shoes.nickname)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 Button("수정") {
@@ -51,6 +69,9 @@ struct ShoesDetailView: View {
 
 
 private struct ShoesMileageView: View {
+    let currentMileage: Double
+    let goalMileage: Double
+    
     var body: some View {
         Group {
             HStack {
@@ -59,7 +80,7 @@ private struct ShoesMileageView: View {
                 VStack(spacing: 0) {
                     HStack {
                         Spacer()
-                        Text("340km")
+                        Text("\(Int(currentMileage))km")
                     }
                     
                     Rectangle()
@@ -75,7 +96,7 @@ private struct ShoesMileageView: View {
                 VStack(spacing: 0) {
                     HStack {
                         Spacer()
-                        Text("1000km")
+                        Text("\(Int(goalMileage))km")
                     }
                     
                     Rectangle()
@@ -87,9 +108,4 @@ private struct ShoesMileageView: View {
         }
         .font(FontStyle.kilometer())
     }
-}
-
-
-#Preview {
-    ShoesDetailView()
 }

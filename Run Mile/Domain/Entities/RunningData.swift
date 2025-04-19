@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct RunningData: Sendable, Equatable, Identifiable {
+struct RunningData: Sendable, Identifiable, Hashable {
     let id: UUID
     let distance: Double
     let date: Date?

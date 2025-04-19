@@ -25,12 +25,12 @@ struct WorkoutListView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(0..<10, id: \.self) { _ in
-                        WorkoutCell{
-                            viewModel.workoutCellTapped()
-                        }
-                        .padding(.bottom, 15)
-                    }
+//                    ForEach(0..<10, id: \.self) { _ in
+//                        WorkoutCell {
+//                            viewModel.workoutCellTapped()
+//                        }
+//                        .padding(.bottom, 15)
+//                    }
                 }
                 .padding(.horizontal, 20)
             }

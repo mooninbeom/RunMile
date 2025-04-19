@@ -39,7 +39,7 @@ struct ShoesListView: View {
                         ShoesCell(shoes: shoes)
                             .onTapGesture {
                                 NavigationCoordinator.shared
-                                    .push(.shoesDetail, tab: .shoes)
+                                    .push(.shoesDetail(shoes), tab: .shoes)
                             }
                     }
                 }

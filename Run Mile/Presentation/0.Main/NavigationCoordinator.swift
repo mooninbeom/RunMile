@@ -61,8 +61,8 @@ extension NavigationCoordinator {
         switch screen {
         case .shoes:
             ShoesListView()
-        case .shoesDetail:
-            ShoesDetailView()
+        case let .shoesDetail(shoes):
+            ShoesDetailView(shoes: shoes)
         case .workout:
             WorkoutListView()
         case .myPage:
@@ -83,7 +83,7 @@ extension NavigationCoordinator {
 
 
 extension NavigationCoordinator {
-    enum TabStaus: Equatable {
+    enum TabStaus: Hashable {
         case shoes
         case workout
         case myPage
@@ -92,16 +92,16 @@ extension NavigationCoordinator {
 
 
 extension NavigationCoordinator {
-    enum Screen: Hashable, Equatable {
+    enum Screen: Hashable {
         case shoes
-        case shoesDetail
+        case shoesDetail(Shoes)
         
         case workout
         
         case myPage
     }
     
-    enum Sheet: Hashable, Equatable, Identifiable {
+    enum Sheet: Hashable, Identifiable {
         var id: Self { self }
         
         case addShoes
