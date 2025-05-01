@@ -10,6 +10,8 @@ import Foundation
 
 @Observable
 final class ShoesDetailViewModel {
+    private let useCase: ShoesDetailUseCase
+    
     public var shoes: Shoes
     public var viewStatus: ViewStatus = .normal {
         didSet {
@@ -19,7 +21,8 @@ final class ShoesDetailViewModel {
     
     public var goalMileage: String = ""
     
-    init(shoes: Shoes) {
+    init(useCase: ShoesDetailUseCase, shoes: Shoes) {
+        self.useCase = useCase
         self.shoes = shoes
     }
     
@@ -43,6 +46,25 @@ extension ShoesDetailViewModel {
     
     @MainActor
     public func completeButtonTapped() {
-        self.viewStatus = .normal
+        let modified = Shoes(
+            id: shoes.id,
+            image: shoes.image,
+            shoesName: shoes.shoesName,
+            nickname: shoes.nickname,
+            goalMileage: Double(goalMileage)!,
+            currentMileage: shoes.currentMileage,
+            workouts: shoes.workouts
+        )
+        
+        Task {
+            do {
+                try await useCase.editShoes(shoes: modified)
+                self.shoes = modified
+                self.viewStatus = .normal
+            } catch {
+                // TODO: 에러 처리
+                print(#function)
+            }
+        }
     }
 }

@@ -91,6 +91,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         }
         
         let dto = ShoesDTO()
+        dto.id = shoes.id
         dto.image = shoes.image
         dto.shoesName = shoes.shoesName
         dto.nickname = shoes.nickname

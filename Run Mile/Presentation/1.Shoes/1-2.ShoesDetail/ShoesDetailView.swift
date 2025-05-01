@@ -12,7 +12,12 @@ struct ShoesDetailView: View {
     @State private var viewModel: ShoesDetailViewModel
     
     init(shoes: Shoes) {
-        self.viewModel = .init(shoes: shoes)
+        self.viewModel = .init(
+            useCase: DefaultShoesDetailUseCase(
+                repository: ShoesDataRepositoryImpl()
+            ),
+            shoes: shoes
+        )
     }
     
     
@@ -104,7 +109,7 @@ private struct ShoesMileageView: View {
                         }
                     case .editing:
                         HStack(spacing: 0) {
-                            TextField("최대 1000km", text: $viewModel.goalMileage)
+                            TextField("최대 1000", text: $viewModel.goalMileage)
                                 .multilineTextAlignment(.trailing)
                                 .keyboardType(.numberPad)
                             Text("km")
