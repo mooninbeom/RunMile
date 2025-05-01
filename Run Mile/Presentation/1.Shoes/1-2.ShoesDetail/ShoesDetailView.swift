@@ -9,18 +9,38 @@ import SwiftUI
 
 
 struct ShoesDetailView: View {
+    @State private var viewModel: ShoesDetailViewModel
+    
+    init(shoes: Shoes) {
+        self.viewModel = .init(
+            useCase: DefaultShoesDetailUseCase(
+                repository: ShoesDataRepositoryImpl()
+            ),
+            shoes: shoes
+        )
+    }
+    
+    
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                RoundedRectangle(cornerRadius: 15)
-                    .frame(width: 170, height: 170)
-                    .padding(.bottom, 10)
                 
-                Text("Adizero Boston 12ㄹㅇㄴㅁㄹ")
+                if let uiImage = UIImage(data: viewModel.shoes.image) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 170, height: 170)
+                } else {
+                    RoundedRectangle(cornerRadius: 15)
+                        .frame(width: 170, height: 170)
+                        .padding(.bottom, 10)
+                }
+                
+                Text(viewModel.shoes.shoesName)
                     .font(FontStyle.shoeName())
                     .padding(.bottom, 40)
                 
-                ShoesMileageView()
+                ShoesMileageView(viewModel: viewModel)
                 
                 HStack {
                     Text("등록된 운동")
@@ -30,27 +50,35 @@ struct ShoesDetailView: View {
                 }
                 .padding(.bottom, 15)
                 
-                ForEach(0..<10) { _ in
-                    WorkoutCell {
+                ForEach(viewModel.shoes.workouts) { workout in
+                    WorkoutCell(workout: workout) {
                         
                     }
                     .padding(.bottom, 10)
                 }
             }
-            .navigationTitle("아디제롱")
+            .navigationTitle(viewModel.shoes.nickname)
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                Button("수정") {
-                    
+                switch viewModel.viewStatus {
+                case .normal:
+                    Button("수정", role: .none, action: viewModel.editButtonTapped)
+                case .editing:
+                    Button("취소", role: .cancel, action: viewModel.cancelButtonTapped)
+                    Button("완료", role: .none, action: viewModel.completeButtonTapped)
                 }
+
             }
             .padding(.horizontal, 20)
         }
+        .animation(.easeInOut, value: viewModel.viewStatus)
     }
 }
 
 
 private struct ShoesMileageView: View {
+    @Bindable var viewModel: ShoesDetailViewModel
+    
     var body: some View {
         Group {
             HStack {
@@ -59,7 +87,7 @@ private struct ShoesMileageView: View {
                 VStack(spacing: 0) {
                     HStack {
                         Spacer()
-                        Text("340km")
+                        Text("\(Int(viewModel.shoes.currentMileage))km")
                     }
                     
                     Rectangle()
@@ -69,13 +97,23 @@ private struct ShoesMileageView: View {
             }
             .padding(.bottom, 20)
             
-            HStack {
+            HStack(spacing: 0) {
                 Text("목표 마일리지")
                 
                 VStack(spacing: 0) {
-                    HStack {
-                        Spacer()
-                        Text("1000km")
+                    switch viewModel.viewStatus {
+                    case .normal:
+                        HStack {
+                            Spacer()
+                            Text("\(Int(viewModel.shoes.goalMileage))km")
+                        }
+                    case .editing:
+                        HStack(spacing: 0) {
+                            TextField("최대 1000", text: $viewModel.goalMileage)
+                                .multilineTextAlignment(.trailing)
+                                .keyboardType(.numberPad)
+                            Text("km")
+                        }
                     }
                     
                     Rectangle()
@@ -84,12 +122,22 @@ private struct ShoesMileageView: View {
                 }
             }
             .padding(.bottom, 40)
+            .onChange(of: viewModel.goalMileage) {
+                let text = viewModel.goalMileage
+                if text.isEmpty { return }
+                let isNumber = text.allSatisfy{ "0123456789".contains($0) }
+                if isNumber {
+                    let num = Int(text)!
+                    if num > 1000 {
+                        viewModel.goalMileage = "1000"
+                    } else {
+                        viewModel.goalMileage = "\(num)"
+                    }
+                } else {
+                    viewModel.goalMileage.removeAll()
+                }
+            }
         }
         .font(FontStyle.kilometer())
     }
-}
-
-
-#Preview {
-    ShoesDetailView()
 }

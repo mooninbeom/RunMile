@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct Shoes: Sendable, Identifiable {
+struct Shoes: Sendable, Identifiable, Hashable {
     let id: UUID
     let image: Data
     let shoesName: String

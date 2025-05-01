@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct WorkoutCell: View {
+    let workout: RunningData
+    
     let action: () -> Void
     
     var body: some View {
@@ -22,12 +24,12 @@ struct WorkoutCell: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 0) {
                             /// Distance
-                            Text("20.34km")
+                            Text("\(workout.distance)km")
                                 .font(FontStyle.cellTitle())
                                 .offset(y: 4)
                             
                             /// Date
-                            Text("2024.01.01(Mon)")
+                            Text("\(workout.date ?? .now)")
                                 .font(FontStyle.cellSubtitle())
                                 .offset(y: -4)
                         }
