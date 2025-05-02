@@ -17,4 +17,13 @@ struct Shoes: Sendable, Identifiable, Hashable {
     let currentMileage: Double
     let workouts: [RunningData]
     let isGradutate: Bool = false
+    
+    public var getCurrentMileage: String {
+        let reducedMileage = workouts.reduce(0){ $0 + $1.distance } / 1000
+        return String(format: "%.1f", reducedMileage + currentMileage)
+    }
+    
+    public var getGoalMileage: String {
+        String(Int(goalMileage))
+    }
 }

@@ -9,7 +9,7 @@ import Foundation
 import HealthKit
 
 
-final class WorkoutDataRepositoryImpl: WorkoutDataRepository {
+actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     private let store = HKHealthStore()
     
     public func fetchWorkoutData() async throws -> [RunningData] {

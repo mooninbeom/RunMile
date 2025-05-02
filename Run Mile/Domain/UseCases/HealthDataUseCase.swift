@@ -11,7 +11,10 @@ import HealthKit
 
 protocol HealthDataUseCase {
     /// Health 데이터 사용 권한 요청이 이루어졌는지 확인하고 요청을 보냅니다.
+    @discardableResult
     func checkHealthAuthorization() async throws -> Bool
+    
+    func fetchWorkoutData() async throws -> [RunningData]
 }
 
 
@@ -19,9 +22,14 @@ protocol HealthDataUseCase {
 final class DefaultHealthDataUseCase: HealthDataUseCase {
     private let store = HKHealthStore()
     private let workoutDataRepository: WorkoutDataRepository
+    private let shoesDataRepository: ShoesDataRepository
     
-    init(workoutDataRepository: WorkoutDataRepository) {
+    init(
+        workoutDataRepository: WorkoutDataRepository,
+        shoesDataRepository: ShoesDataRepository
+    ) {
         self.workoutDataRepository = workoutDataRepository
+        self.shoesDataRepository = shoesDataRepository
     }
     
     public func checkHealthAuthorization() async throws -> Bool {
@@ -36,12 +44,18 @@ final class DefaultHealthDataUseCase: HealthDataUseCase {
     }
     
     public func fetchWorkoutData() async throws -> [RunningData] {
-        try await workoutDataRepository.fetchWorkoutData()
+        let fetchedResult = try await workoutDataRepository.fetchWorkoutData()
+        let shoes = try await shoesDataRepository.fetchAllShoes()
+        
+        let registeredId = shoes.flatMap { $0.workouts.map{ $0.id } }
+        return fetchedResult.filter ({ workout in
+            !registeredId.contains(workout.id)
+        })
     }
 }
 
 
-// MARK: -Internal Method
+// MARK: - Internal Method
 extension DefaultHealthDataUseCase {
     /// Health 데이터 사용 권한 요청이 이루어졌는지 확인합니다.
     private func checkAuthorizationStatus() async throws -> Bool {

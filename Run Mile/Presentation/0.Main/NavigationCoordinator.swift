@@ -52,6 +52,19 @@ extension NavigationCoordinator {
     }
     
     @MainActor
+    public func switchAndPush(_ screen: Screen, tab: TabStaus) {
+        tabStatus = tab
+        switch tab {
+        case .shoes:
+            shoesPath.append(screen)
+        case .workout:
+            workoutPath.append(screen)
+        case .myPage:
+            myPagePath.append(screen)
+        }
+    }
+    
+    @MainActor
     public func dismissSheet() {
         self.sheet = nil
     }
@@ -75,8 +88,8 @@ extension NavigationCoordinator {
         switch sheet {
         case .addShoes:
             AddShoesView()
-        case .chooseShoes:
-            ChooseShoesView()
+        case let .chooseShoes(workout):
+            ChooseShoesView(workout: workout)
         }
     }
 }
@@ -105,6 +118,6 @@ extension NavigationCoordinator {
         var id: Self { self }
         
         case addShoes
-        case chooseShoes
+        case chooseShoes(RunningData)
     }
 }

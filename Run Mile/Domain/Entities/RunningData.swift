@@ -11,4 +11,9 @@ struct RunningData: Sendable, Identifiable, Hashable {
     let id: UUID
     let distance: Double
     let date: Date?
+    
+    var calculatedDistance: String {
+        let kilometer = self.distance / 1000
+        return String(format: "%.2f", kilometer)
+    }
 }
