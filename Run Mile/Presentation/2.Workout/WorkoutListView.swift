@@ -26,7 +26,9 @@ struct WorkoutListView: View {
             case .loading:
                 WorkoutLoadingView()
             case .empty:
-                WorkoutEmptyView()
+                WorkoutEmptyView(
+                    viewModel: viewModel
+                )
             }
         }
         .task {
@@ -86,13 +88,15 @@ private struct WorkoutLoadingView: View {
 
 
 private struct WorkoutEmptyView: View {
+    let viewModel: WorkoutListViewModel
+    
     var body: some View {
         Group {
             Spacer()
             Text("Fitness에 저장된 달리기 기록이 있으면\n자동으로 연동됩니다.")
                 .foregroundStyle(.placeholder1)
             Button("기록이 있으나\n나타나지 않을 경우") {
-                
+                viewModel.workoutNotVisibleButtonTapped()
             }
             Spacer()
         }

@@ -55,7 +55,7 @@ final class DefaultHealthDataUseCase: HealthDataUseCase {
 }
 
 
-// MARK: -Internal Method
+// MARK: - Internal Method
 extension DefaultHealthDataUseCase {
     /// Health 데이터 사용 권한 요청이 이루어졌는지 확인합니다.
     private func checkAuthorizationStatus() async throws -> Bool {

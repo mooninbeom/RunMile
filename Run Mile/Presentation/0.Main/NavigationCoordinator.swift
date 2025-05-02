@@ -52,6 +52,19 @@ extension NavigationCoordinator {
     }
     
     @MainActor
+    public func switchAndPush(_ screen: Screen, tab: TabStaus) {
+        tabStatus = tab
+        switch tab {
+        case .shoes:
+            shoesPath.append(screen)
+        case .workout:
+            workoutPath.append(screen)
+        case .myPage:
+            myPagePath.append(screen)
+        }
+    }
+    
+    @MainActor
     public func dismissSheet() {
         self.sheet = nil
     }

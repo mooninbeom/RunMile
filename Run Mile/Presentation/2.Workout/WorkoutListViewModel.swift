@@ -29,6 +29,7 @@ final class WorkoutListViewModel {
 
 
 extension WorkoutListViewModel {
+    @MainActor
     public func onAppear() async {
         self.viewStatus = .loading
         
@@ -48,6 +49,10 @@ extension WorkoutListViewModel {
         }
     }
     
+    @MainActor
+    public func workoutNotVisibleButtonTapped() {
+//        NavigationCoordinator.shared.switchAndPush(.myPage, tab: .myPage)
+    }
     
     @MainActor
     public func workoutCellTapped(workout: RunningData) {
