@@ -11,7 +11,8 @@ import SwiftUI
 struct WorkoutListView: View {
     @State private var viewModel: WorkoutListViewModel = .init(
         useCase: DefaultHealthDataUseCase(
-            workoutDataRepository: WorkoutDataRepositoryImpl()
+            workoutDataRepository: WorkoutDataRepositoryImpl(),
+            shoesDataRepository: ShoesDataRepositoryImpl()
         )
     )
     

@@ -69,7 +69,7 @@ private struct ChooseShoesCell: View {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(shoes.nickname)
                                 .font(FontStyle.shoeName())
-                            Text("\(shoes.currentMileage.toInt)/\(shoes.goalMileage.toInt)km")
+                            Text("\(shoes.getCurrentMileage)/\(shoes.goalMileage.toInt)km")
                                 .font(FontStyle.cellSubtitle())
                         }
                         
