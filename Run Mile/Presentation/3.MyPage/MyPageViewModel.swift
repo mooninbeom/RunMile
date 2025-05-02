@@ -10,7 +10,7 @@ import Foundation
 
 @Observable
 final class MyPageViewModel {
-    
+    public var isContactPresented: Bool = false
     
     
     
@@ -25,6 +25,19 @@ final class MyPageViewModel {
             case .fitness:
                 "Fitness 연동하기"
             }
+        }
+    }
+}
+
+
+extension MyPageViewModel {
+    @MainActor
+    public func myPageCellTapped(_ status: MyPageStatus) {
+        switch status {
+        case .contact:
+            isContactPresented.toggle()
+        case .fitness:
+            break
         }
     }
 }
