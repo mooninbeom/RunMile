@@ -9,7 +9,9 @@ import SwiftUI
 
 
 struct MyPageView: View {
-    @State private var viewModel: MyPageViewModel = .init()
+    @State private var viewModel: MyPageViewModel = .init(
+        useCase: DefaultMyPageUseCase()
+    )
     
     var body: some View {
         VStack(spacing: 0) {
