@@ -9,7 +9,11 @@ import SwiftUI
 
 
 struct WorkoutListView: View {
-    @State private var viewModel: WorkoutListViewModel = .init()
+    @State private var viewModel: WorkoutListViewModel = .init(
+        useCase: DefaultHealthDataUseCase(
+            workoutDataRepository: WorkoutDataRepositoryImpl()
+        )
+    )
     
     
     var body: some View {
@@ -25,15 +29,18 @@ struct WorkoutListView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-//                    ForEach(0..<10, id: \.self) { _ in
-//                        WorkoutCell {
-//                            viewModel.workoutCellTapped()
-//                        }
-//                        .padding(.bottom, 15)
-//                    }
+                    ForEach(viewModel.workouts) { workout in
+                        WorkoutCell(workout: workout) {
+                            viewModel.workoutCellTapped()
+                        }
+                        .padding(.bottom, 15)
+                    }
                 }
                 .padding(.horizontal, 20)
             }
+        }
+        .task {
+            await viewModel.onAppear()
         }
     }
 }

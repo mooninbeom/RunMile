@@ -11,7 +11,10 @@ import HealthKit
 
 protocol HealthDataUseCase {
     /// Health 데이터 사용 권한 요청이 이루어졌는지 확인하고 요청을 보냅니다.
+    @discardableResult
     func checkHealthAuthorization() async throws -> Bool
+    
+    func fetchWorkoutData() async throws -> [RunningData]
 }
 
 
