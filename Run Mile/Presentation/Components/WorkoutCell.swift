@@ -24,12 +24,12 @@ struct WorkoutCell: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 0) {
                             /// Distance
-                            Text("\(workout.distance)km")
+                            Text("\(workout.calculatedDistance)km")
                                 .font(FontStyle.cellTitle())
                                 .offset(y: 4)
                             
                             /// Date
-                            Text("\(workout.date ?? .now)")
+                            Text(workout.date?.workoutFormatDate ?? "알 수 없음")
                                 .font(FontStyle.cellSubtitle())
                                 .offset(y: -4)
                         }
