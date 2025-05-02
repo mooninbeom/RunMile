@@ -62,7 +62,7 @@ private struct WorkoutScrollView: View {
             VStack(spacing: 0) {
                 ForEach(viewModel.workouts) { workout in
                     WorkoutCell(workout: workout) {
-                        viewModel.workoutCellTapped()
+                        viewModel.workoutCellTapped(workout: workout)
                     }
                     .padding(.bottom, 15)
                 }

@@ -75,8 +75,8 @@ extension NavigationCoordinator {
         switch sheet {
         case .addShoes:
             AddShoesView()
-        case .chooseShoes:
-            ChooseShoesView()
+        case let .chooseShoes(workout):
+            ChooseShoesView(workout: workout)
         }
     }
 }
@@ -105,6 +105,6 @@ extension NavigationCoordinator {
         var id: Self { self }
         
         case addShoes
-        case chooseShoes
+        case chooseShoes(RunningData)
     }
 }

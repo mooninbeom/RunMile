@@ -9,7 +9,16 @@ import SwiftUI
 
 
 struct ChooseShoesView: View {
-    @State private var viewModel: ChooseShoesViewModel = .init()
+    @State private var viewModel: ChooseShoesViewModel
+    
+    init(workout: RunningData) {
+        self.viewModel = .init(
+            useCase: DefaultChooseShoesUseCase(
+                repository: ShoesDataRepositoryImpl()
+            ),
+            workout: workout
+        )
+    }
     
     
     var body: some View {
@@ -27,18 +36,25 @@ struct ChooseShoesView: View {
             
             ScrollView {
                 VStack(spacing: 15) {
-                    ForEach(0..<1, id: \.self) { _ in
-                        ChooseShoesCell{}
+                    ForEach(viewModel.shoes) { shoes in
+                        ChooseShoesCell(shoes: shoes) {
+                            viewModel.shoesCellTapped(shoes: shoes)
+                        }
                     }
                 }
                 .padding(.horizontal, 20)
             }
+        }
+        .task {
+            await viewModel.onAppear()
         }
     }
 }
 
 
 private struct ChooseShoesCell: View {
+    let shoes: Shoes
+    
     let action: () -> Void
     
     var body: some View {
@@ -51,9 +67,9 @@ private struct ChooseShoesCell: View {
                 .overlay {
                     HStack {
                         VStack(alignment: .leading, spacing: 0) {
-                            Text("아디제로 보스턴 12")
+                            Text(shoes.nickname)
                                 .font(FontStyle.shoeName())
-                            Text("123/1000km")
+                            Text("\(shoes.currentMileage.toInt)/\(shoes.goalMileage.toInt)km")
                                 .font(FontStyle.cellSubtitle())
                         }
                         
@@ -67,9 +83,4 @@ private struct ChooseShoesCell: View {
                 }
         }
     }
-}
-
-
-#Preview {
-    ChooseShoesView()
 }

@@ -94,7 +94,7 @@ private struct ShoeInfoView: View {
                 .padding(.bottom, 10)
                 
             HStack(spacing: 0) {
-                Text("\(Int(shoes.currentMileage))")
+                Text(shoes.getCurrentMileage)
                     .font(FontStyle.cellDistance())
                     .foregroundStyle(.hallOfFame2)
                     .offset(y: -10)
@@ -103,7 +103,7 @@ private struct ShoeInfoView: View {
                     .frame(width: 3, height: 65)
                     .rotationEffect(.degrees(30))
                 
-                Text("\(Int(shoes.goalMileage))")
+                Text(shoes.getGoalMileage)
                     .font(FontStyle.cellDistance())
                     .offset(y: 10)
                 

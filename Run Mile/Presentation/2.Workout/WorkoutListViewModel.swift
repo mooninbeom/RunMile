@@ -50,7 +50,7 @@ extension WorkoutListViewModel {
     
     
     @MainActor
-    public func workoutCellTapped() {
-        NavigationCoordinator.shared.push(.chooseShoes)
+    public func workoutCellTapped(workout: RunningData) {
+        NavigationCoordinator.shared.push(.chooseShoes(workout))
     }
 }
