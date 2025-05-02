@@ -53,9 +53,29 @@ struct EmailFormView: UIViewControllerRepresentable {
         }
         
         func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: (any Error)?) {
-            if case .failed = result {
-                // TODO: Error Handling
-                print(#function)
+            switch result {
+            case .sent:
+                let alertData = AlertData(
+                    title: "메일을 성공적으로 보냈습니다.",
+                    message: nil,
+                    firstButton: .cancel(action: {}, title: "확인"),
+                    secondButton: nil
+                )
+                Task {
+                    await NavigationCoordinator.shared.push(alertData)
+                }
+            case .failed:
+                let alertData = AlertData(
+                    title: "오류가 발생했습니다.",
+                    message: error?.localizedDescription ?? "알 수 없음",
+                    firstButton: .cancel(action: {}, title: "확인"),
+                    secondButton: nil
+                )
+                Task {
+                    await NavigationCoordinator.shared.push(alertData)
+                }
+            default:
+                break
             }
             
             parent.dismiss()
