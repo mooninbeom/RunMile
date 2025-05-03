@@ -41,7 +41,7 @@ extension MyPageViewModel {
         case .contact:
             contactAction()
         case .fitness:
-            break
+            NavigationCoordinator.shared.push(.fitnessConnect, tab: .myPage)
         }
     }
     

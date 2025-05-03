@@ -80,6 +80,8 @@ extension NavigationCoordinator {
             WorkoutListView()
         case .myPage:
             MyPageView()
+        case .fitnessConnect:
+            FitnessConnectView()
         }
     }
     
@@ -112,6 +114,7 @@ extension NavigationCoordinator {
         case workout
         
         case myPage
+        case fitnessConnect
     }
     
     enum Sheet: Hashable, Identifiable {
