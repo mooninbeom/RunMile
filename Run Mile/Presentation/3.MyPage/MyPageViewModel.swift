@@ -21,6 +21,7 @@ final class MyPageViewModel {
     enum MyPageStatus: CaseIterable {
         case contact
         case fitness
+        case info
         
         public var cellName: String {
             switch self {
@@ -28,6 +29,8 @@ final class MyPageViewModel {
                 "문의하기"
             case .fitness:
                 "Fitness 연동하기"
+            case .info:
+                "개발자 정보"
             }
         }
     }
@@ -36,12 +39,19 @@ final class MyPageViewModel {
 
 extension MyPageViewModel {
     @MainActor
+    public func HOFButtonTapped() {
+        NavigationCoordinator.shared.push(.hof, tab: .myPage)
+    }
+    
+    @MainActor
     public func myPageCellTapped(_ status: MyPageStatus) {
         switch status {
         case .contact:
             contactAction()
         case .fitness:
             NavigationCoordinator.shared.push(.fitnessConnect, tab: .myPage)
+        case .info:
+            NavigationCoordinator.shared.push(.info, tab: .myPage)
         }
     }
     

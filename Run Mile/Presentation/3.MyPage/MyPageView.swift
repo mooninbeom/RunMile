@@ -15,7 +15,9 @@ struct MyPageView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HallOfFameCell()
+            HallOfFameCell {
+                viewModel.HOFButtonTapped()
+            }
                 .padding(.bottom, 40)
             
             ForEach(MyPageViewModel.MyPageStatus.allCases, id: \.self) { status in
@@ -36,9 +38,11 @@ struct MyPageView: View {
 
 
 private struct HallOfFameCell: View {
+    let action: () -> Void
+    
     var body: some View {
         Button {
-            
+            action()
         } label: {
             RoundedRectangle(cornerRadius: 15)
                 .foregroundStyle(.hallOfFame1)
