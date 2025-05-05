@@ -9,27 +9,40 @@ import SwiftUI
 
 
 struct MyPageView: View {
+    @State private var viewModel: MyPageViewModel = .init(
+        useCase: DefaultMyPageUseCase()
+    )
+    
     var body: some View {
         VStack(spacing: 0) {
-            HallOfFameCell()
+            HallOfFameCell {
+                viewModel.HOFButtonTapped()
+            }
                 .padding(.bottom, 40)
             
             ForEach(MyPageViewModel.MyPageStatus.allCases, id: \.self) { status in
-                MyPageCell(status: status)
-                    .padding(.bottom, 20)
+                MyPageCell(status: status) {
+                    viewModel.myPageCellTapped(status)
+                }
+                .padding(.bottom, 20)
             }
             
             Spacer()
         }
         .padding(.horizontal, 20)
+        .sheet(isPresented: $viewModel.isContactPresented) {
+            ContactView()
+        }
     }
 }
 
 
 private struct HallOfFameCell: View {
+    let action: () -> Void
+    
     var body: some View {
         Button {
-            
+            action()
         } label: {
             RoundedRectangle(cornerRadius: 15)
                 .foregroundStyle(.hallOfFame1)
@@ -67,10 +80,11 @@ private struct HallOfFameCell: View {
 private struct MyPageCell: View {
     let status: MyPageViewModel.MyPageStatus
     
+    let action: () -> Void
     
     var body: some View {
         Button {
-            
+            action()
         } label: {
             RoundedRectangle(cornerRadius: 15)
                 .foregroundStyle(.workoutCell)

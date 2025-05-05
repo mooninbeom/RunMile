@@ -68,20 +68,20 @@ struct MainTabView: View {
             presenting: navigationCoordinator.alert
         ) { alert in
             if let first = alert.firstButton {
-                if case let .ok(action) = first {
-                    Button(first.title, role: .destructive, action: action)
+                if case let .ok(action, title) = first {
+                    Button(title, role: .destructive, action: action)
                 }
-                if case let .cancel(action) = first {
-                    Button(first.title, role: .cancel, action: action)
+                if case let .cancel(action, title) = first {
+                    Button(title, role: .cancel, action: action)
                 }
             }
             
             if let second = alert.secondButton {
-                if case let .ok(action) = second {
-                    Button(second.title, role: .destructive, action: action)
+                if case let .ok(action, title) = second {
+                    Button(title, role: .destructive, action: action)
                 }
-                if case let .cancel(action) = second {
-                    Button(second.title, role: .cancel, action: action)
+                if case let .cancel(action, title) = second {
+                    Button(title, role: .cancel, action: action)
                 }
             }
         } message: { alert in

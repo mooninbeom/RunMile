@@ -76,10 +76,18 @@ extension NavigationCoordinator {
             ShoesListView()
         case let .shoesDetail(shoes):
             ShoesDetailView(shoes: shoes)
+            
         case .workout:
             WorkoutListView()
+            
         case .myPage:
             MyPageView()
+        case .fitnessConnect:
+            FitnessConnectView()
+        case .hof:
+            HOFView()
+        case .info:
+            InformationView()
         }
     }
     
@@ -112,6 +120,9 @@ extension NavigationCoordinator {
         case workout
         
         case myPage
+        case fitnessConnect
+        case hof
+        case info
     }
     
     enum Sheet: Hashable, Identifiable {
