@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct Run_MileApp: App {
+    @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
+    
     var body: some Scene {
         WindowGroup {
             MainTabView()
