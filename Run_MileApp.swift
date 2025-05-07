@@ -13,8 +13,8 @@ struct Run_MileApp: App {
     
     var body: some Scene {
         WindowGroup {
-            MainTabView()
-                .tint(.primary1)
+//            MainTabView()
+//                .tint(.primary1)
         }
     }
 }

@@ -7,10 +7,10 @@
 
 import UIKit
 import HealthKit
+import SwiftUI
 
 
-
-final class AppDelegate: NSObject, UIApplicationDelegate {
+final class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
@@ -18,16 +18,16 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         
         Task {
             await self.userNotificationAuthorize()
-            await self.setHealthBackgroundTask()
+            await AppDelegate.setHealthBackgroundTask()
         }
         
         return true
     }
     
-    func applicationDidEnterBackground(
-        _ application: UIApplication
-    ) {
-        
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let sceneConfig = UISceneConfiguration(name: "Default", sessionRole: connectingSceneSession.role)
+        sceneConfig.delegateClass = SceneDelegate.self
+        return sceneConfig
     }
 }
 
@@ -49,10 +49,9 @@ extension AppDelegate {
         }
     }
     
-    private func setHealthBackgroundTask() async {
+    public static func setHealthBackgroundTask() async {
         let store = HKHealthStore()
         
-        UserDefaults.standard.isFirstLaunch = true
         
         do {
             try await store.enableBackgroundDelivery(for: .workoutType(), frequency: .immediate)
@@ -65,14 +64,39 @@ extension AppDelegate {
                     return
                 }
                 
-                if UserDefaults.standard.isFirstLaunch {
-                    UserDefaults.standard.isFirstLaunch = false
-                } else {
-                    UNUserNotificationCenter.requestNotification(
-                        title: "운동을 완료하셨군요!🔥🔥",
-                        body: "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
-                    )
+                let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
+                let sampleQuery = HKSampleQuery(queryDescriptors: [.init(sampleType: .workoutType(), predicate: nil)], limit: 1, sortDescriptors: [sort]) { _, samples, error in
+                    if let error = error {
+                        print(error)
+                        return
+                    }
+                    
+                    defer {
+                        UserDefaults.standard.isFirstLaunch = true
+                    }
+                    
+                    guard let workout = samples?.first as? HKWorkout else {
+                        return
+                    }
+                    
+                    let workoutId = workout.uuid.uuidString
+                    let currentId = UserDefaults.standard.recentWorkoutID
+                    
+                    if !UserDefaults.standard.isFirstLaunch {
+                        UserDefaults.standard.recentWorkoutID = workoutId
+                    } else {
+                        if workoutId != currentId {
+                            UNUserNotificationCenter.requestNotification(
+                                title: "운동을 완료하셨군요!🔥🔥",
+                                body: "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
+                            )
+                            UserDefaults.standard.recentWorkoutID = workoutId
+                        }
+                    }
                 }
+                
+                store.execute(sampleQuery)
+                
                 completionHandler()
             }
             

@@ -43,9 +43,11 @@ extension WorkoutListViewModel {
             }
             self.workouts = workouts
             self.viewStatus = .none
+            
+            await AppDelegate.setHealthBackgroundTask()
         } catch {
             // TODO: 에러 대응
-            print(#function)
+            print(error)
         }
     }
     

@@ -17,4 +17,13 @@ extension UserDefaults {
             self.set(newValue, forKey: "isFirstLaunch")
         }
     }
+    
+    public var recentWorkoutID: String {
+        get {
+            self.string(forKey: "recentWorkoutID") ?? ""
+        }
+        set {
+            self.set(newValue, forKey: "recentWorkoutID")
+        }
+    }
 }

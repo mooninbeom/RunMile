@@ -9,6 +9,8 @@ import HealthKit
 
 
 struct HealthKitSampleMethod {
+    private init() {}
+    
     static func createSampleWorkoutData() {
         let config = HKWorkoutConfiguration()
         config.activityType = .running
@@ -46,7 +48,9 @@ struct HealthKitSampleMethod {
                                 if let workout = workout {
                                     print(workout)
                                 } else {
-                                    print(error)
+                                    if let error = error {
+                                        print(error)
+                                    }
                                 }
                             }
                         }
