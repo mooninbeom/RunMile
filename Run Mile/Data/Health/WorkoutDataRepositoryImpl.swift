@@ -14,29 +14,14 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     
     public func fetchWorkoutData() async throws -> [RunningData] {
         let predicate = HKQuery.predicateForWorkouts(with: .running)
+        let descriptor = [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
         
-        let runningData = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKSample], any Error>) in
-            let query = HKSampleQuery(
-                sampleType: .workoutType(),
-                predicate: predicate,
-                limit: HKObjectQueryNoLimit,
-                sortDescriptors: [.init(key: HKSampleSortIdentifierStartDate, ascending: false)]) { query, samples, error in
-                    if let _ = error {
-                        continuation.resume(with: .failure(HealthError.failedToLoadWorkoutData))
-                    }
-                    
-                    guard let samples = samples else {
-                        continuation.resume(with: .failure(HealthError.failedToLoadWorkoutData))
-                        return
-                    }
-                    
-                    continuation.resume(with: .success(samples))
-                }
-            
-            store.execute(query)
-        }
-        
-        guard let result = runningData as? [HKWorkout] else { throw HealthError.failedToLoadWorkoutData }
+        let result: [HKWorkout] = try await store.fetchData(
+            sampleType: .workoutType(),
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: descriptor
+        )
         
         return convertToRunningData(result)
     }

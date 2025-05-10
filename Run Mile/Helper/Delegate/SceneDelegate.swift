@@ -25,12 +25,10 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     
     func sceneWillEnterForeground(_ scene: UIScene) {
         print(#function)
-//        UserDefaults.standard.isFirstLaunch = true
     }
     
     func sceneDidEnterBackground(_ scene: UIScene) {
         print(#function)
-//        UserDefaults.standard.isFirstLaunch = false
     }
     
     func sceneDidBecomeActive(_ scene: UIScene) {
@@ -39,7 +37,6 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     
     func sceneWillResignActive(_ scene: UIScene) {
         print(#function)
-//        UserDefaults.standard.isFirstLaunch = false
     }
     
     func sceneDidDisconnect(_ scene: UIScene) {

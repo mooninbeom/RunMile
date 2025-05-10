@@ -83,7 +83,7 @@ extension DefaultHealthDataUseCase {
         if HKHealthStore.isHealthDataAvailable() {
             // TODO: toShare 수정(info 포함)
             try await store.requestAuthorization(
-                toShare: Set([.workoutType(), .quantityType(forIdentifier: .distanceWalkingRunning)!]),
+                toShare: Set(),
                 read: Set([.workoutType()])
             )
         } else {

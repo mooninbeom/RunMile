@@ -1,52 +1,48 @@
 //
-//  HealthKit+.swift
+//  BackgroundTaskManager.swift
 //  Run Mile
 //
-//  Created by 문인범 on 5/6/25.
+//  Created by 문인범 on 5/10/25.
 //
 
 import HealthKit
+import BackgroundTasks
 
 
-extension HKHealthStore {
-    public func fetchData<T: HKSample>(
-        sampleType: HKSampleType,
-        predicate: NSPredicate? = nil,
-        limit: Int,
-        sortDescriptors: [NSSortDescriptor]? = nil
-    ) async throws -> [T] {
-        let predicate = HKQuery.predicateForWorkouts(with: .running)
-        
-        let data = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKSample], any Error>) in
-            let query = HKSampleQuery(
-                sampleType: sampleType,
-                predicate: predicate,
-                limit: limit,
-                sortDescriptors: sortDescriptors) { query, samples, error in
-                    if let _ = error {
-                        continuation.resume(with: .failure(HealthError.failedToLoadWorkoutData))
-                    }
-                    
-                    guard let samples = samples else {
-                        continuation.resume(with: .failure(HealthError.failedToLoadWorkoutData))
-                        return
-                    }
-                    
-                    continuation.resume(with: .success(samples))
-                }
-            self.execute(query)
+final class BackgroundTaskManager {
+    public static let shared = BackgroundTaskManager()
+    
+    private let taskId = ["com.mooni.test"]
+    
+    private init() {}
+}
+
+extension BackgroundTaskManager {
+    public func registerBackgroundTask() {
+        BGTaskScheduler.shared.register(forTaskWithIdentifier: taskId[0], using: nil) { task in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                self.createMockWorkoutSampleWithBGTask(task: task as! BGAppRefreshTask)
+            }
         }
+    }
+    
+    public func submitBackgroundTask() throws {
+        let task = BGAppRefreshTaskRequest(identifier: taskId[0])
         
-        guard let result = data as? [T] else { throw HealthError.failedToLoadWorkoutData }
+        task.earliestBeginDate = .now + 10
         
-        return result
+        try BGTaskScheduler.shared.submit(task)
+        print("Background Task Submit!")
     }
 }
 
-
-enum HealthKitSampleMethod {
-    
-    static func createSampleWorkoutData() {
+extension BackgroundTaskManager {
+    /// 백그라운드 테스트 용 Workout Sample 생성
+    private func createMockWorkoutSampleWithBGTask(task: BGAppRefreshTask) {
+        task.expirationHandler = {
+            task.setTaskCompleted(success: false)
+        }
+        
         let config = HKWorkoutConfiguration()
         config.activityType = .running
         config.locationType = .outdoor
@@ -62,6 +58,7 @@ enum HealthKitSampleMethod {
         builder.beginCollection(withStart: startDate) { success, error in
             if let error = error {
                 print(error)
+                task.setTaskCompleted(success: false)
                 return
             }
             
@@ -69,12 +66,14 @@ enum HealthKitSampleMethod {
                 builder.add([sample]) { success, error in
                     if let error = error {
                         print(error)
+                        task.setTaskCompleted(success: false)
                         return
                     }
                     
                     builder.endCollection(withEnd: endDate) { success, error in
                         if let error = error {
                             print(error)
+                            task.setTaskCompleted(success: false)
                             return
                         }
                         
@@ -82,9 +81,11 @@ enum HealthKitSampleMethod {
                             builder.finishWorkout { workout, error in
                                 if let workout = workout {
                                     print(workout)
+                                    task.setTaskCompleted(success: true)
                                 } else {
                                     if let error = error {
                                         print(error)
+                                        task.setTaskCompleted(success: false)
                                     }
                                 }
                             }
