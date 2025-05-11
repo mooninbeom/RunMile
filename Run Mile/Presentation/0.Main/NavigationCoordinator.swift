@@ -98,6 +98,8 @@ extension NavigationCoordinator {
             AddShoesView()
         case let .chooseShoes(workout):
             ChooseShoesView(workout: workout)
+        case .automaticRegister:
+            AutoMileageShoesView()
         }
     }
 }
@@ -130,5 +132,6 @@ extension NavigationCoordinator {
         
         case addShoes
         case chooseShoes(RunningData)
+        case automaticRegister
     }
 }

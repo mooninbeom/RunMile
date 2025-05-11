@@ -18,7 +18,7 @@ struct WorkoutListView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            WorkoutNavigationView()
+            WorkoutNavigationView(viewModel: viewModel)
             
             switch viewModel.viewStatus {
             case .none:
@@ -39,14 +39,21 @@ struct WorkoutListView: View {
 
 
 private struct WorkoutNavigationView: View {
+    let viewModel: WorkoutListViewModel
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("운동 등록")
                     .font(FontStyle.hallOfFame())
-                    .padding(.horizontal, 20)
+                    
                 Spacer()
+                
+                Button("자동 등록") {
+                    viewModel.automaticRegisterButtonTapped()
+                }
             }
+            .padding(.horizontal, 20)
             
             Text("마일리지 등록을 원하는 운동 기록을 선택해주세요!")
                 .font(FontStyle.workoutSubtitle())

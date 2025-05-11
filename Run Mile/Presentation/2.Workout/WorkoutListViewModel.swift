@@ -60,4 +60,9 @@ extension WorkoutListViewModel {
     public func workoutCellTapped(workout: RunningData) {
         NavigationCoordinator.shared.push(.chooseShoes(workout))
     }
+    
+    @MainActor
+    public func automaticRegisterButtonTapped() {
+        NavigationCoordinator.shared.push(.automaticRegister)
+    }
 }
