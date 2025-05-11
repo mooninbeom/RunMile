@@ -24,7 +24,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
         return true
     }
     
-    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+    func application(
+        _ application: UIApplication,
+        configurationForConnecting connectingSceneSession: UISceneSession,
+        options: UIScene.ConnectionOptions
+    ) -> UISceneConfiguration {
         let sceneConfig = UISceneConfiguration(name: "Default", sessionRole: connectingSceneSession.role)
         sceneConfig.delegateClass = SceneDelegate.self
         return sceneConfig
@@ -79,6 +83,10 @@ extension AppDelegate {
                         return
                     }
                     
+                    guard case .running = workout.workoutActivityType else {
+                        return
+                    }
+                    
                     let workoutId = workout.uuid.uuidString
                     let currentId = UserDefaults.standard.recentWorkoutID
                     
@@ -86,9 +94,13 @@ extension AppDelegate {
                         UserDefaults.standard.recentWorkoutID = workoutId
                     } else {
                         if workoutId != currentId {
+                            let distance = workout.getKilometerDistance()
+                            
                             UNUserNotificationCenter.requestNotification(
                                 title: "운동을 완료하셨군요!🔥🔥",
-                                body: "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
+                                body: distance == nil
+                                ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
+                                : String(format: "%.2fkm를 달리셨군요! 신발 마일리지를 등록해보세요!", distance!)
                             )
                             UserDefaults.standard.recentWorkoutID = workoutId
                         }

@@ -43,6 +43,16 @@ extension HKHealthStore {
     }
 }
 
+extension HKWorkout {
+    public func getKilometerDistance() -> Double? {
+        if let statistics = self.statistics(for: HKQuantityType(.distanceWalkingRunning)),
+           let sumDistance = statistics.sumQuantity() {
+            return sumDistance.doubleValue(for: .meterUnit(with: .kilo))
+        }
+        return nil
+    }
+}
+
 
 enum HealthKitSampleMethod {
     
