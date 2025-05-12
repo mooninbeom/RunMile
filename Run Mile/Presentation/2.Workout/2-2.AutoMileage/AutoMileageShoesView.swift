@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct AutoMileageShoesView: View {
+    @State private var viewModel: AutoMileageShoesViewModel = .init()
+    
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -18,19 +20,20 @@ struct AutoMileageShoesView: View {
                         .padding(.bottom, 5)
                     
                     ForEach(0..<10, id: \.self) { i in
+                        let shoes = Shoes.init(
+                            id: .init(),
+                            image: .init(),
+                            shoesName: "테스트\(i)",
+                            nickname: "테스트\(i)",
+                            goalMileage: 1000,
+                            currentMileage: 123,
+                            workouts: []
+                        )
+                        
                         ChooseShoesCell(
-                            shoes: .init(
-                                id: .init(),
-                                image: .init(),
-                                shoesName: "테스트\(i)",
-                                nickname: "테스트\(i)",
-                                goalMileage: 1000,
-                                currentMileage: 123,
-                                workouts: []
-                            )
-                        ) {
-                            
-                        }
+                            viewModel: $viewModel,
+                            shoes: shoes
+                        )
                     }
                 }
                 .padding(.horizontal, 20)
@@ -39,11 +42,15 @@ struct AutoMileageShoesView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("취소"){}
+                    Button("취소"){
+                        viewModel.cancelButtonTapped()
+                    }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("등록"){}
+                    Button("저장"){
+                        viewModel.saveButtonTapped()
+                    }
                 }
             }
         }
@@ -53,31 +60,41 @@ struct AutoMileageShoesView: View {
 
 
 private struct ChooseShoesCell: View {
+    @Binding var viewModel: AutoMileageShoesViewModel
     let shoes: Shoes
-    
-    let action: () -> Void
     
     var body: some View {
         Button {
-            action()
+            viewModel.shoesCellTapped(shoes: shoes)
         } label: {
-            RoundedRectangle(cornerRadius: 15)
-                .frame(height: 70)
-                .foregroundStyle(.workoutCell)
-                .overlay {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(shoes.nickname)
-                                .font(FontStyle.shoeName())
-                            Text("\(shoes.getCurrentMileage)/\(shoes.goalMileage.toInt)km")
-                                .font(FontStyle.cellSubtitle())
-                        }
-                        
-                        Spacer()
+            ZStack {
+                RoundedRectangle(cornerRadius: 15)
+                    .foregroundStyle(.workoutCell)
+                
+                RoundedRectangle(cornerRadius: 15)
+                    .stroke(lineWidth: 1)
+                    .foregroundStyle(.primary1)
+                    .opacity(viewModel.selectedShoesId == shoes.id ? 1 : 0)
+            }
+            .frame(height: 70)
+            .overlay {
+                HStack {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(shoes.nickname)
+                            .font(FontStyle.shoeName())
+                        Text("\(shoes.getCurrentMileage)/\(shoes.goalMileage.toInt)km")
+                            .font(FontStyle.cellSubtitle())
                     }
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 15)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "checkmark")
+                        .foregroundStyle(.primary1)
+                        .opacity(viewModel.selectedShoesId == shoes.id ? 1 : 0)
                 }
+                .padding(.horizontal, 15)
+            }
         }
     }
 }
