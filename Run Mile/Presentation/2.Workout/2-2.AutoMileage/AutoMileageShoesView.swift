@@ -9,34 +9,22 @@ import SwiftUI
 
 
 struct AutoMileageShoesView: View {
-    @State private var viewModel: AutoMileageShoesViewModel = .init()
+    @State private var viewModel: AutoMileageShoesViewModel = .init(
+        useCase: DefaultAddMileageShoesUseCase(
+            shoesRepository: ShoesDataRepositoryImpl()
+        )
+    )
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 15) {
-                    Text("마일리지를 추가할 신발을 선택해주세요!")
+            Group {
+                if viewModel.shoes.isEmpty {
+                    Text("자동 등록이 가능한 신발이 없습니다!")
                         .font(FontStyle.workoutSubtitle())
                         .padding(.bottom, 5)
-                    
-                    ForEach(0..<10, id: \.self) { i in
-                        let shoes = Shoes.init(
-                            id: .init(),
-                            image: .init(),
-                            shoesName: "테스트\(i)",
-                            nickname: "테스트\(i)",
-                            goalMileage: 1000,
-                            currentMileage: 123,
-                            workouts: []
-                        )
-                        
-                        ChooseShoesCell(
-                            viewModel: $viewModel,
-                            shoes: shoes
-                        )
-                    }
+                } else {
+                    ShoesListScrollView(viewModel: $viewModel)
                 }
-                .padding(.horizontal, 20)
             }
             .navigationTitle("운동 자동 등록")
             .navigationBarTitleDisplayMode(.inline)
@@ -51,8 +39,35 @@ struct AutoMileageShoesView: View {
                     Button("저장"){
                         viewModel.saveButtonTapped()
                     }
+                    .disabled(viewModel.isSaveButtonDisabled)
                 }
             }
+        }
+        .task {
+            await viewModel.onAppear()
+        }
+    }
+}
+
+
+private struct ShoesListScrollView: View {
+    @Binding var viewModel: AutoMileageShoesViewModel
+    
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 15) {
+                Text("마일리지를 추가할 신발을 선택해주세요!")
+                    .font(FontStyle.workoutSubtitle())
+                    .padding(.bottom, 5)
+                
+                ForEach(viewModel.shoes) { shoes in
+                    ChooseShoesCell(
+                        viewModel: $viewModel,
+                        shoes: shoes
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
         }
     }
 }

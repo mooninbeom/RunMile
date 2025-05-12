@@ -26,4 +26,13 @@ extension UserDefaults {
             self.set(newValue, forKey: "recentWorkoutID")
         }
     }
+    
+    public var selectedShoesID: String {
+        get {
+            self.string(forKey: "selectedShoesID") ?? ""
+        }
+        set {
+            self.set(newValue, forKey: "selectedShoesID")
+        }
+    }
 }
