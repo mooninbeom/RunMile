@@ -30,13 +30,13 @@ struct AutoMileageShoesView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("취소"){
+                    Button("취소") {
                         viewModel.cancelButtonTapped()
                     }
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("저장"){
+                    Button("저장") {
                         viewModel.saveButtonTapped()
                     }
                     .disabled(viewModel.isSaveButtonDisabled)

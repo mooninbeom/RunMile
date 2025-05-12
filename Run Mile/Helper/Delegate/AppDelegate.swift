@@ -10,7 +10,7 @@ import HealthKit
 import SwiftUI
 
 
-final class AppDelegate: NSObject, UIApplicationDelegate, ObservableObject {
+final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
@@ -56,7 +56,6 @@ extension AppDelegate {
     public static func setHealthBackgroundTask() async {
         let store = HKHealthStore()
         
-        
         do {
             try await store.enableBackgroundDelivery(for: .workoutType(), frequency: .immediate)
             let query = HKObserverQuery(
@@ -95,13 +94,24 @@ extension AppDelegate {
                     } else {
                         if workoutId != currentId {
                             let distance = workout.getKilometerDistance()
-                            
-                            UNUserNotificationCenter.requestNotification(
-                                title: "운동을 완료하셨군요!🔥🔥",
-                                body: distance == nil
-                                ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
-                                : String(format: "%.2fkm를 달리셨군요! 신발 마일리지를 등록해보세요!", distance!)
-                            )
+                            if !UserDefaults.standard.selectedShoesID.isEmpty {
+
+                                UNUserNotificationCenter.requestNotification(
+                                    title: "운동을 완료하셨군요!🔥🔥",
+                                    body: distance == nil
+                                    ? "신발에 자동 등록이 완료되었습니다!"
+                                    : String(format: "%.2fkm 달리기! 신발에 자동 등록이 완료되었습니다!", distance!)
+                                )
+                                
+                                autoRegisterShoes(workout: workout)
+                            } else {
+                                UNUserNotificationCenter.requestNotification(
+                                    title: "운동을 완료하셨군요!🔥🔥",
+                                    body: distance == nil
+                                    ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
+                                    : String(format: "%.2fkm 달리기! 신발 마일리지를 등록해보세요!", distance!)
+                                )
+                            }
                             UserDefaults.standard.recentWorkoutID = workoutId
                         }
                     }
@@ -115,6 +125,34 @@ extension AppDelegate {
             store.execute(query)
         } catch {
             print(error)
+        }
+    }
+    
+    private static func autoRegisterShoes(workout: HKWorkout) {
+        let shoesDataRepository: ShoesDataRepository = ShoesDataRepositoryImpl()
+        
+        Task {
+            do {
+                let shoesID = UUID(uuidString: UserDefaults.standard.selectedShoesID)!
+                let shoes = try await shoesDataRepository.fetchSingleShoes(id: shoesID)
+                var workouts = shoes.workouts
+                workouts.append(workout.toEntity())
+                
+                let newShoes = Shoes(
+                    id: shoes.id,
+                    image: shoes.image,
+                    shoesName: shoes.shoesName,
+                    nickname: shoes.nickname,
+                    goalMileage: shoes.goalMileage,
+                    currentMileage: shoes.currentMileage,
+                    workouts: workouts
+                )
+                
+                try await shoesDataRepository.updateShoes(shoes: newShoes)
+            } catch {
+                // TODO: Error handling
+                print(error)
+            }
         }
     }
 }

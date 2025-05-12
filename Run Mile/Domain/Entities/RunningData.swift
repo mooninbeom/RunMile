@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct RunningData: Sendable, Identifiable, Hashable {
-    let id: UUID
-    let distance: Double
-    let date: Date?
+public struct RunningData: Sendable, Identifiable, Hashable {
+    public let id: UUID
+    public let distance: Double
+    public let date: Date?
     
-    var calculatedDistance: String {
+    public var calculatedDistance: String {
         let kilometer = self.distance / 1000
         return String(format: "%.2f", kilometer)
     }

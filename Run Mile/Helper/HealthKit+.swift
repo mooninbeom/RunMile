@@ -51,6 +51,17 @@ extension HKWorkout {
         }
         return nil
     }
+    
+    public func toEntity() -> RunningData {
+        let statistics = self.statistics(for: HKQuantityType(.distanceWalkingRunning))!
+        let sumDistance = statistics.sumQuantity()!
+        
+        return .init(
+            id: self.uuid,
+            distance: sumDistance.doubleValue(for: .meter()),
+            date: self.startDate
+        )
+    }
 }
 
 
