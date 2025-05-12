@@ -9,10 +9,12 @@ import SwiftUI
 
 @main
 struct Run_MileApp: App {
+    @UIApplicationDelegateAdaptor private var appDelegate: AppDelegate
+    
     var body: some Scene {
         WindowGroup {
-            MainTabView()
-                .tint(.primary1)
+//            MainTabView()
+//                .tint(.primary1)
         }
     }
 }

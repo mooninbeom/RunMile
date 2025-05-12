@@ -14,4 +14,10 @@ extension Date {
         formatter.dateFormat = "yyyy.MM.dd(E)"
         return formatter.string(from: self)
     }
+    
+    public var yearMonth: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy.MM"
+        return formatter.string(from: self)
+    }
 }

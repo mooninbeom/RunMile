@@ -18,7 +18,7 @@ struct WorkoutListView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            WorkoutNavigationView()
+            WorkoutNavigationView(viewModel: viewModel)
             
             switch viewModel.viewStatus {
             case .none:
@@ -39,14 +39,21 @@ struct WorkoutListView: View {
 
 
 private struct WorkoutNavigationView: View {
+    let viewModel: WorkoutListViewModel
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("운동 등록")
                     .font(FontStyle.hallOfFame())
-                    .padding(.horizontal, 20)
+                    
                 Spacer()
+                
+                Button("자동 등록") {
+                    viewModel.automaticRegisterButtonTapped()
+                }
             }
+            .padding(.horizontal, 20)
             
             Text("마일리지 등록을 원하는 운동 기록을 선택해주세요!")
                 .font(FontStyle.workoutSubtitle())
@@ -62,18 +69,24 @@ private struct WorkoutScrollView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                ForEach(viewModel.workouts) { workout in
-                    WorkoutCell(workout: workout) {
-                        viewModel.workoutCellTapped(workout: workout)
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(viewModel.dateHeaders.indices, id: \.self) { i in
+                    Section {
+                        ForEach(viewModel.workouts[i]) { workout in
+                            WorkoutCell(workout: workout, action: {})
+                                .padding(.bottom, 15)
+                        }
+                    } header: {
+                        Text(viewModel.dateHeaders[i])
+                            .font(FontStyle.placeholder())
                     }
-                    .padding(.bottom, 15)
                 }
             }
             .padding(.horizontal, 20)
         }
     }
 }
+
 
 private struct WorkoutLoadingView: View {
     var body: some View {
