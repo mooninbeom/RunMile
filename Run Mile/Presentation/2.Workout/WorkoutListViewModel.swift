@@ -6,13 +6,14 @@
 //
 
 import Foundation
-import SwiftUICore
+
 
 @Observable
 final class WorkoutListViewModel {
     private let useCase: HealthDataUseCase
     
-    public var workouts: [RunningData] = []
+    public var dateHeaders: [String] = []
+    public var workouts: [[RunningData]] = []
     public var viewStatus: ViewStatus = .none
     
     init(useCase: HealthDataUseCase) {
@@ -41,8 +42,9 @@ extension WorkoutListViewModel {
                 self.viewStatus = .empty
                 return
             }
-            self.workouts = workouts
             self.viewStatus = .none
+            
+            self.classifyWorkoutsByDate(workouts: workouts)
             
             await AppDelegate.setHealthBackgroundTask()
         } catch {
@@ -64,5 +66,37 @@ extension WorkoutListViewModel {
     @MainActor
     public func automaticRegisterButtonTapped() {
         NavigationCoordinator.shared.push(.automaticRegister)
+    }
+}
+
+
+extension WorkoutListViewModel {
+    private func classifyWorkoutsByDate(workouts: [RunningData]) {
+        var resultWorkouts = [RunningData]()
+        
+        for workout in workouts {
+            if dateHeaders.isEmpty {
+                dateHeaders.append(workout.date!.yearMonth)
+                resultWorkouts.append(workout)
+                continue
+            }
+            
+            let currentDate = workout.date!.yearMonth
+            
+            if currentDate != dateHeaders.last! {
+                self.workouts.append(resultWorkouts)
+                resultWorkouts.removeAll()
+                
+                dateHeaders.append(currentDate)
+                resultWorkouts.append(workout)
+                continue
+            }
+            
+            resultWorkouts.append(workout)
+        }
+        
+        if !resultWorkouts.isEmpty {
+            self.workouts.append(resultWorkouts)
+        }
     }
 }

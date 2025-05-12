@@ -126,7 +126,7 @@ private struct ShoeInfoTextField: View {
                     .frame(height: 2)
             } else {
                 Rectangle()
-                    .foregroundStyle( text.isEmpty ? .primary2 : .hallOfFame3)
+                    .foregroundStyle( text.isEmpty ? .primary2 : .hallOfFame3 )
                     .frame(height: 2)
             }
             

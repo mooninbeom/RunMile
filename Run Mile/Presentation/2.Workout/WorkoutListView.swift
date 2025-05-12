@@ -69,18 +69,24 @@ private struct WorkoutScrollView: View {
     
     var body: some View {
         ScrollView {
-            VStack(spacing: 0) {
-                ForEach(viewModel.workouts) { workout in
-                    WorkoutCell(workout: workout) {
-                        viewModel.workoutCellTapped(workout: workout)
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(viewModel.dateHeaders.indices, id: \.self) { i in
+                    Section {
+                        ForEach(viewModel.workouts[i]) { workout in
+                            WorkoutCell(workout: workout, action: {})
+                                .padding(.bottom, 15)
+                        }
+                    } header: {
+                        Text(viewModel.dateHeaders[i])
+                            .font(FontStyle.placeholder())
                     }
-                    .padding(.bottom, 15)
                 }
             }
             .padding(.horizontal, 20)
         }
     }
 }
+
 
 private struct WorkoutLoadingView: View {
     var body: some View {
