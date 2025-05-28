@@ -106,20 +106,19 @@ extension AddShoesViewModel {
             return
         }
         
-        guard let image = self.image,
-              let ciImage = CIImage(data: image)
-        else {
+        guard let image = self.image else {
             self.isLoading = false
             return
         }
         
         Task(priority: .background) {
             do {
-                let removedImage = try await ImageVisionManager.removeImageBackground(from: ciImage)
+                let removedImage = try await ImageVisionManager.removeImageBackground(from: image)
                 self.previousImage = self.image
                 self.image = removedImage
                 self.isImageBackgroundRemoved = true
             } catch {
+                // TODO: 에러 처리
                 print(error)
                 isImageBackgroundRemoved = false
             }

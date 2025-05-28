@@ -16,10 +16,19 @@ import UIKit.UIImage
 enum ImageVisionManager {
     /// 이미지의 배경을 제거해주는 메소드(누끼)
     public static func removeImageBackground(
-        from image: CIImage
+        from imageData: Data
     ) async throws -> Data {
+        guard let firstUIImage = UIImage(data: imageData),
+              let firstCIImage = CIImage(data: imageData)
+        else {
+            throw NSError()
+        }
+        
         let request = VNGenerateForegroundInstanceMaskRequest()
-        let handler = VNImageRequestHandler(ciImage: image)
+        let handler = VNImageRequestHandler(
+            ciImage: firstCIImage,
+            orientation: .init(uiImageOrientation: firstUIImage.imageOrientation)
+        )
         
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, any Error>) in
             Task(priority: .background) {
