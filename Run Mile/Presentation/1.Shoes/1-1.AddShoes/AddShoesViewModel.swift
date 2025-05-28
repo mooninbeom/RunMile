@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import SwiftUICore
-import _PhotosUI_SwiftUI
+import SwiftUI
+import PhotosUI
 
 
 @Observable

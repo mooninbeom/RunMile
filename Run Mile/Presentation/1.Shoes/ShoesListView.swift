@@ -65,6 +65,13 @@ private struct ShoesCell: View {
                 HStack(spacing: 0) {
                     RoundedRectangle(cornerRadius: 15)
                         .frame(width: 120, height: 120)
+                        .overlay {
+                            if let image = shoes.image.toImage() {
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                        }
                     
                     ShoeInfoView(shoes: shoes)
                     
@@ -106,6 +113,8 @@ private struct ShoeInfoView: View {
     }
 }
 
+
+// MARK: - Deprecated
 private struct MileageProgressView: View {
     let currentMileage: Double
     let goalMileage: Double

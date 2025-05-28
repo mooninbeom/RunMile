@@ -61,9 +61,8 @@ private struct CustomPhotoPicker: View {
     
     var body: some View {
         Group {
-            if let image = viewModel.image,
-               let uiImage = UIImage(data: image) {
-                Image(uiImage: uiImage)
+            if let image = viewModel.image?.toImage() {
+                image
                     .resizable()
                     .scaledToFit()
             } else {
