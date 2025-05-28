@@ -14,7 +14,13 @@ import _PhotosUI_SwiftUI
 final class AddShoesViewModel {
     private let useCase: AddShoesUseCase
     
-    public var image: Data?
+    public var image: Data? {
+        willSet {
+            if image != newValue {
+                isImageBackgroundRemoved = false
+            }
+        }
+    }
     public var name: String = ""
     public var nickname: String = ""
     public var goalMileage: String = ""
@@ -31,10 +37,14 @@ final class AddShoesViewModel {
     public var isPhotoSheetPresented: Bool = false
     public var isPhotosPickerPresented: Bool = false
     public var isCameraPresented: Bool = false
+    public var isImageBackgroundRemoved: Bool = false
+    public var isLoading: Bool = false
     
     public var isCompleteButtonAccessible: Bool {
         !name.isEmpty && !nickname.isEmpty && !goalMileage.isEmpty && !(image == nil)
     }
+    
+    private var previousImage: Data?
     
     init(useCase: AddShoesUseCase) {
         self.useCase = useCase
@@ -82,6 +92,39 @@ extension AddShoesViewModel {
     @MainActor
     public func cameraButtonTapped() {
         self.isCameraPresented.toggle()
+    }
+    
+    @MainActor
+    public func removeBackgroundButtonTapped() {
+        self.isLoading = true
+        
+        if isImageBackgroundRemoved {
+            self.image = self.previousImage
+            self.previousImage = nil
+            isImageBackgroundRemoved = false
+            self.isLoading = false
+            return
+        }
+        
+        guard let image = self.image,
+              let ciImage = CIImage(data: image)
+        else {
+            self.isLoading = false
+            return
+        }
+        
+        Task(priority: .background) {
+            do {
+                let removedImage = try await ImageVisionManager.removeImageBackground(from: ciImage)
+                self.previousImage = self.image
+                self.image = removedImage
+                self.isImageBackgroundRemoved = true
+            } catch {
+                print(error)
+                isImageBackgroundRemoved = false
+            }
+            self.isLoading = false
+        }
     }
     
     public func saveButtonTapped() {
