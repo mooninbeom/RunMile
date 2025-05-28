@@ -6,7 +6,7 @@
 //
 
 import UIKit
-import SwiftUICore
+import SwiftUI
 
 
 final class InformationViewModel {
@@ -15,24 +15,24 @@ final class InformationViewModel {
 
 extension InformationViewModel {
     @MainActor
-    public func onMemojiAppear() -> UIImage {
+    public func onMemojiAppear() -> Image {
         let url = Bundle.main.url(forResource: "memoji", withExtension: "heic")!
         let data = try! Data(contentsOf: url)
-        return UIImage(data: data)!
+        return data.toImage()!
     }
     
     @MainActor
-    public func onGithubAppear() -> UIImage {
+    public func onGithubAppear() -> Image {
         let url = Bundle.main.url(forResource: "github", withExtension: "png")!
         let data = try! Data(contentsOf: url)
-        return UIImage(data: data)!
+        return data.toImage()!
     }
     
     @MainActor
-    public func onLinkedInAppear() -> UIImage {
+    public func onLinkedInAppear() -> Image {
         let url = Bundle.main.url(forResource: "linkedIn", withExtension: "png")!
         let data = try! Data(contentsOf: url)
-        return UIImage(data: data)!
+        return data.toImage()!
     }
     
     @MainActor

@@ -59,25 +59,24 @@ private struct ShoesCell: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: 15)
-            .frame(height: 200)
+            .frame(height: 160)
             .foregroundStyle(.workoutCell)
             .overlay {
-                VStack {
-                    HStack {
-                        RoundedRectangle(cornerRadius: 15)
-                            .frame(width: 165, height: 100)
-                        
-                        Spacer()
-                        
-                        ShoeInfoView(shoes: shoes)
-                    }
+                HStack(spacing: 0) {
+                    RoundedRectangle(cornerRadius: 15)
+                        .frame(width: 120, height: 120)
+                        .overlay {
+                            if let image = shoes.image.toImage() {
+                                image
+                                    .resizable()
+                                    .scaledToFit()
+                            }
+                        }
                     
-                    Spacer(minLength: 50)
+                    ShoeInfoView(shoes: shoes)
                     
-                    MileageProgressView(
-                        currentMileage: shoes.currentMileage,
-                        goalMileage: shoes.goalMileage
-                    )
+                    Spacer()
+                    
                 }
                 .padding(20)
             }
@@ -88,34 +87,34 @@ private struct ShoeInfoView: View {
     let shoes: Shoes
     
     var body: some View {
-        VStack(spacing: 0) {
-            Text(shoes.nickname)
-                .font(FontStyle.shoeName())
-                .padding(.bottom, 10)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text(shoes.nickname)
+                    .font(FontStyle.shoeName())
+                    .padding(.leading, 10)
+                    .padding(.top, 10)
                 
+                Spacer()
+            }
+            Spacer()
+        }
+        .overlay {
             HStack(spacing: 0) {
                 Text(shoes.getCurrentMileage)
-                    .font(FontStyle.cellDistance())
                     .foregroundStyle(.hallOfFame2)
-                    .offset(y: -10)
                 
-                Rectangle()
-                    .frame(width: 3, height: 65)
-                    .rotationEffect(.degrees(30))
-                
-                Text(shoes.getGoalMileage)
-                    .font(FontStyle.cellDistance())
-                    .offset(y: 10)
+                Spacer()
                 
                 Text("km")
-                    .font(FontStyle.cellTitle())
-                    .padding(.leading, 15)
-                
             }
+            .font(FontStyle.cellTitle())
+            .padding(.leading, 10)
         }
     }
 }
 
+
+// MARK: - Deprecated
 private struct MileageProgressView: View {
     let currentMileage: Double
     let goalMileage: Double

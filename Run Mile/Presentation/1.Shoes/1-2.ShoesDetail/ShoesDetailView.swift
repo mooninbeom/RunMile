@@ -24,9 +24,8 @@ struct ShoesDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                
-                if let uiImage = UIImage(data: viewModel.shoes.image) {
-                    Image(uiImage: uiImage)
+                if let image = viewModel.shoes.image.toImage() {
+                    image
                         .resizable()
                         .scaledToFit()
                         .frame(width: 170, height: 170)

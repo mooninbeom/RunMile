@@ -20,7 +20,7 @@ struct Shoes: Sendable, Identifiable, Hashable {
     
     public var getCurrentMileage: String {
         let reducedMileage = workouts.reduce(0){ $0 + $1.distance } / 1000
-        return String(format: "%.1f", reducedMileage + currentMileage)
+        return String(format: "%.2f", reducedMileage + currentMileage)
     }
     
     public var getGoalMileage: String {

@@ -24,6 +24,11 @@ struct AddShoesView: View {
             
             CustomPhotoPicker(viewModel: viewModel)
             
+            Button(viewModel.isImageBackgroundRemoved ? "취소" : "배경 제거") {
+                viewModel.removeBackgroundButtonTapped()
+            }
+            .disabled(viewModel.image == nil)
+            
             ShoeInfoTextField(category: .name, text: $viewModel.name)
                 .padding(.vertical, 10)
             ShoeInfoTextField(category: .nickname, text: $viewModel.nickname)
@@ -40,6 +45,12 @@ struct AddShoesView: View {
                 action: viewModel.saveButtonTapped
             )
         }
+        .overlay {
+            if viewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(.circular)
+            }
+        }
         .padding(.horizontal, 20)
     }
 }
@@ -50,9 +61,8 @@ private struct CustomPhotoPicker: View {
     
     var body: some View {
         Group {
-            if let image = viewModel.image,
-               let uiImage = UIImage(data: image) {
-                Image(uiImage: uiImage)
+            if let image = viewModel.image?.toImage() {
+                image
                     .resizable()
                     .scaledToFit()
             } else {
