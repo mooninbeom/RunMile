@@ -123,7 +123,7 @@ private struct ShoeInfoView: View {
         .overlay {
             HStack(spacing: 0) {
                 Text(shoes.getCurrentMileage)
-                    .foregroundStyle(.hallOfFame2)
+                    .foregroundStyle( shoes.isOverGoal ? .primary1 : .hallOfFame2 )
                 
                 Spacer()
                 

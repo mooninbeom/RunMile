@@ -145,8 +145,12 @@ extension NavigationCoordinator.Sheet: Hashable, Identifiable {
         switch (rhs, lhs) {
         case (.addShoes, .addShoes):
             return true
+        case let (.chooseShoes(first), .chooseShoes(second)):
+            return first == second
+        case (.automaticRegister, .automaticRegister):
+            return true
         default:
-            return rhs == lhs
+            return false
         }
     }
     
