@@ -49,11 +49,24 @@ struct ShoesDetailView: View {
                 }
                 .padding(.bottom, 15)
                 
-                ForEach(viewModel.shoes.workouts) { workout in
-                    WorkoutCell(workout: workout) {
-                        
+                if viewModel.shoes.workouts.isEmpty {
+                    Text("등록된 운동이 없습니다.")
+                        .font(FontStyle.shoeName())
+                        .padding(.top, 20)
+                } else {
+                    ForEach(viewModel.shoes.workouts) { workout in
+                        WorkoutCell(workout: workout) {
+                            viewModel.workoutCellTapped(workout)
+                        }
+                        .overlay {
+                            if viewModel.selectedWorkouts.contains(workout.id) {
+                                RoundedRectangle(cornerRadius: 15)
+                                    .strokeBorder(lineWidth: 1)
+                                    .foregroundStyle(.primary1)
+                            }
+                        }
+                        .padding(.bottom, 10)
                     }
-                    .padding(.bottom, 10)
                 }
             }
             .navigationTitle(viewModel.shoes.nickname)
@@ -69,6 +82,13 @@ struct ShoesDetailView: View {
                         }
                         .tint(.white)
                         
+                        Button {
+                            viewModel.choiceButtonTapped()
+                        } label: {
+                            Label("선택", systemImage: "checkmark.circle")
+                        }
+                        .tint(.white)
+                        
                         Button(role: .destructive) {
                             viewModel.deleteButtonTapped()
                         } label: {
@@ -79,8 +99,12 @@ struct ShoesDetailView: View {
                     }
                 case .editing:
                     Button("취소", role: .cancel, action: viewModel.cancelButtonTapped)
-                    Button("삭제", role: .destructive, action: {})
                     Button("완료", role: .none, action: viewModel.completeButtonTapped)
+                    
+                case .workouts:
+                    Button("취소", role: .cancel, action: viewModel.cancelButtonTapped)
+                    Button("삭제", role: .destructive, action: viewModel.deleteWorkoutsButtonTapped)
+                        .disabled( viewModel.selectedWorkouts.isEmpty )
                 }
             }
             .padding(.horizontal, 20)
@@ -116,7 +140,7 @@ private struct ShoesMileageView: View {
                 
                 VStack(spacing: 0) {
                     switch viewModel.viewStatus {
-                    case .normal:
+                    case .normal, .workouts:
                         HStack {
                             Spacer()
                             Text("\(Int(viewModel.shoes.goalMileage))km")

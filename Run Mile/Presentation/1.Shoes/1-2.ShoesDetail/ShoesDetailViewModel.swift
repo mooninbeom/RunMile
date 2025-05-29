@@ -20,6 +20,7 @@ final class ShoesDetailViewModel {
     }
     
     public var goalMileage: String = ""
+    public var selectedWorkouts: Set<UUID> = []
     
     init(useCase: ShoesDetailUseCase, shoes: Shoes) {
         self.useCase = useCase
@@ -29,6 +30,7 @@ final class ShoesDetailViewModel {
     enum ViewStatus: Equatable {
         case normal
         case editing
+        case workouts
     }
 }
 
@@ -41,7 +43,13 @@ extension ShoesDetailViewModel {
     
     @MainActor
     public func cancelButtonTapped() {
+        selectedWorkouts.removeAll()
         self.viewStatus = .normal
+    }
+    
+    @MainActor
+    public func choiceButtonTapped() {
+        self.viewStatus = .workouts
     }
     
     @MainActor
@@ -81,6 +89,31 @@ extension ShoesDetailViewModel {
             }
         }
     }
+    
+    @MainActor
+    public func workoutCellTapped(_ workout: RunningData) {
+        switch self.viewStatus {
+        case .workouts:
+            if selectedWorkouts.contains(workout.id) {
+                selectedWorkouts.remove(workout.id)
+            } else {
+                selectedWorkouts.insert(workout.id)
+            }
+        default: break
+        }
+    }
+    
+    @MainActor
+    public func deleteWorkoutsButtonTapped() {
+        let alert = AlertData(
+            title: "\(self.selectedWorkouts.count)개의 운동을 제거하시겠습니까?",
+            message: "제거된 운동은 추후에 다시 등록이 가능합니다!",
+            firstButton: .cancel(title: "취소", action: {}),
+            secondButton: .ok(title: "확인", action: self.deleteWorkouts)
+        )
+        
+        NavigationCoordinator.shared.push(alert)
+    }
 }
 
 
@@ -112,6 +145,32 @@ extension ShoesDetailViewModel {
                 )
                 
                 await NavigationCoordinator.shared.push(alert)
+            }
+        }
+    }
+    
+    private func deleteWorkouts() {
+        let workout = shoes.workouts.filter { !selectedWorkouts.contains($0.id) }
+        
+        let modified = Shoes(
+            id: shoes.id,
+            image: shoes.image,
+            shoesName: shoes.shoesName,
+            nickname: shoes.nickname,
+            goalMileage: shoes.goalMileage,
+            currentMileage: shoes.currentMileage,
+            workouts: workout
+        )
+        
+        Task {
+            do {
+                try await useCase.editShoes(shoes: modified)
+                self.shoes.workouts = workout
+                self.selectedWorkouts.removeAll()
+                self.viewStatus = .normal
+            } catch {
+                // TODO: Error Handling
+                print(error)
             }
         }
     }
