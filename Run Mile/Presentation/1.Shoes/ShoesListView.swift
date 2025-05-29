@@ -38,8 +38,7 @@ struct ShoesListView: View {
                     ForEach(viewModel.shoes) { shoes in
                         ShoesCell(shoes: shoes)
                             .onTapGesture {
-                                NavigationCoordinator.shared
-                                    .push(.shoesDetail(shoes), tab: .shoes)
+                                viewModel.shoesCellTapped(shoes)
                             }
                     }
                 }
@@ -58,28 +57,35 @@ private struct ShoesCell: View {
     let shoes: Shoes
     
     var body: some View {
-        RoundedRectangle(cornerRadius: 15)
-            .frame(height: 160)
-            .foregroundStyle(.workoutCell)
-            .overlay {
-                HStack(spacing: 0) {
-                    RoundedRectangle(cornerRadius: 15)
-                        .frame(width: 120, height: 120)
-                        .overlay {
-                            if let image = shoes.image.toImage() {
-                                image
-                                    .resizable()
-                                    .scaledToFit()
+        ZStack {
+            RoundedRectangle(cornerRadius: 15)
+                .foregroundStyle(.workoutCell)
+                .overlay {
+                    HStack(spacing: 0) {
+                        RoundedRectangle(cornerRadius: 15)
+                            .frame(width: 120, height: 120)
+                            .overlay {
+                                if let image = shoes.image.toImage() {
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                }
                             }
-                        }
-                    
-                    ShoeInfoView(shoes: shoes)
-                    
-                    Spacer()
-                    
+                        
+                        ShoeInfoView(shoes: shoes)
+                        
+                        Spacer()
+                        
+                    }
+                    .padding(20)
                 }
-                .padding(20)
-            }
+            
+                RoundedRectangle(cornerRadius: 15)
+                    .strokeBorder(lineWidth: 1)
+                    .foregroundStyle(.primary1)
+                    .opacity(shoes.isCurrentShoes ? 1 : 0)
+        }
+        .frame(height: 160)
     }
 }
 

@@ -27,6 +27,12 @@ extension ShoesListViewModel {
         NavigationCoordinator.shared.push(.addShoes)
     }
     
+    @MainActor
+    public func shoesCellTapped(_ shoes: Shoes) {
+        NavigationCoordinator.shared
+            .push(.shoesDetail(shoes), tab: .shoes)
+    }
+    
     public func onAppear() {
         Task {
             do {
