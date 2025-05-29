@@ -63,7 +63,7 @@ extension MyPageViewModel {
             let alertData = AlertData(
                 title: "Mail을 사용할 수 없습니다.",
                 message: "Mail 앱 설정이 되어있지 않은 경우 사용이 불가합니다.\n다른 연락처로 연락해주세요!",
-                firstButton: .cancel(action: {}, title: "확인"),
+                firstButton: .cancel(title: "확인", action: {}),
                 secondButton: nil
             )
             

@@ -61,12 +61,27 @@ struct ShoesDetailView: View {
             .toolbar {
                 switch viewModel.viewStatus {
                 case .normal:
-                    Button("수정", role: .none, action: viewModel.editButtonTapped)
+                    Menu {
+                        Button {
+                            viewModel.editButtonTapped()
+                        } label: {
+                            Label("수정", systemImage: "pencil")
+                        }
+                        .tint(.white)
+                        
+                        Button(role: .destructive) {
+                            viewModel.deleteButtonTapped()
+                        } label: {
+                            Label("삭제", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                    }
                 case .editing:
                     Button("취소", role: .cancel, action: viewModel.cancelButtonTapped)
+                    Button("삭제", role: .destructive, action: {})
                     Button("완료", role: .none, action: viewModel.completeButtonTapped)
                 }
-
             }
             .padding(.horizontal, 20)
         }

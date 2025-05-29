@@ -41,7 +41,7 @@ extension InformationViewModel {
         NavigationCoordinator.shared.push(.init(
             title: "복사가 완료되었습니다!",
             message: nil,
-            firstButton: .cancel(action: {}, title: "확인"),
+            firstButton: .cancel(title: "확인", action: {}),
             secondButton: nil
         ))
     }

@@ -65,6 +65,18 @@ extension NavigationCoordinator {
     }
     
     @MainActor
+    public func pop(_ tab: TabStaus) {
+        switch tab {
+        case .shoes:
+            shoesPath.removeLast()
+        case .workout:
+            workoutPath.removeLast()
+        case .myPage:
+            myPagePath.removeLast()
+        }
+    }
+    
+    @MainActor
     public func dismissSheet() {
         self.sheet = nil
     }

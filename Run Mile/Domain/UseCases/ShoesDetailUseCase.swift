@@ -10,6 +10,7 @@ import Foundation
 
 protocol ShoesDetailUseCase {
     func editShoes(shoes: Shoes) async throws
+    func deleteShoes(shoes: Shoes) async throws
 }
 
 
@@ -22,5 +23,9 @@ final class DefaultShoesDetailUseCase: ShoesDetailUseCase {
     
     public func editShoes(shoes: Shoes) async throws {
         try await repository.updateShoes(shoes: shoes)
+    }
+    
+    public func deleteShoes(shoes: Shoes) async throws {
+        try await repository.deleteShoes(shoes: shoes)
     }
 }
