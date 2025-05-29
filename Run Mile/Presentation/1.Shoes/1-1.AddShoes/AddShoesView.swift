@@ -16,6 +16,8 @@ struct AddShoesView: View {
         )
     )
     
+    let dismissAction: () -> Void
+    
     var body: some View {
         VStack(spacing: 0) {
             SheetNavigationBar {
@@ -50,6 +52,9 @@ struct AddShoesView: View {
                 ProgressView()
                     .progressViewStyle(.circular)
             }
+        }
+        .onDisappear {
+            dismissAction()
         }
         .padding(.horizontal, 20)
     }
@@ -193,5 +198,5 @@ private struct CompleteButton: View {
 
 
 #Preview {
-    AddShoesView()
+    AddShoesView {}
 }
