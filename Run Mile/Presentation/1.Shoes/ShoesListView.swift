@@ -33,16 +33,14 @@ struct ShoesListView: View {
             }
             .padding(.horizontal, 20)
             
-            ScrollView {
-                VStack(spacing: 15) {
-                    ForEach(viewModel.shoes) { shoes in
-                        ShoesCell(shoes: shoes)
-                            .onTapGesture {
-                                viewModel.shoesCellTapped(shoes)
-                            }
-                    }
-                }
-                .padding(.horizontal, 20)
+            if viewModel.shoes.isEmpty {
+                Spacer()
+                Text("신발장이 비어있습니다.\n새로운 신발을 추가해 주세요!")
+                    .font(FontStyle.shoeName())
+                    .multilineTextAlignment(.center)
+                Spacer()
+            } else {
+                CurrentShoesListView(viewModel: $viewModel)
             }
         }
         .onAppear {
@@ -51,6 +49,24 @@ struct ShoesListView: View {
     }
 }
 
+
+private struct CurrentShoesListView: View {
+    @Binding var viewModel: ShoesListViewModel
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 15) {
+                ForEach(viewModel.shoes) { shoes in
+                    ShoesCell(shoes: shoes)
+                        .onTapGesture {
+                            viewModel.shoesCellTapped(shoes)
+                        }
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+}
 
 
 private struct ShoesCell: View {
