@@ -86,7 +86,7 @@ private struct ShoesMileageView: View {
                 VStack(spacing: 0) {
                     HStack {
                         Spacer()
-                        Text("\(Int(viewModel.shoes.currentMileage))km")
+                        Text(viewModel.shoes.getCurrentMileage + "km")
                     }
                     
                     Rectangle()
