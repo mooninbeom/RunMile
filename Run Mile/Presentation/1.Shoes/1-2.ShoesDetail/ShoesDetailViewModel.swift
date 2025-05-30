@@ -121,7 +121,14 @@ extension ShoesDetailViewModel {
     
     @MainActor
     public func HOFButtonTapped() {
+        let alert = AlertData(
+            title: "정말로 진행하시겠습니까?",
+            message: "명예의 전당으로 간 신발은 더 이상 마일리지를 추가할 수 없습니다.",
+            firstButton: .cancel(title: "취소", action: {}),
+            secondButton: .ok(title: "확인", action: editShoesHOF)
+        )
         
+        NavigationCoordinator.shared.push(alert)
     }
 }
 
@@ -177,6 +184,29 @@ extension ShoesDetailViewModel {
                 self.shoes.workouts = workout
                 self.selectedWorkouts.removeAll()
                 self.viewStatus = .normal
+            } catch {
+                // TODO: Error Handling
+                print(error)
+            }
+        }
+    }
+    
+    private func editShoesHOF() {
+        let modified = Shoes(
+            id: shoes.id,
+            image: shoes.image,
+            shoesName: shoes.shoesName,
+            nickname: shoes.nickname,
+            goalMileage: shoes.goalMileage,
+            currentMileage: shoes.currentMileage,
+            workouts: shoes.workouts,
+            isGraduate: true
+        )
+        
+        Task {
+            do {
+                try await self.useCase.graduateShoes(shoes: modified)
+                await NavigationCoordinator.shared.pop(.shoes)
             } catch {
                 // TODO: Error Handling
                 print(error)

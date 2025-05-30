@@ -17,4 +17,5 @@ protocol ShoesDataRepository: Sendable {
     func createShoes(shoes: Shoes) async throws
     func updateShoes(shoes: Shoes) async throws
     func deleteShoes(shoes: Shoes) async throws
+    func updateSelectedShoes(shoes: Shoes) async
 }
