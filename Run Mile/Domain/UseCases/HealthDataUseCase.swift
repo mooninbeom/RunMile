@@ -47,7 +47,8 @@ final class DefaultHealthDataUseCase: HealthDataUseCase {
         let fetchedResult = try await workoutDataRepository.fetchWorkoutData()
         let shoes = try await shoesDataRepository.fetchAllShoes()
         
-        let registeredId = shoes.flatMap { $0.workouts.map{ $0.id } }
+        let registeredId = Set(shoes.flatMap { $0.workouts.map { $0.id } })
+        
         return fetchedResult.filter ({ workout in
             !registeredId.contains(workout.id)
         })

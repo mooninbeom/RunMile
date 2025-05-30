@@ -60,7 +60,12 @@ extension WorkoutListViewModel {
     
     @MainActor
     public func workoutCellTapped(workout: RunningData) {
-        NavigationCoordinator.shared.push(.chooseShoes(workout))
+        NavigationCoordinator.shared.push(.chooseShoes(workout, {
+            Task {
+                let workouts = try await self.useCase.fetchWorkoutData()
+                self.classifyWorkoutsByDate(workouts: workouts)
+            }
+        }))
     }
     
     @MainActor
@@ -72,6 +77,8 @@ extension WorkoutListViewModel {
 
 extension WorkoutListViewModel {
     private func classifyWorkoutsByDate(workouts: [RunningData]) {
+        self.workouts.removeAll()
+        
         var resultWorkouts = [RunningData]()
         
         for workout in workouts {
