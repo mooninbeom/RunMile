@@ -21,7 +21,7 @@ struct WorkoutListView: View {
             WorkoutNavigationView(viewModel: viewModel)
             
             switch viewModel.viewStatus {
-            case .none:
+            case .none, .selection:
                 WorkoutScrollView(viewModel: $viewModel)
             case .loading:
                 WorkoutLoadingView()
@@ -43,14 +43,31 @@ private struct WorkoutNavigationView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
+            HStack(spacing: 15) {
                 Text("운동 등록")
                     .font(FontStyle.hallOfFame())
                     
                 Spacer()
                 
-                Button("자동 등록") {
-                    viewModel.automaticRegisterButtonTapped()
+                switch viewModel.viewStatus {
+                case .empty, .loading, .none:
+                    Button {
+                        viewModel.selectionButtonTapped()
+                    } label: {
+                        Image(systemName: "checkmark.circle")
+                    }
+                    Button("자동 등록") {
+                        viewModel.automaticRegisterButtonTapped()
+                    }
+                case .selection:
+                    Button("취소") {
+                        viewModel.cancelButtonTapped()
+                    }
+                    
+                    Button("저장") {
+                        viewModel.saveSelectedWorkoutsButtonTapped()
+                    }
+                    .disabled(viewModel.selectedWorkout.isEmpty)
                 }
             }
             .padding(.horizontal, 20)
@@ -73,8 +90,17 @@ private struct WorkoutScrollView: View {
                 ForEach(viewModel.dateHeaders.indices, id: \.self) { i in
                     Section {
                         ForEach(viewModel.workouts[i]) { workout in
-                            WorkoutCell(workout: workout, action: {})
-                                .padding(.bottom, 15)
+                            WorkoutCell(workout: workout) {
+                                viewModel.workoutCellTapped(workout: workout)
+                            }
+                            .overlay {
+                                if viewModel.isSelectedWorkout(workout) {
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .strokeBorder(lineWidth: 1)
+                                        .foregroundStyle(.primary1)
+                                }
+                            }
+                            .padding(.bottom, 15)
                         }
                     } header: {
                         Text(viewModel.dateHeaders[i])

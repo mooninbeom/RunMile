@@ -108,8 +108,8 @@ extension NavigationCoordinator {
         switch sheet {
         case let .addShoes(action):
             AddShoesView(dismissAction: action)
-        case let .chooseShoes(workout):
-            ChooseShoesView(workout: workout)
+        case let .chooseShoes(workouts, action):
+            ChooseShoesView(workouts: workouts, dismiss: action)
         case .automaticRegister:
             AutoMileageShoesView()
         }
@@ -143,7 +143,7 @@ extension NavigationCoordinator {
         var id: Self { self }
         
         case addShoes(() -> Void)
-        case chooseShoes(RunningData)
+        case chooseShoes([RunningData], () -> Void)
         case automaticRegister
     }
 }
@@ -157,7 +157,7 @@ extension NavigationCoordinator.Sheet: Hashable, Identifiable {
         switch (rhs, lhs) {
         case (.addShoes, .addShoes):
             return true
-        case let (.chooseShoes(first), .chooseShoes(second)):
+        case let (.chooseShoes(first, _), .chooseShoes(second, _)):
             return first == second
         case (.automaticRegister, .automaticRegister):
             return true

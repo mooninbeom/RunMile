@@ -11,13 +11,19 @@ import SwiftUI
 struct ChooseShoesView: View {
     @State private var viewModel: ChooseShoesViewModel
     
-    init(workout: RunningData) {
+    let dismiss: () -> Void
+    
+    init(
+        workouts: [RunningData],
+        dismiss: @escaping () -> Void
+    ) {
         self.viewModel = .init(
             useCase: DefaultChooseShoesUseCase(
                 repository: ShoesDataRepositoryImpl()
             ),
-            workout: workout
+            workouts: workouts
         )
+        self.dismiss = dismiss
     }
     
     
@@ -47,6 +53,9 @@ struct ChooseShoesView: View {
         }
         .task {
             await viewModel.onAppear()
+        }
+        .onDisappear {
+            dismiss()
         }
     }
 }

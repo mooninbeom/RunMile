@@ -10,13 +10,16 @@ import Foundation
 @Observable
 final class ChooseShoesViewModel {
     private let useCase: ChooseShoesUseCase
-    private let workout: RunningData
+    private let workouts: [RunningData]
     
     public var shoes: [Shoes] = []
     
-    init(useCase: ChooseShoesUseCase, workout: RunningData) {
+    init(
+        useCase: ChooseShoesUseCase,
+        workouts: [RunningData]
+    ) {
         self.useCase = useCase
-        self.workout = workout
+        self.workouts = workouts
     }
 }
 
@@ -41,10 +44,11 @@ extension ChooseShoesViewModel {
     public func shoesCellTapped(shoes: Shoes) {
         Task {
             do {
-                try await useCase.registerWorkout(shoes: shoes, workout: workout)
+                try await useCase.registerWorkouts(shoes: shoes, workouts: workouts)
                 cancelButtonTapped()
             } catch {
-                
+                // TODO: Error Handling
+                print(error)
             }
         }
     }
