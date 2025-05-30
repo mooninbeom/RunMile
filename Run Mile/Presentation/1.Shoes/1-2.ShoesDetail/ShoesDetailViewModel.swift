@@ -22,6 +22,10 @@ final class ShoesDetailViewModel {
     public var goalMileage: String = ""
     public var selectedWorkouts: Set<UUID> = []
     
+    public var isHallOfFame: Bool {
+        Double(self.shoes.getCurrentMileage)! >= self.shoes.goalMileage
+    }
+    
     init(useCase: ShoesDetailUseCase, shoes: Shoes) {
         self.useCase = useCase
         self.shoes = shoes
@@ -113,6 +117,11 @@ extension ShoesDetailViewModel {
         )
         
         NavigationCoordinator.shared.push(alert)
+    }
+    
+    @MainActor
+    public func HOFButtonTapped() {
+        
     }
 }
 

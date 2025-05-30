@@ -24,22 +24,7 @@ struct ShoesDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                if let image = viewModel.shoes.image.toImage() {
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 170, height: 170)
-                } else {
-                    RoundedRectangle(cornerRadius: 15)
-                        .frame(width: 170, height: 170)
-                        .padding(.bottom, 10)
-                }
-                
-                Text(viewModel.shoes.shoesName)
-                    .font(FontStyle.shoeName())
-                    .padding(.bottom, 40)
-                
-                ShoesMileageView(viewModel: viewModel)
+                ShoesInformationView(viewModel: viewModel)
                 
                 HStack {
                     Text("등록된 운동")
@@ -110,6 +95,52 @@ struct ShoesDetailView: View {
             .padding(.horizontal, 20)
         }
         .animation(.easeInOut, value: viewModel.viewStatus)
+    }
+}
+
+
+private struct ShoesInformationView: View {
+    let viewModel: ShoesDetailViewModel
+    
+    var body: some View {
+        if let image = viewModel.shoes.image.toImage() {
+            image
+                .resizable()
+                .scaledToFit()
+                .frame(width: 170, height: 170)
+        } else {
+            RoundedRectangle(cornerRadius: 15)
+                .frame(width: 170, height: 170)
+                .padding(.bottom, 10)
+        }
+        
+        Text(viewModel.shoes.shoesName)
+            .font(FontStyle.shoeName())
+            .padding(.bottom, 10)
+            
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                viewModel.HOFButtonTapped()
+            } label: {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .frame(height: 60)
+                    
+                    Text("명예의 전당 입성")
+                        .font(FontStyle.kilometer())
+                        .foregroundStyle(.white)
+                }
+            }
+            .tint(.hallOfFame1)
+            .disabled(!viewModel.isHallOfFame)
+            
+            Text("목표 마일리지 달성 시 명예의 전당에 입성할 수 있습니다!")
+                .font(FontStyle.miniPlaceholder())
+            
+        }
+        .padding(.bottom, 40)
+        
+        ShoesMileageView(viewModel: viewModel)
     }
 }
 
