@@ -113,6 +113,12 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
             }
         }
     }
+    
+    public func updateSelectedShoes(shoes: Shoes) async {
+        if UserDefaults.standard.selectedShoesID == shoes.id.uuidString {
+            UserDefaults.standard.selectedShoesID = ""
+        }
+    }
 }
 
 extension ShoesDataRepositoryImpl {

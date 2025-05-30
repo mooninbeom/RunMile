@@ -24,22 +24,7 @@ struct ShoesDetailView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
-                if let image = viewModel.shoes.image.toImage() {
-                    image
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 170, height: 170)
-                } else {
-                    RoundedRectangle(cornerRadius: 15)
-                        .frame(width: 170, height: 170)
-                        .padding(.bottom, 10)
-                }
-                
-                Text(viewModel.shoes.shoesName)
-                    .font(FontStyle.shoeName())
-                    .padding(.bottom, 40)
-                
-                ShoesMileageView(viewModel: viewModel)
+                ShoesInformationView(viewModel: viewModel)
                 
                 HStack {
                     Text("등록된 운동")
@@ -49,11 +34,24 @@ struct ShoesDetailView: View {
                 }
                 .padding(.bottom, 15)
                 
-                ForEach(viewModel.shoes.workouts) { workout in
-                    WorkoutCell(workout: workout) {
-                        
+                if viewModel.shoes.workouts.isEmpty {
+                    Text("등록된 운동이 없습니다.")
+                        .font(FontStyle.shoeName())
+                        .padding(.top, 20)
+                } else {
+                    ForEach(viewModel.shoes.workouts) { workout in
+                        WorkoutCell(workout: workout) {
+                            viewModel.workoutCellTapped(workout)
+                        }
+                        .overlay {
+                            if viewModel.selectedWorkouts.contains(workout.id) {
+                                RoundedRectangle(cornerRadius: 15)
+                                    .strokeBorder(lineWidth: 1)
+                                    .foregroundStyle(.primary1)
+                            }
+                        }
+                        .padding(.bottom, 10)
                     }
-                    .padding(.bottom, 10)
                 }
             }
             .navigationTitle(viewModel.shoes.nickname)
@@ -61,16 +59,88 @@ struct ShoesDetailView: View {
             .toolbar {
                 switch viewModel.viewStatus {
                 case .normal:
-                    Button("수정", role: .none, action: viewModel.editButtonTapped)
+                    Menu {
+                        Button {
+                            viewModel.editButtonTapped()
+                        } label: {
+                            Label("수정", systemImage: "pencil")
+                        }
+                        .tint(.white)
+                        
+                        Button {
+                            viewModel.choiceButtonTapped()
+                        } label: {
+                            Label("선택", systemImage: "checkmark.circle")
+                        }
+                        .tint(.white)
+                        
+                        Button(role: .destructive) {
+                            viewModel.deleteButtonTapped()
+                        } label: {
+                            Label("삭제", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                    }
                 case .editing:
                     Button("취소", role: .cancel, action: viewModel.cancelButtonTapped)
                     Button("완료", role: .none, action: viewModel.completeButtonTapped)
+                    
+                case .workouts:
+                    Button("취소", role: .cancel, action: viewModel.cancelButtonTapped)
+                    Button("삭제", role: .destructive, action: viewModel.deleteWorkoutsButtonTapped)
+                        .disabled( viewModel.selectedWorkouts.isEmpty )
                 }
-
             }
             .padding(.horizontal, 20)
         }
         .animation(.easeInOut, value: viewModel.viewStatus)
+    }
+}
+
+
+private struct ShoesInformationView: View {
+    let viewModel: ShoesDetailViewModel
+    
+    var body: some View {
+        if let image = viewModel.shoes.image.toImage() {
+            image
+                .resizable()
+                .scaledToFit()
+                .frame(width: 170, height: 170)
+        } else {
+            RoundedRectangle(cornerRadius: 15)
+                .frame(width: 170, height: 170)
+                .padding(.bottom, 10)
+        }
+        
+        Text(viewModel.shoes.shoesName)
+            .font(FontStyle.shoeName())
+            .padding(.bottom, 10)
+            
+        VStack(alignment: .leading, spacing: 0) {
+            Button {
+                viewModel.HOFButtonTapped()
+            } label: {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 15)
+                        .frame(height: 60)
+                    
+                    Text("명예의 전당 입성")
+                        .font(FontStyle.kilometer())
+                        .foregroundStyle(.white)
+                }
+            }
+            .tint(.hallOfFame1)
+            .disabled(!viewModel.isHallOfFame)
+            
+            Text("목표 마일리지 달성 시 명예의 전당에 입성할 수 있습니다!")
+                .font(FontStyle.miniPlaceholder())
+            
+        }
+        .padding(.bottom, 40)
+        
+        ShoesMileageView(viewModel: viewModel)
     }
 }
 
@@ -86,7 +156,7 @@ private struct ShoesMileageView: View {
                 VStack(spacing: 0) {
                     HStack {
                         Spacer()
-                        Text("\(Int(viewModel.shoes.currentMileage))km")
+                        Text(viewModel.shoes.getCurrentMileage + "km")
                     }
                     
                     Rectangle()
@@ -101,7 +171,7 @@ private struct ShoesMileageView: View {
                 
                 VStack(spacing: 0) {
                     switch viewModel.viewStatus {
-                    case .normal:
+                    case .normal, .workouts:
                         HStack {
                             Spacer()
                             Text("\(Int(viewModel.shoes.goalMileage))km")

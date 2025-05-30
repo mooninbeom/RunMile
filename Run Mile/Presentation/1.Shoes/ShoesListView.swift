@@ -33,17 +33,14 @@ struct ShoesListView: View {
             }
             .padding(.horizontal, 20)
             
-            ScrollView {
-                VStack(spacing: 15) {
-                    ForEach(viewModel.shoes) { shoes in
-                        ShoesCell(shoes: shoes)
-                            .onTapGesture {
-                                NavigationCoordinator.shared
-                                    .push(.shoesDetail(shoes), tab: .shoes)
-                            }
-                    }
-                }
-                .padding(.horizontal, 20)
+            if viewModel.shoes.isEmpty {
+                Spacer()
+                Text("신발장이 비어있습니다.\n새로운 신발을 추가해 주세요!")
+                    .font(FontStyle.shoeName())
+                    .multilineTextAlignment(.center)
+                Spacer()
+            } else {
+                CurrentShoesListView(viewModel: $viewModel)
             }
         }
         .onAppear {
@@ -53,33 +50,58 @@ struct ShoesListView: View {
 }
 
 
+private struct CurrentShoesListView: View {
+    @Binding var viewModel: ShoesListViewModel
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 15) {
+                ForEach(viewModel.shoes) { shoes in
+                    ShoesCell(shoes: shoes)
+                        .onTapGesture {
+                            viewModel.shoesCellTapped(shoes)
+                        }
+                }
+            }
+            .padding(.horizontal, 20)
+        }
+    }
+}
+
 
 private struct ShoesCell: View {
     let shoes: Shoes
     
     var body: some View {
-        RoundedRectangle(cornerRadius: 15)
-            .frame(height: 160)
-            .foregroundStyle(.workoutCell)
-            .overlay {
-                HStack(spacing: 0) {
-                    RoundedRectangle(cornerRadius: 15)
-                        .frame(width: 120, height: 120)
-                        .overlay {
-                            if let image = shoes.image.toImage() {
-                                image
-                                    .resizable()
-                                    .scaledToFit()
+        ZStack {
+            RoundedRectangle(cornerRadius: 15)
+                .foregroundStyle(.workoutCell)
+                .overlay {
+                    HStack(spacing: 0) {
+                        RoundedRectangle(cornerRadius: 15)
+                            .frame(width: 120, height: 120)
+                            .overlay {
+                                if let image = shoes.image.toImage() {
+                                    image
+                                        .resizable()
+                                        .scaledToFit()
+                                }
                             }
-                        }
-                    
-                    ShoeInfoView(shoes: shoes)
-                    
-                    Spacer()
-                    
+                        
+                        ShoeInfoView(shoes: shoes)
+                        
+                        Spacer()
+                        
+                    }
+                    .padding(20)
                 }
-                .padding(20)
-            }
+            
+                RoundedRectangle(cornerRadius: 15)
+                    .strokeBorder(lineWidth: 1)
+                    .foregroundStyle(.primary1)
+                    .opacity(shoes.isCurrentShoes ? 1 : 0)
+        }
+        .frame(height: 160)
     }
 }
 
@@ -101,7 +123,7 @@ private struct ShoeInfoView: View {
         .overlay {
             HStack(spacing: 0) {
                 Text(shoes.getCurrentMileage)
-                    .foregroundStyle(.hallOfFame2)
+                    .foregroundStyle( shoes.isOverGoal ? .primary1 : .hallOfFame2 )
                 
                 Spacer()
                 

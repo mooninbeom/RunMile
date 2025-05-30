@@ -17,7 +17,7 @@ struct AlertData {
     
     
     enum ButtonType {
-        case cancel(action: () -> Void, title: String)
-        case ok(action: () -> Void, title: String)
+        case cancel(title: String, action: () -> Void)
+        case ok(title: String, action: () -> Void)
     }
 }

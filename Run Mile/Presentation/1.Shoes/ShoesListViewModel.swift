@@ -24,7 +24,15 @@ final class ShoesListViewModel {
 extension ShoesListViewModel {
     @MainActor
     public func addShoesButtonTapped() {
-        NavigationCoordinator.shared.push(.addShoes)
+        NavigationCoordinator.shared.push(.addShoes {
+            self.onAppear()
+        })
+    }
+    
+    @MainActor
+    public func shoesCellTapped(_ shoes: Shoes) {
+        NavigationCoordinator.shared
+            .push(.shoesDetail(shoes), tab: .shoes)
     }
     
     public func onAppear() {

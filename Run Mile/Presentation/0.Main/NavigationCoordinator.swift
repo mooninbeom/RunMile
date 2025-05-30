@@ -65,6 +65,18 @@ extension NavigationCoordinator {
     }
     
     @MainActor
+    public func pop(_ tab: TabStaus) {
+        switch tab {
+        case .shoes:
+            shoesPath.removeLast()
+        case .workout:
+            workoutPath.removeLast()
+        case .myPage:
+            myPagePath.removeLast()
+        }
+    }
+    
+    @MainActor
     public func dismissSheet() {
         self.sheet = nil
     }
@@ -94,8 +106,8 @@ extension NavigationCoordinator {
     @ViewBuilder
     public func build(_ sheet: Sheet) -> some View {
         switch sheet {
-        case .addShoes:
-            AddShoesView()
+        case let .addShoes(action):
+            AddShoesView(dismissAction: action)
         case let .chooseShoes(workout):
             ChooseShoesView(workout: workout)
         case .automaticRegister:
@@ -106,7 +118,7 @@ extension NavigationCoordinator {
 
 
 extension NavigationCoordinator {
-    enum TabStaus: Hashable {
+    enum TabStaus {
         case shoes
         case workout
         case myPage
@@ -115,7 +127,7 @@ extension NavigationCoordinator {
 
 
 extension NavigationCoordinator {
-    enum Screen: Hashable {
+    enum Screen {
         case shoes
         case shoesDetail(Shoes)
         
@@ -127,11 +139,34 @@ extension NavigationCoordinator {
         case info
     }
     
-    enum Sheet: Hashable, Identifiable {
+    enum Sheet {
         var id: Self { self }
         
-        case addShoes
+        case addShoes(() -> Void)
         case chooseShoes(RunningData)
         case automaticRegister
+    }
+}
+
+
+// MARK: - Protocol
+extension NavigationCoordinator.TabStaus: Hashable {}
+extension NavigationCoordinator.Screen: Hashable {}
+extension NavigationCoordinator.Sheet: Hashable, Identifiable {
+    static func == (rhs: Self, lhs: Self) -> Bool {
+        switch (rhs, lhs) {
+        case (.addShoes, .addShoes):
+            return true
+        case let (.chooseShoes(first), .chooseShoes(second)):
+            return first == second
+        case (.automaticRegister, .automaticRegister):
+            return true
+        default:
+            return false
+        }
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(self)
     }
 }

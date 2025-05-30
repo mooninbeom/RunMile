@@ -58,7 +58,7 @@ struct EmailFormView: UIViewControllerRepresentable {
                 let alertData = AlertData(
                     title: "메일을 성공적으로 보냈습니다.",
                     message: nil,
-                    firstButton: .cancel(action: {}, title: "확인"),
+                    firstButton: .cancel(title: "확인", action: {}),
                     secondButton: nil
                 )
                 Task {
@@ -68,7 +68,7 @@ struct EmailFormView: UIViewControllerRepresentable {
                 let alertData = AlertData(
                     title: "오류가 발생했습니다.",
                     message: error?.localizedDescription ?? "알 수 없음",
-                    firstButton: .cancel(action: {}, title: "확인"),
+                    firstButton: .cancel(title: "확인", action: {}),
                     secondButton: nil
                 )
                 Task {
