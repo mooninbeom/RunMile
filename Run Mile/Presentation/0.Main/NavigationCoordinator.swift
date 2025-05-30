@@ -108,8 +108,8 @@ extension NavigationCoordinator {
         switch sheet {
         case let .addShoes(action):
             AddShoesView(dismissAction: action)
-        case let .chooseShoes(workout, action):
-            ChooseShoesView(workout: workout, dismiss: action)
+        case let .chooseShoes(workouts, action):
+            ChooseShoesView(workouts: workouts, dismiss: action)
         case .automaticRegister:
             AutoMileageShoesView()
         }
@@ -143,7 +143,7 @@ extension NavigationCoordinator {
         var id: Self { self }
         
         case addShoes(() -> Void)
-        case chooseShoes(RunningData, () -> Void)
+        case chooseShoes([RunningData], () -> Void)
         case automaticRegister
     }
 }

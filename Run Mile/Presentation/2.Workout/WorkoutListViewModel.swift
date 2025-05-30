@@ -16,6 +16,8 @@ final class WorkoutListViewModel {
     public var workouts: [[RunningData]] = []
     public var viewStatus: ViewStatus = .none
     
+    public var selectedWorkout: Set<UUID> = []
+    
     init(useCase: HealthDataUseCase) {
         self.useCase = useCase
     }
@@ -24,6 +26,7 @@ final class WorkoutListViewModel {
         case none
         case loading
         case empty
+        case selection
     }
 }
 
@@ -60,17 +63,62 @@ extension WorkoutListViewModel {
     
     @MainActor
     public func workoutCellTapped(workout: RunningData) {
-        NavigationCoordinator.shared.push(.chooseShoes(workout, {
-            Task {
-                let workouts = try await self.useCase.fetchWorkoutData()
-                self.classifyWorkoutsByDate(workouts: workouts)
+        if case .selection = self.viewStatus {
+            let id = workout.id
+            
+            if self.selectedWorkout.contains(id) {
+                self.selectedWorkout.remove(id)
+            } else {
+                self.selectedWorkout.insert(id)
             }
-        }))
+        } else {
+            NavigationCoordinator.shared.push(.chooseShoes([workout], {
+                Task {
+                    let workouts = try await self.useCase.fetchWorkoutData()
+                    self.classifyWorkoutsByDate(workouts: workouts)
+                }
+            }))
+        }
     }
     
     @MainActor
     public func automaticRegisterButtonTapped() {
         NavigationCoordinator.shared.push(.automaticRegister)
+    }
+    
+    @MainActor
+    public func selectionButtonTapped() {
+        self.viewStatus = .selection
+    }
+    
+    @MainActor
+    public func saveSelectedWorkoutsButtonTapped() {
+        let workouts = self.workouts
+            .flatMap { $0 }
+            .filter { self.selectedWorkout.contains($0.id) }
+        
+        NavigationCoordinator.shared.push(.chooseShoes(workouts, {
+            Task {
+                self.selectedWorkout.removeAll()
+                let workouts = try await self.useCase.fetchWorkoutData()
+                if workouts.isEmpty {
+                    self.viewStatus = .empty
+                } else {
+                    self.classifyWorkoutsByDate(workouts: workouts)
+                    self.viewStatus = .none
+                }
+            }
+        }))
+    }
+    
+    @MainActor
+    public func cancelButtonTapped() {
+        self.selectedWorkout.removeAll()
+        self.viewStatus = workouts.isEmpty ? .empty : .none
+    }
+    
+    public func isSelectedWorkout(_ workout: RunningData) -> Bool {
+        self.selectedWorkout.contains(workout.id)
     }
 }
 
