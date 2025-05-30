@@ -73,8 +73,10 @@ private struct WorkoutScrollView: View {
                 ForEach(viewModel.dateHeaders.indices, id: \.self) { i in
                     Section {
                         ForEach(viewModel.workouts[i]) { workout in
-                            WorkoutCell(workout: workout, action: {})
-                                .padding(.bottom, 15)
+                            WorkoutCell(workout: workout) {
+                                viewModel.workoutCellTapped(workout: workout)
+                            }
+                            .padding(.bottom, 15)
                         }
                     } header: {
                         Text(viewModel.dateHeaders[i])
