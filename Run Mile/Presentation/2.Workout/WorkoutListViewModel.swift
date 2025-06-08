@@ -58,7 +58,7 @@ extension WorkoutListViewModel {
     
     @MainActor
     public func workoutNotVisibleButtonTapped() {
-//        NavigationCoordinator.shared.switchAndPush(.myPage, tab: .myPage)
+        NavigationCoordinator.shared.switchAndPush(.fitnessConnect, tab: .myPage)
     }
     
     @MainActor
