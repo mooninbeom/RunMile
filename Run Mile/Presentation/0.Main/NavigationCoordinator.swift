@@ -98,8 +98,18 @@ extension NavigationCoordinator {
             FitnessConnectView()
         case .hof:
             HOFView()
+        case let .hofShoesDetail(shoes):
+            HOFShoesDetailView(shoes: shoes)
         case .info:
             InformationView()
+        case let .imageDetail(image):
+            if #available(iOS 18.0, *) {
+                ImageDetailView(image: image)
+                    .toolbarVisibility(.hidden, for: .tabBar)
+            } else {
+                ImageDetailView(image: image)
+                    .toolbar(.hidden, for: .tabBar)
+            }
         }
     }
     
@@ -136,7 +146,10 @@ extension NavigationCoordinator {
         case myPage
         case fitnessConnect
         case hof
+        case hofShoesDetail(Shoes)
         case info
+        
+        case imageDetail(Data)
     }
     
     enum Sheet {
