@@ -126,6 +126,7 @@ extension WorkoutListViewModel {
 extension WorkoutListViewModel {
     private func classifyWorkoutsByDate(workouts: [RunningData]) {
         self.workouts.removeAll()
+        self.dateHeaders.removeAll()
         
         var resultWorkouts = [RunningData]()
         

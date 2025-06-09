@@ -81,7 +81,8 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     public func updateShoes(shoes: Shoes) async throws {
         let realm = try await Realm.open()
         
-        let list = List<WorkoutDTO>()
+        var list = List<WorkoutDTO>()
+        
         shoes.workouts.forEach {
             let workoutDTO = WorkoutDTO()
             workoutDTO.id = $0.id
@@ -89,6 +90,8 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
             workoutDTO.date = $0.date
             list.append(workoutDTO)
         }
+        
+        list.sort(by: { $0.date ?? .now > $1.date ?? .now })
         
         let dto = ShoesDTO()
         dto.id = shoes.id
