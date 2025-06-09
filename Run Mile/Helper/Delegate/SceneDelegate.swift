@@ -24,22 +24,22 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     
     
     func sceneWillEnterForeground(_ scene: UIScene) {
-        print(#function)
+        
     }
     
     func sceneDidEnterBackground(_ scene: UIScene) {
-        print(#function)
+        
     }
     
     func sceneDidBecomeActive(_ scene: UIScene) {
-        print(#function)
+        
     }
     
     func sceneWillResignActive(_ scene: UIScene) {
-        print(#function)
+        
     }
     
     func sceneDidDisconnect(_ scene: UIScene) {
-        print(#function)
+        
     }
 }

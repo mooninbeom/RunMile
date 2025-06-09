@@ -97,19 +97,19 @@ extension AppDelegate {
                             if !UserDefaults.standard.selectedShoesID.isEmpty {
 
                                 UNUserNotificationCenter.requestNotification(
-                                    title: "운동을 완료하셨군요!🔥🔥",
+                                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
                                     body: distance == nil
                                     ? "신발에 자동 등록이 완료되었습니다!"
-                                    : String(format: "%.2fkm 달리기! 신발에 자동 등록이 완료되었습니다!", distance!)
+                                    : String(format: "신발에 자동 등록이 완료되었습니다. 러닝 후 스트레칭 꼭 잊지 마세요!", distance!)
                                 )
                                 
                                 autoRegisterShoes(workout: workout)
                             } else {
                                 UNUserNotificationCenter.requestNotification(
-                                    title: "운동을 완료하셨군요!🔥🔥",
+                                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
                                     body: distance == nil
                                     ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
-                                    : String(format: "%.2fkm 달리기! 신발 마일리지를 등록해보세요!", distance!)
+                                    : String(format: "%.2fkm, 잊지 말고 마일리지를 등록하러 오세요!", distance!)
                                 )
                             }
                             UserDefaults.standard.recentWorkoutID = workoutId
