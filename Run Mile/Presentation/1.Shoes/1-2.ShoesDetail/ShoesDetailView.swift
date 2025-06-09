@@ -108,6 +108,9 @@ private struct ShoesInformationView: View {
                 .resizable()
                 .scaledToFit()
                 .frame(width: 170, height: 170)
+                .onTapGesture {
+                    viewModel.imageTapped()
+                }
         } else {
             RoundedRectangle(cornerRadius: 15)
                 .frame(width: 170, height: 170)

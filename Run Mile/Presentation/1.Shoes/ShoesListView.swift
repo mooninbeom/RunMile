@@ -43,6 +43,8 @@ struct ShoesListView: View {
                 CurrentShoesListView(viewModel: $viewModel)
             }
         }
+        .navigationTitle("나의 신발장")
+        .toolbar(.hidden, for: .navigationBar)
         .onAppear {
             viewModel.onAppear()
         }

@@ -23,7 +23,7 @@ struct MainTabView: View {
                         }
                     )
             }
-            .tag(NavigationCoordinator.TabStaus.shoes)
+            .tag(NavigationCoordinator.TabStatus.shoes)
             .tabItem {
                 Image(systemName: "shoe.2.fill")
                 Text("신발")
@@ -38,7 +38,7 @@ struct MainTabView: View {
                         }
                     )
             }
-            .tag(NavigationCoordinator.TabStaus.workout)
+            .tag(NavigationCoordinator.TabStatus.workout)
             .tabItem {
                 Image(systemName: "figure.run")
                 Text("운동")
@@ -53,7 +53,7 @@ struct MainTabView: View {
                         }
                     )
             }
-            .tag(NavigationCoordinator.TabStaus.myPage)
+            .tag(NavigationCoordinator.TabStatus.myPage)
             .tabItem {
                 Image(systemName: "person.fill")
                 Text("내 정보")
