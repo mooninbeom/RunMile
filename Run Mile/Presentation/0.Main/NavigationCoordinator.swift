@@ -15,7 +15,7 @@ final class NavigationCoordinator {
     
     private init() {}
     
-    public var tabStatus: TabStaus = .shoes
+    public var tabStatus: TabStatus = .shoes
     
     public var shoesPath = NavigationPath()
     public var workoutPath = NavigationPath()
@@ -29,7 +29,7 @@ final class NavigationCoordinator {
 
 extension NavigationCoordinator {
     @MainActor
-    public func push(_ screen: Screen, tab: TabStaus) {
+    public func push(_ screen: Screen, tab: TabStatus) {
         switch tab {
         case .shoes:
             shoesPath.append(screen)
@@ -52,7 +52,7 @@ extension NavigationCoordinator {
     }
     
     @MainActor
-    public func switchAndPush(_ screen: Screen, tab: TabStaus) {
+    public func switchAndPush(_ screen: Screen, tab: TabStatus) {
         tabStatus = tab
         switch tab {
         case .shoes:
@@ -65,7 +65,7 @@ extension NavigationCoordinator {
     }
     
     @MainActor
-    public func pop(_ tab: TabStaus) {
+    public func pop(_ tab: TabStatus) {
         switch tab {
         case .shoes:
             shoesPath.removeLast()
@@ -98,8 +98,18 @@ extension NavigationCoordinator {
             FitnessConnectView()
         case .hof:
             HOFView()
+        case let .hofShoesDetail(shoes):
+            HOFShoesDetailView(shoes: shoes)
         case .info:
             InformationView()
+        case let .imageDetail(image):
+            if #available(iOS 18.0, *) {
+                ImageDetailView(image: image)
+                    .toolbarVisibility(.hidden, for: .tabBar)
+            } else {
+                ImageDetailView(image: image)
+                    .toolbar(.hidden, for: .tabBar)
+            }
         }
     }
     
@@ -118,7 +128,7 @@ extension NavigationCoordinator {
 
 
 extension NavigationCoordinator {
-    enum TabStaus {
+    enum TabStatus {
         case shoes
         case workout
         case myPage
@@ -136,7 +146,10 @@ extension NavigationCoordinator {
         case myPage
         case fitnessConnect
         case hof
+        case hofShoesDetail(Shoes)
         case info
+        
+        case imageDetail(Data)
     }
     
     enum Sheet {
@@ -150,7 +163,7 @@ extension NavigationCoordinator {
 
 
 // MARK: - Protocol
-extension NavigationCoordinator.TabStaus: Hashable {}
+extension NavigationCoordinator.TabStatus: Hashable {}
 extension NavigationCoordinator.Screen: Hashable {}
 extension NavigationCoordinator.Sheet: Hashable, Identifiable {
     static func == (rhs: Self, lhs: Self) -> Bool {

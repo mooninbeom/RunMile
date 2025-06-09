@@ -130,6 +130,11 @@ extension ShoesDetailViewModel {
         
         NavigationCoordinator.shared.push(alert)
     }
+    
+    @MainActor
+    public func imageTapped() {
+        NavigationCoordinator.shared.push(.imageDetail(shoes.image), tab: .shoes)
+    }
 }
 
 

@@ -58,7 +58,7 @@ extension WorkoutListViewModel {
     
     @MainActor
     public func workoutNotVisibleButtonTapped() {
-//        NavigationCoordinator.shared.switchAndPush(.myPage, tab: .myPage)
+        NavigationCoordinator.shared.switchAndPush(.fitnessConnect, tab: .myPage)
     }
     
     @MainActor
@@ -126,6 +126,7 @@ extension WorkoutListViewModel {
 extension WorkoutListViewModel {
     private func classifyWorkoutsByDate(workouts: [RunningData]) {
         self.workouts.removeAll()
+        self.dateHeaders.removeAll()
         
         var resultWorkouts = [RunningData]()
         

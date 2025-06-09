@@ -33,6 +33,8 @@ struct MyPageView: View {
         .sheet(isPresented: $viewModel.isContactPresented) {
             ContactView()
         }
+        .navigationTitle("내 정보")
+        .toolbar(.hidden, for: .navigationBar)
     }
 }
 
@@ -73,7 +75,6 @@ private struct HallOfFameCell: View {
         }
     }
 }
-
 
 
 

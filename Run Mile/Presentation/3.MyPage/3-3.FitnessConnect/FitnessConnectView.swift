@@ -18,8 +18,7 @@ struct FitnessConnectView: View {
                 Spacer()
             }
             
-            Group {
-                Text(
+            Text(
                 """
                 건강 데이터 권한 설정이 되어있지 않으면
                 데이터 연동이 되지 않을 수 있습니다.
@@ -27,22 +26,26 @@ struct FitnessConnectView: View {
                 → 건강 → Run Mile
                 → 운동 읽기 허용
                 """
-                )
-                
-//                Button("설정으로 이동"){
-//                    if let url = URL(string: UIApplication.openSettingsURLString) {
-//                        if UIApplication.shared.canOpenURL(url) {
-//                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
-//                        }
-//                    }
-//                }
-            }
+            )
             .font(FontStyle.cellSubtitle())
             .multilineTextAlignment(.leading)
             
-            RoundedRectangle(cornerRadius: 20)
-                .frame(height: 100)
-                .foregroundStyle(.white)
+            TabView {
+                Image(.health1)
+                    .resizable()
+                    .scaledToFit()
+                Image(.health2)
+                    .resizable()
+                    .scaledToFit()
+                Image(.health3)
+                    .resizable()
+                    .scaledToFit()
+                Image(.health4)
+                    .resizable()
+                    .scaledToFit()
+            }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
+            
             Spacer()
         }
         .navigationTitle("Fitness 연동하기")

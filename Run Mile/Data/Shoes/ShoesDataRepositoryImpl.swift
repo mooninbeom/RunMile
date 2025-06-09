@@ -7,6 +7,7 @@
 
 import Foundation
 import RealmSwift
+import UserNotifications
 
 
 actor ShoesDataRepositoryImpl: ShoesDataRepository {
@@ -81,7 +82,8 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     public func updateShoes(shoes: Shoes) async throws {
         let realm = try await Realm.open()
         
-        let list = List<WorkoutDTO>()
+        var list = List<WorkoutDTO>()
+        
         shoes.workouts.forEach {
             let workoutDTO = WorkoutDTO()
             workoutDTO.id = $0.id
@@ -89,6 +91,8 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
             workoutDTO.date = $0.date
             list.append(workoutDTO)
         }
+        
+        list.sort(by: { $0.date ?? .now > $1.date ?? .now })
         
         let dto = ShoesDTO()
         dto.id = shoes.id
@@ -99,6 +103,13 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         dto.currentMileage = shoes.currentMileage
         dto.isGraduated = shoes.isGradutate
         dto.workouts = list
+        
+        if !shoes.isGradutate, shoes.isOverGoal {
+            UNUserNotificationCenter.requestNotification(
+                title: "\(shoes.nickname)의 목표 마일리지를 달성했습니다!",
+                body: "축하드립니다! 이제 명예의 전당으로 갈 일만 남았습니다. 가보실까요?"
+            )
+        }
         
         try realm.write {
             realm.add(dto, update: .modified)

@@ -13,7 +13,7 @@ struct InformationView: View {
     
     var body: some View {
         VStack {
-            viewModel.onMemojiAppear()
+            Image(.memoji)
                 .resizable()
                 .frame(width: 153, height: 153)
             
@@ -38,7 +38,7 @@ struct InformationView: View {
                 
                 Link(destination: URL(string: "https://github.com/mooninbeom")!) {
                     HStack(spacing: 5) {
-                        viewModel.onGithubAppear()
+                        Image(.github)
                             .resizable()
                             .frame(width: 20, height: 20)
                         Text("@mooninbeom")
@@ -49,7 +49,7 @@ struct InformationView: View {
                 
                 Link(destination: URL(string: "https://www.linkedin.com/in/인범-문-94ba63298")!) {
                     HStack(spacing: 5) {
-                        viewModel.onLinkedInAppear()
+                        Image(.linkedIn)
                             .resizable()
                             .frame(width: 20, height: 20)
                         Text("@문인범")
