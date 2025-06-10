@@ -24,8 +24,10 @@ struct ShoesCell: View {
                                     image
                                         .resizable()
                                         .scaledToFit()
+                                        .clipShape(ContainerRelativeShape())
                                 }
                             }
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         
                         ShoeInfoView(shoes: shoes)
                         
