@@ -16,36 +16,49 @@ struct AddShoesView: View {
         )
     )
     
+    @FocusState private var textFieldFocus: AddShoesViewModel.TextFieldCategory?
+    
     let dismissAction: () -> Void
     
     var body: some View {
-        VStack(spacing: 0) {
-            SheetNavigationBar {
-                viewModel.cancelButtonTapped()
+        ScrollView {
+            ZStack {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        self.textFieldFocus = nil
+                    }
+                
+                VStack(spacing: 0) {
+                    SheetNavigationBar {
+                        viewModel.cancelButtonTapped()
+                    }
+                    
+                    CustomPhotoPicker(viewModel: viewModel)
+                    
+                    Button(viewModel.isImageBackgroundRemoved ? "취소" : "배경 제거") {
+                        viewModel.removeBackgroundButtonTapped()
+                    }
+                    .disabled(viewModel.image == nil)
+                    
+                    ShoeInfoTextField(category: .name, textFieldFocus: $textFieldFocus, text: $viewModel.name)
+                        .padding(.vertical, 10)
+                    ShoeInfoTextField(category: .nickname, textFieldFocus: $textFieldFocus, text: $viewModel.nickname)
+                        .padding(.vertical, 10)
+                    ShoeInfoTextField(category: .goalMileage, textFieldFocus: $textFieldFocus, text: $viewModel.goalMileage)
+                        .padding(.vertical, 10)
+                    ShoeInfoTextField(category: .runMileage, textFieldFocus: $textFieldFocus, text: $viewModel.runMileage)
+                        .padding(.vertical, 10)
+                    
+                    Spacer()
+                    
+                    CompleteButton(
+                        viewModel: viewModel,
+                        action: viewModel.saveButtonTapped
+                    )
+                }
             }
-            
-            CustomPhotoPicker(viewModel: viewModel)
-            
-            Button(viewModel.isImageBackgroundRemoved ? "취소" : "배경 제거") {
-                viewModel.removeBackgroundButtonTapped()
-            }
-            .disabled(viewModel.image == nil)
-            
-            ShoeInfoTextField(category: .name, text: $viewModel.name)
-                .padding(.vertical, 10)
-            ShoeInfoTextField(category: .nickname, text: $viewModel.nickname)
-                .padding(.vertical, 10)
-            ShoeInfoTextField(category: .goalMileage, text: $viewModel.goalMileage)
-                .padding(.vertical, 10)
-            ShoeInfoTextField(category: .runMileage, text: $viewModel.runMileage)
-                .padding(.vertical, 10)
-            
-            Spacer()
-
-            CompleteButton(
-                viewModel: viewModel,
-                action: viewModel.saveButtonTapped
-            )
+            .padding(.horizontal, 20)
         }
         .overlay {
             if viewModel.isLoading {
@@ -56,7 +69,6 @@ struct AddShoesView: View {
         .onDisappear {
             dismissAction()
         }
-        .padding(.horizontal, 20)
     }
 }
 
@@ -109,6 +121,7 @@ private struct CustomPhotoPicker: View {
 
 private struct ShoeInfoTextField: View {
     let category: AddShoesViewModel.TextFieldCategory
+    var textFieldFocus: FocusState<AddShoesViewModel.TextFieldCategory?>.Binding
     
     @Binding var text: String
     
@@ -120,6 +133,7 @@ private struct ShoeInfoTextField: View {
                     .keyboardType(
                         (category == .goalMileage || category == .runMileage) ? .numberPad : .default
                     )
+                    .focused(textFieldFocus, equals: category)
                 
                 switch category {
                 case .name:

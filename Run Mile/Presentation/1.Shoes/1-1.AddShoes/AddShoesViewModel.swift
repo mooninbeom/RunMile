@@ -50,7 +50,7 @@ final class AddShoesViewModel {
         self.useCase = useCase
     }
     
-    enum TextFieldCategory {
+    enum TextFieldCategory: Hashable {
         case name
         case nickname
         case goalMileage
