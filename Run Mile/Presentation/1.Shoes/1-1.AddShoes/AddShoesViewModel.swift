@@ -121,7 +121,7 @@ extension AddShoesViewModel {
             } catch {
                 NavigationCoordinator.shared.push(.init(
                     title: "이미지 배경 처리 과정 중 오류가 발생했습니다.",
-                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
                     firstButton: .cancel(title: "확인", action: {}),
                     secondButton: nil
                 ))
@@ -148,7 +148,7 @@ extension AddShoesViewModel {
             } catch {
                 await NavigationCoordinator.shared.push(.init(
                     title: "저장 과정 중 오류가 발생했습니다.",
-                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
                     firstButton: .cancel(title: "확인", action: {}),
                     secondButton: nil
                 ))
@@ -166,7 +166,7 @@ extension AddShoesViewModel {
             } catch {
                 await NavigationCoordinator.shared.push(.init(
                     title: "사진 선택 과정 중 오류가 발생했습니다.",
-                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
                     firstButton: .cancel(title: "확인", action: {}),
                     secondButton: nil
                 ))
