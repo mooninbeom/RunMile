@@ -88,8 +88,12 @@ extension ShoesDetailViewModel {
                 self.shoes = modified
                 self.viewStatus = .normal
             } catch {
-                // TODO: 에러 처리
-                print(#function)
+                NavigationCoordinator.shared.push(.init(
+                    title: "저장 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
             }
         }
     }
@@ -159,8 +163,8 @@ extension ShoesDetailViewModel {
                 
             } catch {
                 let alert = AlertData(
-                    title: "삭제에 실패했습니다!",
-                    message: error.localizedDescription,
+                    title: "삭제 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
                     firstButton: .cancel(title: "확인", action: {}),
                     secondButton: nil
                 )
@@ -190,8 +194,12 @@ extension ShoesDetailViewModel {
                 self.selectedWorkouts.removeAll()
                 self.viewStatus = .normal
             } catch {
-                // TODO: Error Handling
-                print(error)
+                await NavigationCoordinator.shared.push(.init(
+                    title: "저장 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
             }
         }
     }
@@ -213,8 +221,12 @@ extension ShoesDetailViewModel {
                 try await self.useCase.graduateShoes(shoes: modified)
                 await NavigationCoordinator.shared.pop(.shoes)
             } catch {
-                // TODO: Error Handling
-                print(error)
+                await NavigationCoordinator.shared.push(.init(
+                    title: "저장 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
             }
         }
     }

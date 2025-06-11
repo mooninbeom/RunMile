@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import UserNotifications
 
 struct ShoesListView: View {
     @State private var viewModel: ShoesListViewModel = .init(

@@ -60,8 +60,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
                 
             )
         } else {
-            // TODO: 에러 처리
-            throw NSError()
+            throw RepositoryError.fetchFailed
         }
     }
     

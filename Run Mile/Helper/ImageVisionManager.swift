@@ -21,7 +21,7 @@ enum ImageVisionManager {
         guard let firstUIImage = UIImage(data: imageData),
               let firstCIImage = CIImage(data: imageData)
         else {
-            throw NSError()
+            throw ImageVisionError.preprocessingFailed
         }
         
         let request = VNGenerateForegroundInstanceMaskRequest()
@@ -32,12 +32,16 @@ enum ImageVisionManager {
         
         return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Data, any Error>) in
             Task(priority: .background) {
-                try handler.perform([request])
+                do {
+                    try handler.perform([request])
+                } catch {
+                    continuation.resume(throwing: error)
+                    return
+                }
                 
                 guard let result = request.results?.first else {
                     print("No subject observations found, Return origianl one")
-                    // TODO: Error handling
-                    continuation.resume(throwing: NSError())
+                    continuation.resume(throwing: ImageVisionError.noSubjectFound)
                     return
                 }
                 
@@ -52,14 +56,12 @@ enum ImageVisionManager {
                 
                 let context = CIContext()
                 guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-                    // TODO: Error handling
-                    continuation.resume(throwing: NSError())
+                    continuation.resume(throwing: ImageVisionError.createciImageFailed)
                     return
                 }
                 
                 guard let uiImageData = UIImage(cgImage: cgImage).pngData() else {
-                    // TODO: Error handling
-                    continuation.resume(throwing: NSError())
+                    continuation.resume(throwing: ImageVisionError.createPNGDataFailed)
                     return
                 }
                 

@@ -28,8 +28,7 @@ final class DefaultAddShoesUseCase: AddShoesUseCase {
         if let image = try await photo.loadTransferable(type: Data.self) {
             return image
         } else {
-            // TODO: 에러 처리
-            throw NSError()
+            throw AddShoesError.transferFailed
         }
     }
     

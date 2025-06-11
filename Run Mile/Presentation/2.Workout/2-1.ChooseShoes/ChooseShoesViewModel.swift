@@ -30,8 +30,12 @@ extension ChooseShoesViewModel {
         do {
             self.shoes = try await useCase.fetchShoesList()
         } catch {
-            // TODO: Error handle
-            print(#function)
+            NavigationCoordinator.shared.push(.init(
+                title: "데이터 로딩 과정 중 오류가 발생했습니다.",
+                message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
+                firstButton: .cancel(title: "확인", action: {}),
+                secondButton: nil
+            ))
         }
     }
     
@@ -47,8 +51,12 @@ extension ChooseShoesViewModel {
                 try await useCase.registerWorkouts(shoes: shoes, workouts: workouts)
                 cancelButtonTapped()
             } catch {
-                // TODO: Error Handling
-                print(error)
+                NavigationCoordinator.shared.push(.init(
+                    title: "저장 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
             }
         }
     }
