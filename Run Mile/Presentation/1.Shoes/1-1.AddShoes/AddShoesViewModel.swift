@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import PhotosUI
+import UserNotifications
 
 
 @Observable
@@ -118,8 +119,13 @@ extension AddShoesViewModel {
                 self.image = removedImage
                 self.isImageBackgroundRemoved = true
             } catch {
-                // TODO: 에러 처리
-                print(error)
+                NavigationCoordinator.shared.push(.init(
+                    title: "이미지 배경 처리 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
+                
                 isImageBackgroundRemoved = false
             }
             self.isLoading = false
@@ -140,8 +146,12 @@ extension AddShoesViewModel {
             do {
                 try await useCase.saveShoes(shoes: shoes)
             } catch {
-                // TODO: 에러 처리
-                print(#function)
+                await NavigationCoordinator.shared.push(.init(
+                    title: "저장 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
             }
             
             await NavigationCoordinator.shared.dismissSheet()
@@ -154,8 +164,12 @@ extension AddShoesViewModel {
                 let result = try await useCase.photoToData(photo: photo)
                 self.image = result
             } catch {
-                // TODO: 에러 처리
-                print(error.localizedDescription)
+                await NavigationCoordinator.shared.push(.init(
+                    title: "사진 선택 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
             }
         }
     }

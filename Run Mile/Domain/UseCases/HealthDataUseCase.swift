@@ -82,7 +82,6 @@ extension DefaultHealthDataUseCase {
     /// Health 데이터 사용 권한을 요청합니다.
     private func requestAuthorization() async throws {
         if HKHealthStore.isHealthDataAvailable() {
-            // TODO: toShare 수정(info 포함)
             try await store.requestAuthorization(
                 toShare: Set(),
                 read: Set([.workoutType()])

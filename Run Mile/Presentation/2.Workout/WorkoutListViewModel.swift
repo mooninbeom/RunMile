@@ -51,8 +51,22 @@ extension WorkoutListViewModel {
             
             await AppDelegate.setHealthBackgroundTask()
         } catch {
-            // TODO: 에러 대응
-            print(error)
+            if let error = error as? HealthError,
+               error == .unknownError || error == .notAvailableDevice {
+                NavigationCoordinator.shared.push(.init(
+                    title: "권한 부여 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
+            } else {
+                NavigationCoordinator.shared.push(.init(
+                    title: "데이터 로딩 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
+            }
         }
     }
     
@@ -74,8 +88,17 @@ extension WorkoutListViewModel {
         } else {
             NavigationCoordinator.shared.push(.chooseShoes([workout], {
                 Task {
-                    let workouts = try await self.useCase.fetchWorkoutData()
-                    self.classifyWorkoutsByDate(workouts: workouts)
+                    do {
+                        let workouts = try await self.useCase.fetchWorkoutData()
+                        self.classifyWorkoutsByDate(workouts: workouts)
+                    } catch {
+                        NavigationCoordinator.shared.push(.init(
+                            title: "데이터 로딩 과정 중 오류가 발생했습니다.",
+                            message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                            firstButton: .cancel(title: "확인", action: {}),
+                            secondButton: nil
+                        ))
+                    }
                 }
             }))
         }
@@ -100,12 +123,21 @@ extension WorkoutListViewModel {
         NavigationCoordinator.shared.push(.chooseShoes(workouts, {
             Task {
                 self.selectedWorkout.removeAll()
-                let workouts = try await self.useCase.fetchWorkoutData()
-                if workouts.isEmpty {
-                    self.viewStatus = .empty
-                } else {
-                    self.classifyWorkoutsByDate(workouts: workouts)
-                    self.viewStatus = .none
+                do {
+                    let workouts = try await self.useCase.fetchWorkoutData()
+                    if workouts.isEmpty {
+                        self.viewStatus = .empty
+                    } else {
+                        self.classifyWorkoutsByDate(workouts: workouts)
+                        self.viewStatus = .none
+                    }
+                } catch {
+                    NavigationCoordinator.shared.push(.init(
+                        title: "데이터 로딩 과정 중 오류가 발생했습니다.",
+                        message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                        firstButton: .cancel(title: "확인", action: {}),
+                        secondButton: nil
+                    ))
                 }
             }
         }))

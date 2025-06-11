@@ -41,7 +41,12 @@ extension ShoesListViewModel {
                 let result = try await self.useCase.fetchShoes()
                 self.shoes = result
             } catch {
-                // TODO: 에러 처리
+                await NavigationCoordinator.shared.push(.init(
+                    title: "데이터 로딩 과정 중 오류가 발생했습니다.",
+                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n\(error.localizedDescription)",
+                    firstButton: .cancel(title: "확인", action: {}),
+                    secondButton: nil
+                ))
             }
         }
     }
