@@ -5,7 +5,7 @@
 
 |상태|앱스토어 배포 완료 및 유지보수 진행 중(v1.0.0)|
 |:--|:--|
-|기술 스택|SwiftUI, HealthKit, Realm, UserNotifications, Vision(이미지 배경 제거)|
+|기술 스택|SwiftUI, HealthKit, Realm, Fastlane, UserNotifications, Vision(이미지 배경 제거)|
 |앱스토어|[Run Mile](https://apps.apple.com/kr/app/run-mile/id6747099791)|
 |이메일 문의|dlsqja567@naver.com|
 
@@ -25,6 +25,7 @@
 |**0. 사이드 프로젝트 Run Mile 앱 개발기**|https://velog.io/@mooninbeom/0.-사이드-프로젝트-Run-Mile-앱-개발기|
 |**1. HealthKit 데이터 사용(with Continuation)**|https://velog.io/@mooninbeom/1.-HealthKit-데이터-사용with-Continuation|
 |**2. 백그라운드에서 HealthKit 활용하기**|https://velog.io/@mooninbeom/2.-백그라운드에서-HealthKit-활용하기-o2p1gg9l|
+|**3. Fastlane으로 Testflight 배포 자동화**|https://velog.io/@mooninbeom/3.-Fastlane으로-Testflight-배포-자동화|
 
 </br>
 
