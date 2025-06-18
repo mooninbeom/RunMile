@@ -59,14 +59,14 @@ platform :ios do
     
     slack(
       message: "Build Number: #{new_build_number} 배포 준비 시작",
-      slack_url: "https://hooks.slack.com/services/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"
+      slack_url: "https://hooks.slack.com/services/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"
     )
     
     match(type: "appstore")
     
     slack(
       message: "Build Number: #{new_build_number} 인증서 준비 완료",
-      slack_url: "https://hooks.slack.com/services/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"
+      slack_url: "https://hooks.slack.com/services/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"
     )
     
     build_app(
@@ -81,7 +81,7 @@ platform :ios do
     
     slack(
       message: "Build Number: #{new_build_number} 아카이브 완료",
-      slack_url: "https://hooks.slack.com/services/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"
+      slack_url: "https://hooks.slack.com/services/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"
     )
     
     upload_to_testflight
@@ -93,7 +93,7 @@ platform :ios do
     
     slack(
       message: "Build Number: #{new_build_number} 배포 성공!",
-      slack_url: "https://hooks.slack.com/services/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"
+      slack_url: "https://hooks.slack.com/services/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"
     )
   end
   
@@ -104,7 +104,7 @@ platform :ios do
   #   )
     slack(
       message: "Testflight 배포 중 오류가 발생했습니다. #{exception}",
-      slack_url: "https://hooks.slack.com/services/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"
+      slack_url: "https://hooks.slack.com/services/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"
     )
   end
 end
