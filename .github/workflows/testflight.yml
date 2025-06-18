@@ -11,7 +11,7 @@ on:
 
 jobs:
   build-upload-testflight:
-    runs-on: macos-latest
+    runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
