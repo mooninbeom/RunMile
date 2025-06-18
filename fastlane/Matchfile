@@ -1,4 +1,4 @@
-git_url("https://github.com/mooninbeom/fastlane-match")
+git_url("git@github.com:mooninbeom/fastlane-match.git")
 
 storage_mode("git")
 
