@@ -57,7 +57,17 @@ platform :ios do
     #   message: "테스트 플라이트 배포 준비"
     # )
     
+    slack(
+      message: "Build Number: #{new_build_number} 배포 준비 시작",
+      slack_url: "https://hooks.slack.com/services/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"
+    )
+    
     match(type: "appstore")
+    
+    slack(
+      message: "Build Number: #{new_build_number} 인증서 준비 완료",
+      slack_url: "https://hooks.slack.com/services/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"
+    )
     
     build_app(
       scheme: "Run Mile",
@@ -69,18 +79,32 @@ platform :ios do
       }
     )
     
+    slack(
+      message: "Build Number: #{new_build_number} 아카이브 완료",
+      slack_url: "https://hooks.slack.com/services/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"
+    )
+    
     upload_to_testflight
     
     # notification(
     #   subtitle: "Testflight 배포 성공!",
     #   message: "Build Number : #{new_build_number}, 테스트 플라이트 배포에 성공했습니다!"
     # )
+    
+    slack(
+      message: "Build Number: #{new_build_number} 배포 성공!",
+      slack_url: "https://hooks.slack.com/services/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"
+    )
   end
   
-  # error do |lane, exception, options|
+  error do |lane, exception, options|
   #   notification(
   #   subtitle: "Testflight 배포 중 오류가 발생했습니다.",
   #   message: "#{exception}"
   #   )
-  # end
+    slack(
+      message: "Testflight 배포 중 오류가 발생했습니다. #{exception}",
+      slack_url: "https://hooks.slack.com/services/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"
+    )
+  end
 end

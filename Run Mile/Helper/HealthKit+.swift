@@ -8,7 +8,7 @@
 import HealthKit
 
 
-extension HKHealthStore {
+extension HKHealthStore: Sendable {
     public func fetchData<T: HKSample>(
         sampleType: HKSampleType,
         predicate: NSPredicate? = nil,
