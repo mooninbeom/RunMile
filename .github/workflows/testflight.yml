@@ -1,0 +1,50 @@
+name: 테스트 플라이트 배포 🚀
+
+on:
+  push:
+    branches:
+      - main
+  # 액션 테스트용
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build-upload-testflight:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up RUBY
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.7'
+
+      - name: Install Bundler
+        run: gem install bundler
+
+      - name: Install Fastlane
+        run: brew install fastlane
+
+      - name: Check Fastlane
+        run: fastlane --version
+
+      - name: Install Dependencies
+        run: bundle install
+
+      - name: Upload to Testflight ✈️
+        env:
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY}}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+        run: bundle exec fastlane beta
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa-and-dsym
+          path: |
+            ./Run\ Mile.ipa
+            ./Run\ Mile.app.dSYM.zip
