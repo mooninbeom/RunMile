@@ -102,6 +102,8 @@ platform :ios do
       slack_url: "#{ENV["SLACK_URL"]}"
     )
     
+    setup_ci
+    
     match(type: "appstore")
     
     slack(
