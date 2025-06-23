@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-  # 액션 테스트용
-  pull_request:
-    branches:
-      - develop
 
 jobs:
   build-upload-testflight:
