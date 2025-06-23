@@ -117,7 +117,8 @@ platform :ios do
     
     slack(
       message: "Build Number: #{new_build_number} 아카이브 완료",
-      slack_url: "https://hooks.slack.com/services/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"
+      channel: "#run_mile",
+      slack_url: "#{ENV["SLACK_URL"]}"
     )
     
     upload_to_testflight
