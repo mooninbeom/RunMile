@@ -52,14 +52,20 @@ extension HKWorkout {
         return nil
     }
     
-    public func toEntity() -> RunningData {
+    public var toEntity: RunningData {
         let statistics = self.statistics(for: HKQuantityType(.distanceWalkingRunning))!
         let sumDistance = statistics.sumQuantity()!
+        
+        let localStartDate = Calendar.current.date(
+            byAdding: .second,
+            value: TimeZone.current.secondsFromGMT(),
+            to: self.startDate
+        )
         
         return .init(
             id: self.uuid,
             distance: sumDistance.doubleValue(for: .meter()),
-            date: self.startDate
+            date: localStartDate
         )
     }
 }

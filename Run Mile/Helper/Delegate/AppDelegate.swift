@@ -98,6 +98,7 @@ extension AppDelegate {
                             if !UserDefaults.standard.selectedShoesID.isEmpty {
 
                                 UNUserNotificationCenter.requestNotification(
+                                    category: .autoRegister(workout.toEntity),
                                     title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
                                     body: distance == nil
                                     ? "신발에 자동 등록이 완료되었습니다!"
@@ -107,6 +108,7 @@ extension AppDelegate {
                                 autoRegisterShoes(workout: workout)
                             } else {
                                 UNUserNotificationCenter.requestNotification(
+                                    category: .manualRegister(workout.toEntity),
                                     title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
                                     body: distance == nil
                                     ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
@@ -137,7 +139,7 @@ extension AppDelegate {
                 let shoesID = UUID(uuidString: UserDefaults.standard.selectedShoesID)!
                 let shoes = try await shoesDataRepository.fetchSingleShoes(id: shoesID)
                 var workouts = shoes.workouts
-                workouts.append(workout.toEntity())
+                workouts.append(workout.toEntity)
                 
                 let newShoes = Shoes(
                     id: shoes.id,
@@ -152,6 +154,7 @@ extension AppDelegate {
                 try await shoesDataRepository.updateShoes(shoes: newShoes)
             } catch {
                 UNUserNotificationCenter.requestNotification(
+                    category: .manualRegister(workout.toEntity),
                     title: "마일리지 자동 등록에 실패했습니다.",
                     body: "앱에서 수동으로 등록 부탁드립니다."
                 )
@@ -167,6 +170,30 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        let userInfo = response.notification.request.content.userInfo
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        
+        
+        if let category = userInfo["category"] as? String,
+           category == "ManualRegister",
+           let uuidString = userInfo["id"] as? String,
+           let uuid = UUID(uuidString: uuidString),
+           let dateString = userInfo["date"] as? String,
+           let date = dateFormatter.date(from: dateString),
+           let distanceString = userInfo["distance"] as? String,
+           let distance = Double(distanceString)
+        {
+            let runningData = RunningData(
+                id: uuid,
+                distance: distance,
+                date: date
+            )
+            
+            NavigationCoordinator.shared.push(.chooseShoes([runningData], {}))
+        }
+        
         completionHandler()
     }
     

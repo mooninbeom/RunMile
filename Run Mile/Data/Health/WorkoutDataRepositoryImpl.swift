@@ -23,34 +23,6 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
             sortDescriptors: descriptor
         )
         
-        return convertToRunningData(result)
-    }
-}
-
-
-extension WorkoutDataRepositoryImpl {
-    /// HKWorkout 을 RunningData 엔티티로 변환합니다.
-    private func convertToRunningData(_ workouts: [HKWorkout]) -> [RunningData] {
-        var resultArray = [RunningData]()
-        workouts.forEach {
-            if let statistics = $0.statistics(for: HKQuantityType(.distanceWalkingRunning)),
-               let sumDistance = statistics.sumQuantity()?.doubleValue(for: .meter()) {
-                let localStartDate = Calendar.current.date(
-                    byAdding: .second,
-                    value: TimeZone.current.secondsFromGMT(),
-                    to: $0.startDate
-                )
-                
-                let result = RunningData(
-                    id: $0.uuid,
-                    distance: sumDistance,
-                    date: localStartDate
-                )
-                
-                resultArray.append(result)
-            }
-        }
-        
-        return resultArray
+        return result.map { $0.toEntity }
     }
 }
