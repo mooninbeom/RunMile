@@ -56,16 +56,17 @@ extension HKWorkout {
         let statistics = self.statistics(for: HKQuantityType(.distanceWalkingRunning))!
         let sumDistance = statistics.sumQuantity()!
         
-        let localStartDate = Calendar.current.date(
-            byAdding: .second,
-            value: TimeZone.current.secondsFromGMT(),
-            to: self.startDate
-        )
+        // 실기기 검증 필요
+//        let localStartDate = Calendar.current.date(
+//            byAdding: .second,
+//            value: TimeZone.current.secondsFromGMT(),
+//            to: self.startDate
+//        )
         
         return .init(
             id: self.uuid,
             distance: sumDistance.doubleValue(for: .meter()),
-            date: localStartDate
+            date: self.startDate
         )
     }
 }
