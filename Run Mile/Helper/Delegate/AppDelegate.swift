@@ -8,7 +8,6 @@
 import UIKit
 import HealthKit
 import SwiftUI
-import UserNotifications
 
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
@@ -97,7 +96,7 @@ extension AppDelegate {
                             let distance = workout.getKilometerDistance()
                             if !UserDefaults.standard.selectedShoesID.isEmpty {
 
-                                UNUserNotificationCenter.requestNotification(
+                                UserNotificationsManager.requestNotification(
                                     category: .autoRegister(workout.toEntity),
                                     title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
                                     body: distance == nil
@@ -107,7 +106,7 @@ extension AppDelegate {
                                 
                                 autoRegisterShoes(workout: workout)
                             } else {
-                                UNUserNotificationCenter.requestNotification(
+                                UserNotificationsManager.requestNotification(
                                     category: .manualRegister(workout.toEntity),
                                     title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
                                     body: distance == nil
@@ -153,7 +152,7 @@ extension AppDelegate {
                 
                 try await shoesDataRepository.updateShoes(shoes: newShoes)
             } catch {
-                UNUserNotificationCenter.requestNotification(
+                UserNotificationsManager.requestNotification(
                     category: .manualRegister(workout.toEntity),
                     title: "마일리지 자동 등록에 실패했습니다.",
                     body: "앱에서 수동으로 등록 부탁드립니다."

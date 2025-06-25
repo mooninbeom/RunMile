@@ -7,7 +7,6 @@
 
 import Foundation
 import RealmSwift
-import UserNotifications
 
 
 actor ShoesDataRepositoryImpl: ShoesDataRepository {
@@ -104,7 +103,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         dto.workouts = list
         
         if !shoes.isGradutate, shoes.isOverGoal {
-            UNUserNotificationCenter.requestNotification(
+            UserNotificationsManager.requestNotification(
                 title: "\(shoes.nickname)의 목표 마일리지를 달성했습니다!",
                 body: "축하드립니다! 이제 명예의 전당으로 갈 일만 남았습니다. 가보실까요?"
             )

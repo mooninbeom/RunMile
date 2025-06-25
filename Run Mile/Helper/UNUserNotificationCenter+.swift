@@ -8,14 +8,14 @@
 import UserNotifications
 
 
-extension UNUserNotificationCenter {
+public enum UserNotificationsManager {
     static func requestNotification(
         category: NotificationCategory = .none,
         id: String = UUID().uuidString,
         title: String,
         body: String
     ) {
-        let center = self.current()
+        let center = UNUserNotificationCenter.current()
         
         let content = UNMutableNotificationContent()
         content.title = title
