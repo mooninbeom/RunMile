@@ -12,7 +12,7 @@ import HealthKit
 actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     private let store = HKHealthStore()
     
-    public func fetchWorkoutData() async throws -> [RunningData] {
+    public func fetchWorkoutData() async throws -> [Workout] {
         let predicate = HKQuery.predicateForWorkouts(with: .running)
         let descriptor = [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
         
@@ -24,5 +24,14 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         )
         
         return result.map { $0.toEntity }
+    }
+    
+    
+    public func saveWorkoutData(workouts: [Workout]) async throws {
+        
+    }
+    
+    public func deleteWorkoutDate(workouts: [Workout]) async throws {
+        
     }
 }

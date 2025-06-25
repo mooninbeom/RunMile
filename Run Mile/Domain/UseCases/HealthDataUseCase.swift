@@ -14,7 +14,7 @@ protocol HealthDataUseCase {
     @discardableResult
     func checkHealthAuthorization() async throws -> Bool
     
-    func fetchWorkoutData() async throws -> [RunningData]
+    func fetchWorkoutData() async throws -> [Workout]
 }
 
 
@@ -43,7 +43,7 @@ final class DefaultHealthDataUseCase: HealthDataUseCase {
         return true
     }
     
-    public func fetchWorkoutData() async throws -> [RunningData] {
+    public func fetchWorkoutData() async throws -> [Workout] {
         let fetchedResult = try await workoutDataRepository.fetchWorkoutData()
         let shoes = try await shoesDataRepository.fetchAllShoes()
         

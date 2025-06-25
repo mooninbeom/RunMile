@@ -52,7 +52,7 @@ extension HKWorkout {
         return nil
     }
     
-    public var toEntity: RunningData {
+    public var toEntity: Workout {
         let statistics = self.statistics(for: HKQuantityType(.distanceWalkingRunning))!
         let sumDistance = statistics.sumQuantity()!
         

@@ -37,10 +37,10 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         let fetchedResult = realm.object(ofType: ShoesDTO.self, forPrimaryKey: id)
         
         if let result = fetchedResult {
-            var workouts = [RunningData]()
+            var workouts = [Workout]()
             result.workouts.forEach { workout in
                 workouts.append(
-                    RunningData(
+                    Workout(
                         id: workout.id,
                         distance: workout.distance,
                         date: workout.date
@@ -134,10 +134,10 @@ extension ShoesDataRepositoryImpl {
     private func toEntities(_ dto: Results<ShoesDTO>) -> [Shoes] {
         var resultArray: [Shoes] = []
         dto.forEach {
-            var workouts = [RunningData]()
+            var workouts = [Workout]()
             $0.workouts.forEach { workout in
                 workouts.append(
-                    RunningData(
+                    Workout(
                         id: workout.id,
                         distance: workout.distance,
                         date: workout.date

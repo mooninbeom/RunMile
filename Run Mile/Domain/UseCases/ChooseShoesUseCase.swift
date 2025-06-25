@@ -10,7 +10,7 @@ import Foundation
 
 protocol ChooseShoesUseCase: Sendable {
     func fetchShoesList() async throws -> [Shoes]
-    func registerWorkouts(shoes: Shoes, workouts: [RunningData]) async throws
+    func registerWorkouts(shoes: Shoes, workouts: [Workout]) async throws
 }
 
 
@@ -26,7 +26,7 @@ final class DefaultChooseShoesUseCase: ChooseShoesUseCase {
         try await repository.fetchCurrentShoes()
     }
     
-    public func registerWorkouts(shoes: Shoes, workouts: [RunningData]) async throws {
+    public func registerWorkouts(shoes: Shoes, workouts: [Workout]) async throws {
         var newWorkouts = shoes.workouts
         newWorkouts.append(contentsOf: workouts)
         

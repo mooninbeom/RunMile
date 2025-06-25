@@ -184,7 +184,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
            let distanceString = userInfo["distance"] as? String,
            let distance = Double(distanceString)
         {
-            let runningData = RunningData(
+            let runningData = Workout(
                 id: uuid,
                 distance: distance,
                 date: date

@@ -156,7 +156,7 @@ extension NavigationCoordinator {
         var id: Self { self }
         
         case addShoes(() -> Void)
-        case chooseShoes([RunningData], () -> Void)
+        case chooseShoes([Workout], () -> Void)
         case automaticRegister
     }
 }

@@ -43,8 +43,8 @@ public enum UserNotificationsManager {
     }
     
     public enum NotificationCategory: Hashable {
-        case autoRegister(RunningData)
-        case manualRegister(RunningData)
+        case autoRegister(Workout)
+        case manualRegister(Workout)
         case none
         
         public var rawValue: String {

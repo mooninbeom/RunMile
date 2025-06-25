@@ -99,7 +99,7 @@ extension ShoesDetailViewModel {
     }
     
     @MainActor
-    public func workoutCellTapped(_ workout: RunningData) {
+    public func workoutCellTapped(_ workout: Workout) {
         switch self.viewStatus {
         case .workouts:
             if selectedWorkouts.contains(workout.id) {

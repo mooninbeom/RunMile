@@ -9,7 +9,7 @@ import SwiftUI
 
 
 struct WorkoutCell: View {
-    let workout: RunningData
+    let workout: Workout
     
     let action: () -> Void
     
