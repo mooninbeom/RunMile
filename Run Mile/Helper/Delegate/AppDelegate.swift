@@ -16,11 +16,11 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
+        self.realmMigration()
         
         Task {
             await self.userNotificationAuthorize()
             await AppDelegate.setHealthBackgroundTask()
-            self.realmMigration()
         }
         
         return true
@@ -178,32 +178,6 @@ extension AppDelegate {
         #if DEBUG
         print(Realm.Configuration.defaultConfiguration.fileURL ?? "알 수 없음")
         #endif
-    }
-    
-    private func workoutDataMigration() {
-        let workoutRepository = WorkoutDataRepositoryImpl()
-        let shoesRepository = ShoesDataRepositoryImpl()
-        
-        Task {
-            do {
-                let workouts = try await workoutRepository.fetchSavedWorkoutData()
-                let shoes = try await shoesRepository.fetchAllShoes()
-                
-                if !shoes.isEmpty, workouts.isEmpty {
-                    var workouts = [Workout]()
-                    
-                    shoes.forEach {
-                        $0.workouts.forEach {
-                            workouts.append($0)
-                        }
-                    }
-                    
-                    try await workoutRepository.saveWorkoutData(workouts: workouts)
-                }
-            } catch {
-                // TODO: Error 처리
-            }
-        }
     }
 }
 

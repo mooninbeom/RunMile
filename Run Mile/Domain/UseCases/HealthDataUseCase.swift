@@ -44,14 +44,7 @@ final class DefaultHealthDataUseCase: HealthDataUseCase {
     }
     
     public func fetchWorkoutData() async throws -> [Workout] {
-        let fetchedResult = try await workoutDataRepository.fetchWorkoutData()
-        let shoes = try await shoesDataRepository.fetchAllShoes()
-        
-        let registeredId = Set(shoes.flatMap { $0.workouts.map { $0.id } })
-        
-        return fetchedResult.filter ({ workout in
-            !registeredId.contains(workout.id)
-        })
+        try await workoutDataRepository.fetchUnsavedWorkoutData()
     }
 }
 

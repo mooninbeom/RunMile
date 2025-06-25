@@ -13,7 +13,7 @@ import HealthKit
 actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     private let store = HKHealthStore()
     
-    public func fetchWorkoutData() async throws -> [Workout] {
+    public func fetchAllWorkoutData() async throws -> [Workout] {
         let predicate = HKQuery.predicateForWorkouts(with: .running)
         let descriptor = [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
         
@@ -27,16 +27,28 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         return result.map { $0.toEntity }
     }
     
+    public func fetchUnsavedWorkoutData() async throws -> [Workout] {
+        let savedWorkouts = try await fetchSavedWorkoutData()
+        let entireWorkouts = try await fetchAllWorkoutData()
+        
+        let result = entireWorkouts.filter { first in
+            !savedWorkouts.contains(where: { $0.id == first.id })
+        }
+        
+        return result
+    }
+    
     public func fetchSavedWorkoutData() async throws -> [Workout] {
-        return []
-    }
-    
-    
-    public func saveWorkoutData(workouts: [Workout]) async throws {
+        let realm = try await Realm.open()
+        let fetchedResult = realm.objects(WorkoutDTO.self)
+        var result = [Workout]()
         
-    }
-    
-    public func deleteWorkoutDate(workouts: [Workout]) async throws {
+        fetchedResult.forEach {
+            result.append(
+                .init(id: $0.id, distance: $0.distance, date: $0.date)
+            )
+        }
         
+        return result
     }
 }
