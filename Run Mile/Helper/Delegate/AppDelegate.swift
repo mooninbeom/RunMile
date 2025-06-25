@@ -8,6 +8,7 @@
 import UIKit
 import HealthKit
 import SwiftUI
+import RealmSwift
 
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
@@ -19,6 +20,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         Task {
             await self.userNotificationAuthorize()
             await AppDelegate.setHealthBackgroundTask()
+            self.realmMigration()
         }
         
         return true
@@ -157,6 +159,49 @@ extension AppDelegate {
                     title: "마일리지 자동 등록에 실패했습니다.",
                     body: "앱에서 수동으로 등록 부탁드립니다."
                 )
+            }
+        }
+    }
+    
+    private func realmMigration() {
+        let config = Realm.Configuration(
+            schemaVersion: 1,
+            migrationBlock: { migration, oldSchemaVersion in
+                if oldSchemaVersion < 1 {
+                    
+                }
+            }
+        )
+        
+        Realm.Configuration.defaultConfiguration = config
+        
+        #if DEBUG
+        print(Realm.Configuration.defaultConfiguration.fileURL ?? "알 수 없음")
+        #endif
+    }
+    
+    private func workoutDataMigration() {
+        let workoutRepository = WorkoutDataRepositoryImpl()
+        let shoesRepository = ShoesDataRepositoryImpl()
+        
+        Task {
+            do {
+                let workouts = try await workoutRepository.fetchSavedWorkoutData()
+                let shoes = try await shoesRepository.fetchAllShoes()
+                
+                if !shoes.isEmpty, workouts.isEmpty {
+                    var workouts = [Workout]()
+                    
+                    shoes.forEach {
+                        $0.workouts.forEach {
+                            workouts.append($0)
+                        }
+                    }
+                    
+                    try await workoutRepository.saveWorkoutData(workouts: workouts)
+                }
+            } catch {
+                // TODO: Error 처리
             }
         }
     }

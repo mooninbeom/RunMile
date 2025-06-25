@@ -5,6 +5,7 @@
 //  Created by 문인범 on 4/15/25.
 //
 
+import RealmSwift
 import Foundation
 import HealthKit
 
@@ -24,6 +25,10 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         )
         
         return result.map { $0.toEntity }
+    }
+    
+    public func fetchSavedWorkoutData() async throws -> [Workout] {
+        return []
     }
     
     
