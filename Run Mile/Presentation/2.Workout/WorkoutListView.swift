@@ -110,6 +110,11 @@ private struct WorkoutScrollView: View {
             }
             .padding(.horizontal, 20)
         }
+        .refreshable {
+            Task {
+                await viewModel.onAppear()
+            }
+        }
     }
 }
 

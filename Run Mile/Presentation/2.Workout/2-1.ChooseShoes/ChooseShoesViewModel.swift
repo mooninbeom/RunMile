@@ -10,13 +10,13 @@ import Foundation
 @Observable
 final class ChooseShoesViewModel {
     private let useCase: ChooseShoesUseCase
-    private let workouts: [RunningData]
+    private let workouts: [Workout]
     
     public var shoes: [Shoes] = []
     
     init(
         useCase: ChooseShoesUseCase,
-        workouts: [RunningData]
+        workouts: [Workout]
     ) {
         self.useCase = useCase
         self.workouts = workouts

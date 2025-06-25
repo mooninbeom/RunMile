@@ -14,7 +14,7 @@ struct ChooseShoesView: View {
     let dismiss: () -> Void
     
     init(
-        workouts: [RunningData],
+        workouts: [Workout],
         dismiss: @escaping () -> Void
     ) {
         self.viewModel = .init(

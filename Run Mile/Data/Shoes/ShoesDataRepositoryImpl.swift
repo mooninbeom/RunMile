@@ -7,7 +7,6 @@
 
 import Foundation
 import RealmSwift
-import UserNotifications
 
 
 actor ShoesDataRepositoryImpl: ShoesDataRepository {
@@ -38,10 +37,10 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         let fetchedResult = realm.object(ofType: ShoesDTO.self, forPrimaryKey: id)
         
         if let result = fetchedResult {
-            var workouts = [RunningData]()
+            var workouts = [Workout]()
             result.workouts.forEach { workout in
                 workouts.append(
-                    RunningData(
+                    Workout(
                         id: workout.id,
                         distance: workout.distance,
                         date: workout.date
@@ -104,7 +103,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         dto.workouts = list
         
         if !shoes.isGradutate, shoes.isOverGoal {
-            UNUserNotificationCenter.requestNotification(
+            UserNotificationsManager.requestNotification(
                 title: "\(shoes.nickname)의 목표 마일리지를 달성했습니다!",
                 body: "축하드립니다! 이제 명예의 전당으로 갈 일만 남았습니다. 가보실까요?"
             )
@@ -135,10 +134,10 @@ extension ShoesDataRepositoryImpl {
     private func toEntities(_ dto: Results<ShoesDTO>) -> [Shoes] {
         var resultArray: [Shoes] = []
         dto.forEach {
-            var workouts = [RunningData]()
+            var workouts = [Workout]()
             $0.workouts.forEach { workout in
                 workouts.append(
-                    RunningData(
+                    Workout(
                         id: workout.id,
                         distance: workout.distance,
                         date: workout.date

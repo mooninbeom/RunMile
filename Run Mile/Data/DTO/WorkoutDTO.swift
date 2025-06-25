@@ -13,4 +13,6 @@ final class WorkoutDTO: Object {
     @Persisted(primaryKey: true) public var id: UUID
     @Persisted public var date: Date?
     @Persisted public var distance: Double
+    /// 역관계
+    @Persisted(originProperty: "workouts") public var shoes: LinkingObjects<ShoesDTO>
 }
