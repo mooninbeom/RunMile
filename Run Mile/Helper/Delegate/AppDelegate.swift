@@ -6,8 +6,8 @@
 //
 
 import UIKit
-import HealthKit
 import SwiftUI
+import HealthKit
 import RealmSwift
 
 
@@ -20,7 +20,8 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         
         Task {
             await self.userNotificationAuthorize()
-            await AppDelegate.setHealthBackgroundTask()
+            await Self.setBackgroundDelivery()
+            self.setHealthBackgroundQueryTask()
         }
         
         return true
@@ -39,6 +40,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 
 
 extension AppDelegate {
+    /// UserNotification 권한 허용
     private func userNotificationAuthorize() async {
         let notiCenter = UNUserNotificationCenter.current()
         
@@ -55,84 +57,89 @@ extension AppDelegate {
         }
     }
     
-    public static func setHealthBackgroundTask() async {
+    /// 백그라운드에서 Health 데이터 사용 업데이트 설정
+    public static func setBackgroundDelivery() async {
         let store = HKHealthStore()
         
         do {
             try await store.enableBackgroundDelivery(for: .workoutType(), frequency: .immediate)
-            let query = HKObserverQuery(
-                sampleType: .workoutType(),
-                predicate: nil
-            ) { query, completionHandler, error in
-                if let error = error {
-                    print(error)
-                    return
-                }
-                
-                let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
-                let sampleQuery = HKSampleQuery(queryDescriptors: [.init(sampleType: .workoutType(), predicate: nil)], limit: 1, sortDescriptors: [sort]) { _, samples, error in
-                    if let error = error {
-                        print(error)
-                        return
-                    }
-                    
-                    defer {
-                        UserDefaults.standard.isFirstLaunch = true
-                    }
-                    
-                    guard let workout = samples?.first as? HKWorkout else {
-                        return
-                    }
-                    
-                    guard case .running = workout.workoutActivityType else {
-                        return
-                    }
-                    
-                    let workoutId = workout.uuid.uuidString
-                    let currentId = UserDefaults.standard.recentWorkoutID
-                    
-                    if !UserDefaults.standard.isFirstLaunch {
-                        UserDefaults.standard.recentWorkoutID = workoutId
-                    } else {
-                        if workoutId != currentId {
-                            let distance = workout.getKilometerDistance()
-                            if !UserDefaults.standard.selectedShoesID.isEmpty {
-
-                                UserNotificationsManager.requestNotification(
-                                    category: .autoRegister(workout.toEntity),
-                                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
-                                    body: distance == nil
-                                    ? "신발에 자동 등록이 완료되었습니다!"
-                                    : String(format: "신발에 자동 등록이 완료되었습니다. 러닝 후 스트레칭 꼭 잊지 마세요!", distance!)
-                                )
-                                
-                                autoRegisterShoes(workout: workout)
-                            } else {
-                                UserNotificationsManager.requestNotification(
-                                    category: .manualRegister(workout.toEntity),
-                                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
-                                    body: distance == nil
-                                    ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
-                                    : String(format: "%.2fkm, 잊지 말고 마일리지를 등록하러 오세요!", distance!)
-                                )
-                            }
-                            UserDefaults.standard.recentWorkoutID = workoutId
-                        }
-                    }
-                }
-                
-                store.execute(sampleQuery)
-                
-                completionHandler()
-            }
-            
-            store.execute(query)
         } catch {
-            print(error)
+            print(error.localizedDescription)
         }
     }
     
-    private static func autoRegisterShoes(workout: HKWorkout) {
+    /// 백그라운드에서 사용할 HealthKit Query 설정
+    private func setHealthBackgroundQueryTask() {
+        let store = HKHealthStore()
+        
+        let anchoredQuery = HKAnchoredObjectQuery(
+            type: .workoutType(),
+            predicate: nil,
+            anchor: UserDefaults.standard.lastAnchor,
+            limit: HKObjectQueryNoLimit
+        ) { query, samples, deletedObjects, anchor, error in
+            if UserDefaults.standard.lastAnchor != anchor {
+                UserDefaults.standard.lastAnchor = anchor
+            }
+        }
+        
+        anchoredQuery.updateHandler = { [weak self] query, samples, deletedObjects, anchor, error in
+            let currentAnchor = UserDefaults.standard.lastAnchor
+            
+            if currentAnchor != anchor {
+                UserDefaults.standard.lastAnchor = anchor
+            } else {
+                return
+            }
+            
+            if let error = error {
+                print(error)
+                return
+            }
+            
+            guard let samples = samples as? [HKWorkout],
+                  !samples.isEmpty
+            else {
+                print(#function)
+                return
+            }
+            
+            guard let workout = samples.first else {
+                return
+            }
+            
+            guard case .running = workout.workoutActivityType else {
+                return
+            }
+            
+            let distance = workout.getKilometerDistance()
+            
+            if !UserDefaults.standard.selectedShoesID.isEmpty {
+                UserNotificationsManager.requestNotification(
+                    category: .autoRegister(workout.toEntity),
+                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
+                    body: distance == nil
+                    ? "신발에 자동 등록이 완료되었습니다!"
+                    : String(format: "신발에 자동 등록이 완료되었습니다. 러닝 후 스트레칭 꼭 잊지 마세요!", distance!)
+                )
+                
+                self?.autoRegisterShoes(workout: workout)
+            } else {
+                UserNotificationsManager.requestNotification(
+                    category: .manualRegister(workout.toEntity),
+                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
+                    body: distance == nil
+                    ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
+                    : String(format: "%.2fkm, 잊지 말고 마일리지를 등록하러 오세요!", distance!)
+                )
+            }
+        }
+        
+        store.execute(anchoredQuery)
+    }
+    
+    /// 업데이트된 운동 자동 등록 메소드
+    private func autoRegisterShoes(workout: HKWorkout) {
         let shoesDataRepository: ShoesDataRepository = ShoesDataRepositoryImpl()
         
         Task {
@@ -163,10 +170,13 @@ extension AppDelegate {
         }
     }
     
+    /// Realm 스키마 마이그레이션
     private func realmMigration() {
         let config = Realm.Configuration(
             schemaVersion: 1,
             migrationBlock: { migration, oldSchemaVersion in
+                /// Version 1
+                /// WorkoutDTO : 역관계 추가 <-> ShoesDTO
                 if oldSchemaVersion < 1 {
                     
                 }
@@ -176,6 +186,7 @@ extension AppDelegate {
         Realm.Configuration.defaultConfiguration = config
         
         #if DEBUG
+        // Debug용 print
         print(Realm.Configuration.defaultConfiguration.fileURL ?? "알 수 없음")
         #endif
     }
