@@ -27,9 +27,20 @@ final class DefaultChooseShoesUseCase: ChooseShoesUseCase {
     }
     
     public func registerWorkouts(shoes: Shoes, workouts: [Workout]) async throws {
+        let currentWorkouts = shoes.workouts
+        
         var newWorkouts = shoes.workouts
         
-        if newWorkouts.contains(workouts) {
+        var isDuplicated = false
+        
+        for currentWorkout in currentWorkouts {
+            if workouts.contains(where: { $0.id == currentWorkout.id }) {
+                isDuplicated = true
+                break
+            }
+        }
+        
+        if isDuplicated {
             if workouts.count == 1 {
                 await NavigationCoordinator.shared.push(
                     .init(
@@ -40,9 +51,9 @@ final class DefaultChooseShoesUseCase: ChooseShoesUseCase {
                     )
                 )
             } else {
-                workouts.forEach {
-                    if !newWorkouts.contains($0) {
-                        newWorkouts.append($0)
+                workouts.forEach { workout in
+                    if !currentWorkouts.contains(where: { $0.id == workout.id }) {
+                        newWorkouts.append(workout)
                     }
                 }
                 
