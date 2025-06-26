@@ -50,7 +50,9 @@ final class AddShoesViewModel {
     init(useCase: AddShoesUseCase) {
         self.useCase = useCase
     }
-    
+}
+
+extension AddShoesViewModel {
     enum TextFieldCategory: Hashable {
         case name
         case nickname
@@ -68,6 +70,50 @@ final class AddShoesViewModel {
                 return "목표 마일리지(최대 1000km)"
             case .runMileage:
                 return "주행 마일리지(Optional)"
+            }
+        }
+        
+        public var isUpButtonDisabled: Bool {
+            switch self {
+            case .name:
+                true
+            default:
+                false
+            }
+        }
+        
+        public var isDownButtonDisabled: Bool {
+            switch self {
+            case .runMileage:
+                true
+            default:
+                false
+            }
+        }
+        
+        public var next: Self {
+            switch self {
+            case .name:
+                    .nickname
+            case .nickname:
+                    .goalMileage
+            case .goalMileage:
+                    .runMileage
+            case .runMileage:
+                    .runMileage
+            }
+        }
+        
+        public var previous: Self {
+            switch self {
+            case .name:
+                    .name
+            case .nickname:
+                    .name
+            case .goalMileage:
+                    .nickname
+            case .runMileage:
+                    .goalMileage
             }
         }
     }
@@ -130,6 +176,25 @@ extension AddShoesViewModel {
             }
             self.isLoading = false
         }
+    }
+    
+    @MainActor
+    public func keyboardToolbarUpButtonTapped(_ textField: inout TextFieldCategory?) {
+        if let _ = textField {
+            textField = textField?.previous
+        }
+    }
+    
+    @MainActor
+    public func keyboardToolbarDownButtonTapped(_ textField: inout TextFieldCategory?) {
+        if let _ = textField {
+            textField = textField?.next
+        }
+    }
+    
+    @MainActor
+    public func keyboardToolbarCompleteButtonTapped(_ textField: inout TextFieldCategory?) {
+        textField = nil
     }
     
     public func saveButtonTapped() {
