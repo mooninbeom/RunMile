@@ -1,0 +1,8 @@
+app_identifier("com.mooni.Run-Mile") # The bundle identifier of your app
+apple_id("dlsqja567@naver.com") # Your Apple Developer Portal username
+
+itc_team_id("126391461") # App Store Connect Team ID
+team_id("VF8R3A969C") # Developer Portal Team ID
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
