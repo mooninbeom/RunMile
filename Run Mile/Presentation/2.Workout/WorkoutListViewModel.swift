@@ -49,7 +49,7 @@ extension WorkoutListViewModel {
             
             self.classifyWorkoutsByDate(workouts: workouts)
             
-            await AppDelegate.setHealthBackgroundTask()
+            await AppDelegate.setBackgroundDelivery()
         } catch {
             if let error = error as? HealthError,
                error == .unknownError || error == .notAvailableDevice {
