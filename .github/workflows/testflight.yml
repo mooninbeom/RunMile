@@ -1,9 +1,8 @@
 name: 테스트 플라이트 배포 🚀
 
 on:
-  push:
-    branches:
-      - main
+  # main 브랜치로 PR 시 테스트 플라이트 업로드
+  # CD 성공 여부로 워크플로우 수정 진행
   pull_request:
     branches:
       - main
