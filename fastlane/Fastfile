@@ -97,9 +97,15 @@ platform :ios do
     )
     
     slack(
-      message: "Build Number: #{new_build_number} 배포 준비 시작",
+      message: "Build Number: #{new_build_number} 배포 준비",
       channel: "#run_mile",
       slack_url: "#{ENV["SLACK_URL"]}"
+    )
+    
+    discord_notifier(
+      webhook_url: "#{ENV["DISCORD_URL"]}",
+      title: "Run Mile 배포 준비",
+      description: "Build Number: #{new_build_number} 배포를 위해 준비중입니다."
     )
     
     setup_ci
@@ -110,6 +116,12 @@ platform :ios do
       message: "Build Number: #{new_build_number} 인증서 준비 완료",
       channel: "#run_mile",
       slack_url: "#{ENV["SLACK_URL"]}"
+    )
+    
+    discord_notifier(
+      webhook_url: "#{ENV["DISCORD_URL"]}",
+      title: "Run Mile 인증서 완료",
+      description: "Build Number: #{new_build_number} 인증서 준비가 완료되었습니다."
     )
     
     build_app(
@@ -123,12 +135,24 @@ platform :ios do
       slack_url: "#{ENV["SLACK_URL"]}"
     )
     
+    discord_notifier(
+      webhook_url: "#{ENV["DISCORD_URL"]}",
+      title: "Run Mile 아카이브 완료",
+      description: "Build Number: #{new_build_number} 아카이브가 완료되었습니다."
+    )
+    
     upload_to_testflight
     
     slack(
       message: "Build Number: #{new_build_number} 배포 성공!",
       channel: "#run_mile",
       slack_url: "#{ENV["SLACK_URL"]}"
+    )
+    
+    discord_notifier(
+      webhook_url: "#{ENV["DISCORD_URL"]}",
+      title: "Run Mile Testflight 배포 완료",
+      description: "Build Number: #{new_build_number} 테스트 플라이트 배포가 완료되었습니다."
     )
   end
   
@@ -138,6 +162,12 @@ platform :ios do
       channel: "#run_mile",
       success: false,
       slack_url: "#{ENV["SLACK_URL"]}"
+    )
+    
+    discord_notifier(
+      webhook_url: "#{ENV["DISCORD_URL"]}",
+      title: "Testflight 배포 중 오류가 발생했습니다.",
+      description: "에러 메시지\n#{exception}"
     )
   end
 end
