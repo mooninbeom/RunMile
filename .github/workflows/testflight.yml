@@ -54,8 +54,8 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-          SLACK_URL: ${{ secrets.SLACK_URL }}
-        run: bundle exec fastlane testflight
+          DISCORD_URL: ${{ secrets.DISCORD_URL }}
+        run: bundle exec fastlane upload_testflight
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
