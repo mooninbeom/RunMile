@@ -56,6 +56,7 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           SLACK_URL: ${{ secrets.SLACK_URL }}
+          DISCORD_URL: ${{ secrets.DISCORD_URL }}
         run: bundle exec fastlane testflight
 
       - name: Upload Artifacts
