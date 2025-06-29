@@ -107,7 +107,7 @@ platform :ios do
     )
     
     current_marketing_version = get_version_number
-    current_release_note_path = "ReleaseNote/v#{current_marketing_version}.md"
+    current_release_note_path = "../ReleaseNote/v#{current_marketing_version}.md"
     current_release_note = "# Whats new"
     
     if File.exists?(current_release_note_path)
