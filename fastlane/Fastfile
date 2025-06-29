@@ -164,6 +164,7 @@ platform :ios do
     )
     
     upload_to_app_store(
+      languages: ["ko"],
       force: true,
       submit_for_review: true,
       skip_screenshots: true,
@@ -172,7 +173,7 @@ platform :ios do
       precheck_include_in_app_purchases: false,
       copyright: "© #{Time.now.year} Mooninbeom",
       release_notes: {
-        "ko_KR" => current_release_note
+        "ko" => current_release_note
       },
       submission_information: {
         add_id_info_uses_idfa: false,
