@@ -168,7 +168,7 @@ platform :ios do
       force: true,
       submit_for_review: true,
       skip_screenshots: true,
-      skip_metadata: true,
+      skip_metadata: false,
       automatic_release: true,
       precheck_include_in_app_purchases: false,
       copyright: "© #{Time.now.year} Mooninbeom",
