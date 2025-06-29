@@ -117,7 +117,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 배포 준비",
-      description: "[Appstore] Build Number: #{new_build_number} 배포를 위해 준비중입니다."
+      description: "[Appstore] Build Number: #{current_build_number} 배포를 위해 준비중입니다."
     )
     
     setup_ci
@@ -127,7 +127,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 인증서 완료",
-      description: "[Appstore] Build Number: #{new_build_number} 인증서 준비가 완료되었습니다."
+      description: "[Appstore] Build Number: #{current_build_number} 인증서 준비가 완료되었습니다."
     )
     
     build_app(
@@ -138,7 +138,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 아카이브 완료",
-      description: "[Appstore] Build Number: #{new_build_number} 아카이브가 완료되었습니다."
+      description: "[Appstore] Build Number: #{current_build_number} 아카이브가 완료되었습니다."
     )
     
     upload_to_app_store(
@@ -161,7 +161,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile Appstore 배포 완료",
-      description: "[Appstore] Build Number: #{new_build_number} 앱스토어 배포가 완료되었습니다."
+      description: "[Appstore] Build Number: #{current_build_number} 앱스토어 배포가 완료되었습니다."
     )
   end
 
