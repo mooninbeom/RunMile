@@ -114,6 +114,9 @@ platform :ios do
       current_release_note = File.read(current_release_note_path)
     end
     
+    puts "Version: #{current_marketing_version}"
+    puts "Release Notes\n#{current_release_note}"
+    
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 배포 준비",
