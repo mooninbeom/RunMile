@@ -106,6 +106,14 @@ platform :ios do
       build_number: current_build_number
     )
     
+    current_marketing_version = get_version_number
+    current_release_note_path = "ReleaseNote/v#{current_marketing_version}.md"
+    current_release_note = "# Whats new"
+    
+    if File.exists?(current_release_note_path)
+      current_release_note = File.read(current_release_note_path)
+    end
+    
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 배포 준비",
@@ -138,7 +146,16 @@ platform :ios do
       submit_for_review: true,
       skip_screenshots: true,
       skip_metadata: true,
-      automatic_release: true
+      automatic_release: true,
+      precheck_include_in_app_purchases: false,
+      copyright: "© #{Time.now.year} Mooninbeom",
+      release_notes: current_release_note,
+      submission_information: {
+        add_id_info_uses_idfa: false,
+        export_compliance_encryption_updated: false,
+        export_compliance_uses_encryption: false,
+        content_rights_contains_third_party_content: false
+      }
     )
     
     discord_notifier(

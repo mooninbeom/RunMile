@@ -1,0 +1,62 @@
+# Appstore 자동 배포 워크플로우
+
+
+on:
+  pull_request:
+    branches:
+      - release
+
+
+jobs:
+  upload-appstore:
+    runs-on: macos-15
+    
+    steps:
+      - uses: actions/checkout@4
+      
+      - name: Set up SSH
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.KNOWN_HOSTS}}
+          
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+          
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer
+        
+      - name: Check Xcode version
+        run: xcodebuild -version
+        
+      - name: Install Bundler
+        run: gem install bundler
+        
+      - name: Install Fastlane
+        run: brew install fastlane
+        
+      - name: Check Fastlane
+        run: fastlane --version
+        
+      - name: Install Dependencies
+        run: bundle install
+        
+      - name: Upload to Appstore 🚀
+        env:
+          APP_STORE_CONNECT_KEY: ${{ secrets.APP_STORE_CONNECT_KEY}}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          DISCORD_URL: ${{ secrets.DISCORD_URL }}
+        run: bundle exec fastalne upload_appstore
+        
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ipa-and-dsym
+          path: |
+            ./Run\ Mile.ipa
+            ./Run\ Mile.app.dSYM.zip
+    
