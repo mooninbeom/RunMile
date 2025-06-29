@@ -152,7 +152,9 @@ platform :ios do
       automatic_release: true,
       precheck_include_in_app_purchases: false,
       copyright: "© #{Time.now.year} Mooninbeom",
-      release_notes: current_release_note,
+      release_notes: {
+        "ko_KR" => current_release_note
+      },
       submission_information: {
         add_id_info_uses_idfa: false,
         export_compliance_encryption_updated: false,
