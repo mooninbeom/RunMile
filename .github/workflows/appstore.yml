@@ -1,5 +1,5 @@
 # Appstore 자동 배포 워크플로우
-
+name: 앱스토어 배포 🏃
 
 on:
   pull_request:
