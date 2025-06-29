@@ -99,11 +99,30 @@ platform :ios do
       is_key_content_base64: true
     )
     
+    today = Time.now.strftime("%Y%m%d")
+    
     current_build_number = "#{latest_testflight_build_number}"
+
+    if current_build_number.length == 9
+      current_date = current_build_number[0,8]         # 앞 8자리가 날짜
+      current_count = current_build_number[8].to_i      # 마지막 1자리가 숫자
+    else
+      # 빌드 넘버가 없거나 형식이 다르면 초기화
+      current_date = ""
+      current_count = 0
+    end
+
+    if current_date == today
+      next_count = current_count + 1
+    else
+      next_count = 1
+    end
+
+    new_build_number = "#{today}#{next_count}"
     
     increment_build_number(
       xcodeproj: "Run Mile.xcodeproj",
-      build_number: current_build_number
+      build_number: new_build_number
     )
     
     current_marketing_version = get_version_number
@@ -120,7 +139,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 배포 준비",
-      description: "[Appstore] Build Number: #{current_build_number} 배포를 위해 준비중입니다."
+      description: "[Appstore] Build Number: #{new_build_number} 배포를 위해 준비중입니다."
     )
     
     setup_ci
@@ -130,7 +149,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 인증서 완료",
-      description: "[Appstore] Build Number: #{current_build_number} 인증서 준비가 완료되었습니다."
+      description: "[Appstore] Build Number: #{new_build_number} 인증서 준비가 완료되었습니다."
     )
     
     build_app(
@@ -141,7 +160,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile 아카이브 완료",
-      description: "[Appstore] Build Number: #{current_build_number} 아카이브가 완료되었습니다."
+      description: "[Appstore] Build Number: #{new_build_number} 아카이브가 완료되었습니다."
     )
     
     upload_to_app_store(
@@ -166,7 +185,7 @@ platform :ios do
     discord_notifier(
       webhook_url: "#{ENV["DISCORD_URL"]}",
       title: "[Appstore] Run Mile Appstore 배포 완료",
-      description: "[Appstore] Build Number: #{current_build_number} 앱스토어 배포가 완료되었습니다."
+      description: "[Appstore] Build Number: #{new_build_number} 앱스토어 배포가 완료되었습니다."
     )
   end
 
