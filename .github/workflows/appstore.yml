@@ -1,5 +1,5 @@
 # Appstore 자동 배포 워크플로우
-
+name: 앱스토어 배포 🏃
 
 on:
   pull_request:
@@ -12,7 +12,7 @@ jobs:
     runs-on: macos-15
     
     steps:
-      - uses: actions/checkout@4
+      - uses: actions/checkout@v4
       
       - name: Set up SSH
         uses: shimataro/ssh-key-action@v2
@@ -50,7 +50,7 @@ jobs:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           DISCORD_URL: ${{ secrets.DISCORD_URL }}
-        run: bundle exec fastalne upload_appstore
+        run: bundle exec fastlane upload_appstore
         
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
