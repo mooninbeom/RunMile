@@ -13,7 +13,7 @@ final class WorkoutListViewModel {
     private let useCase: HealthDataUseCase
     
     public var dateHeaders: [String] = []
-    public var workouts: [[RunningData]] = []
+    public var workouts: [[Workout]] = []
     public var viewStatus: ViewStatus = .none
     
     public var selectedWorkout: Set<UUID> = []
@@ -49,7 +49,7 @@ extension WorkoutListViewModel {
             
             self.classifyWorkoutsByDate(workouts: workouts)
             
-            await AppDelegate.setHealthBackgroundTask()
+            await AppDelegate.setBackgroundDelivery()
         } catch {
             if let error = error as? HealthError,
                error == .unknownError || error == .notAvailableDevice {
@@ -76,7 +76,7 @@ extension WorkoutListViewModel {
     }
     
     @MainActor
-    public func workoutCellTapped(workout: RunningData) {
+    public func workoutCellTapped(workout: Workout) {
         if case .selection = self.viewStatus {
             let id = workout.id
             
@@ -149,18 +149,18 @@ extension WorkoutListViewModel {
         self.viewStatus = workouts.isEmpty ? .empty : .none
     }
     
-    public func isSelectedWorkout(_ workout: RunningData) -> Bool {
+    public func isSelectedWorkout(_ workout: Workout) -> Bool {
         self.selectedWorkout.contains(workout.id)
     }
 }
 
 
 extension WorkoutListViewModel {
-    private func classifyWorkoutsByDate(workouts: [RunningData]) {
+    private func classifyWorkoutsByDate(workouts: [Workout]) {
         self.workouts.removeAll()
         self.dateHeaders.removeAll()
         
-        var resultWorkouts = [RunningData]()
+        var resultWorkouts = [Workout]()
         
         for workout in workouts {
             if dateHeaders.isEmpty {

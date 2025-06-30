@@ -16,7 +16,7 @@ struct Shoes: Sendable, Identifiable, Hashable {
     let goalMileage: Double             // 목표 마일리지
     let currentMileage: Double          // 초기 마일리지
     let isCurrentShoes: Bool            // 현재 자동등록이 선택된 신발인지 여부
-    var workouts: [RunningData]         // 신발에 등록된 운동기록
+    var workouts: [Workout]         // 신발에 등록된 운동기록
     let isGradutate: Bool               // 신발 졸업 여부
     
     init(id: UUID,
@@ -25,7 +25,7 @@ struct Shoes: Sendable, Identifiable, Hashable {
          nickname: String,
          goalMileage: Double,
          currentMileage: Double,
-         workouts: [RunningData],
+         workouts: [Workout],
          isGraduate: Bool = false
     ) {
         self.id = id

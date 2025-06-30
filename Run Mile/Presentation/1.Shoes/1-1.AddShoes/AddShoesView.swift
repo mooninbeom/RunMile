@@ -69,6 +69,32 @@ struct AddShoesView: View {
         .onDisappear {
             dismissAction()
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                HStack {
+                    Button {
+                        viewModel.keyboardToolbarUpButtonTapped(&textFieldFocus)
+                    } label: {
+                        Image(systemName: "chevron.up")
+                    }
+                    .disabled(textFieldFocus?.isUpButtonDisabled ?? false)
+                    
+                    Button {
+                        viewModel.keyboardToolbarDownButtonTapped(&textFieldFocus)
+                    } label: {
+                        Image(systemName: "chevron.down")
+                    }
+                    .disabled(textFieldFocus?.isDownButtonDisabled ?? false)
+                    
+                    
+                    Spacer()
+                    
+                    Button("완료") {
+                        viewModel.keyboardToolbarCompleteButtonTapped(&textFieldFocus)
+                    }
+                }
+            }
+        }
     }
 }
 

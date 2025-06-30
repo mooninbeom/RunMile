@@ -8,7 +8,7 @@
 import HealthKit
 
 
-extension HKHealthStore {
+extension HKHealthStore: Sendable {
     public func fetchData<T: HKSample>(
         sampleType: HKSampleType,
         predicate: NSPredicate? = nil,
@@ -52,9 +52,16 @@ extension HKWorkout {
         return nil
     }
     
-    public func toEntity() -> RunningData {
+    public var toEntity: Workout {
         let statistics = self.statistics(for: HKQuantityType(.distanceWalkingRunning))!
         let sumDistance = statistics.sumQuantity()!
+        
+        // 실기기 검증 필요
+//        let localStartDate = Calendar.current.date(
+//            byAdding: .second,
+//            value: TimeZone.current.secondsFromGMT(),
+//            to: self.startDate
+//        )
         
         return .init(
             id: self.uuid,

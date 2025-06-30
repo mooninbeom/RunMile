@@ -67,6 +67,9 @@ private struct CurrentShoesListView: View {
             }
             .padding(.horizontal, 20)
         }
+        .refreshable {
+            viewModel.onAppear()
+        }
     }
 }
 

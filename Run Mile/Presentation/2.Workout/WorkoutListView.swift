@@ -21,14 +21,18 @@ struct WorkoutListView: View {
             WorkoutNavigationView(viewModel: viewModel)
             
             switch viewModel.viewStatus {
-            case .none, .selection:
+            case .none, .selection, .loading:
                 WorkoutScrollView(viewModel: $viewModel)
-            case .loading:
-                WorkoutLoadingView()
             case .empty:
                 WorkoutEmptyView(
                     viewModel: viewModel
                 )
+            }
+        }
+        .overlay {
+            if viewModel.viewStatus == .loading {
+                ProgressView()
+                    .progressViewStyle(.circular)
             }
         }
         .task {
@@ -110,17 +114,10 @@ private struct WorkoutScrollView: View {
             }
             .padding(.horizontal, 20)
         }
-    }
-}
-
-
-private struct WorkoutLoadingView: View {
-    var body: some View {
-        Group {
-            Spacer()
-            ProgressView()
-                .progressViewStyle(.circular)
-            Spacer()
+        .refreshable {
+            Task {
+                await viewModel.onAppear()
+            }
         }
     }
 }
