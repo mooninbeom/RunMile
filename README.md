@@ -5,7 +5,8 @@
 
 |상태|앱스토어 배포 완료 및 유지보수 진행 중(v1.0.0)|
 |:--|:--|
-|기술 스택|SwiftUI, HealthKit, Realm, Fastlane, UserNotifications, Vision(이미지 배경 제거)|
+|기술 스택|SwiftUI, HealthKit, Realm, UserNotifications, Vision(이미지 배경 제거)|
+|CI/CD|Fastlane, Github Actions, Cloud Run, Discord Webhook|
 |앱스토어|[Run Mile](https://apps.apple.com/kr/app/run-mile/id6747099791)|
 |이메일 문의|dlsqja567@naver.com|
 
