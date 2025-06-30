@@ -164,21 +164,35 @@ platform :ios do
     )
     
     upload_to_app_store(
+      # 앱 언어 설정
       languages: ["ko"],
+      # HTML Preview(추가 확인) 생략
       force: true,
+      # 심사 자동 제출
       submit_for_review: true,
+      # 스크린샷 업로드 건너뛰기
       skip_screenshots: true,
+      # 메타데이터 업로드 건너뛰기(릴리즈 노트 업로드를 위해선 false)
       skip_metadata: false,
+      # 심사 통과 시 자동 출시
       automatic_release: true,
+      # 인 앱 결제 사전 점검(인앱결제가 없을 경우 false)
       precheck_include_in_app_purchases: false,
+      # 저작권
       copyright: "© #{Time.now.year} Mooninbeom",
+      # 릴리즈 노트(업데이트 사항), 지원 언어별로 작성 필요
       release_notes: {
         "ko" => current_release_note
       },
+      # 심사 시 제출해야 하는 정보 모음
       submission_information: {
+        # 광고 식별자 사용 여부
         add_id_info_uses_idfa: false,
+        # 암호화 관련 정보 변경 여부
         export_compliance_encryption_updated: false,
+        # 암호화 사용 여부
         export_compliance_uses_encryption: false,
+        # 제 3자 컨텐츠 포함 여부
         content_rights_contains_third_party_content: false
       }
     )
