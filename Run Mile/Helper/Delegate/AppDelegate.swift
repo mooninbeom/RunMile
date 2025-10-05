@@ -7,6 +7,7 @@
 
 import UIKit
 import SwiftUI
+import Firebase
 import HealthKit
 import RealmSwift
 
@@ -17,6 +18,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         self.realmMigration()
+        FirebaseApp.configure()
         
         Task {
             await self.userNotificationAuthorize()
