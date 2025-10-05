@@ -245,6 +245,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2C079FBD2DB2505700B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */,
+				2CEF98852E92584900CBA323 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2CE46DF42DAE7780008C6FBC /* Products */;
@@ -657,6 +658,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 10.54.5;
+			};
+		};
+		2CEF98852E92584900CBA323 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.3.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
