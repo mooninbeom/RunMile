@@ -21,18 +21,28 @@ final class CoreDataManager {
         return container
     }()
     
-    private var context: NSManagedObjectContext {
+    public var context: NSManagedObjectContext {
         return persistentContainer.viewContext
     }
     
     // 백그라운드 작업을 위한 컨텍스트
-    private var backgroundContext: NSManagedObjectContext {
+    public var backgroundContext: NSManagedObjectContext {
         return persistentContainer.newBackgroundContext()
     }
     
-    private func saveContext() {
+    public func saveContext() {
         if context.hasChanges {
             try? context.save()
+        }
+    }
+}
+
+
+extension CDShoesDTO {
+    public var workoutDTOArray: [CDWorkoutDTO] {
+        let swiftSet = self.workouts as? Set<CDWorkoutDTO> ?? []
+        return swiftSet.sorted {
+            $0.date ?? .now > $1.date ?? .now
         }
     }
 }

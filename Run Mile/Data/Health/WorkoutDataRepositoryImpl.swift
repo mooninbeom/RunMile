@@ -5,9 +5,9 @@
 //  Created by 문인범 on 4/15/25.
 //
 
-import RealmSwift
 import Foundation
 import HealthKit
+import CoreData
 
 
 actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
@@ -39,16 +39,17 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     }
     
     public func fetchSavedWorkoutData() async throws -> [Workout] {
-        let realm = try await Realm.open()
-        let fetchedResult = realm.objects(WorkoutDTO.self)
-        var result = [Workout]()
+        let request: NSFetchRequest<CDWorkoutDTO> = CDWorkoutDTO.fetchRequest()
+        let fetchedResults = try CoreDataManager.shared.context.fetch(request)
         
-        fetchedResult.forEach {
-            result.append(
-                .init(id: $0.id, distance: $0.distance, date: $0.date)
+        
+        let results: [Workout] = fetchedResults.map {
+            .init(
+                id: $0.id ?? .init(),
+                distance: $0.distance,
+                date: $0.date ?? .now
             )
         }
-        
-        return result
+        return results
     }
 }

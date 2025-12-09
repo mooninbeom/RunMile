@@ -20,7 +20,7 @@ final class MigrationService {
             return false
         }
         
-        let context = CoreDataManager.shared.persistentContainer.newBackgroundContext()
+        let context = CoreDataManager.shared.backgroundContext
         
         try await context.perform {
             let realm = try Realm()
@@ -56,5 +56,4 @@ final class MigrationService {
         
         return true
     }
-    
 }
