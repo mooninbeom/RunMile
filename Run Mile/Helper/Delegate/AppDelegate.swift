@@ -24,6 +24,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
             await self.userNotificationAuthorize()
             await Self.setBackgroundDelivery()
             self.setHealthBackgroundQueryTask()
+            await self.migrateRealmToCD()
         }
         
         return true
@@ -169,6 +170,21 @@ extension AppDelegate {
                     body: "앱에서 수동으로 등록 부탁드립니다."
                 )
             }
+        }
+    }
+    
+    // TODO: Error Handling
+    private func migrateRealmToCD() async {
+        do {
+            let didMigrate = try await MigrationService.shared.migrateRealmToCoreData()
+            
+            if didMigrate {
+                print("데이터 이전 작업을 마쳤습니다.")
+            } else {
+                print("Failed!!")
+            }
+        } catch {
+            print("❌ 마이그레이션 실패: \(error)")
         }
     }
     

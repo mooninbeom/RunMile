@@ -6,119 +6,135 @@
 //
 
 import Foundation
-import RealmSwift
+import CoreData
 
 
 actor ShoesDataRepositoryImpl: ShoesDataRepository {
     public func fetchAllShoes() async throws -> [Shoes] {
-        let realm = try await Realm.open()
-        let fetchedResult = realm.objects(ShoesDTO.self)
-        let result = toEntities(fetchedResult)
-        return result
+        let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
+        let results = try CoreDataManager.shared.context.fetch(request)
+        return toEntities(results)
     }
     
     public func fetchCurrentShoes() async throws -> [Shoes] {
-        let realm = try await Realm.open()
-        let fetchedResult = realm.objects(ShoesDTO.self).where { !$0.isGraduated }
-        let result = toEntities(fetchedResult)
-        return result
+        let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
+        let results = try CoreDataManager.shared.context.fetch(request)
+        
+        return toEntities(results.filter({ !$0.isGraduated }))
     }
     
     
     public func fetchHOFShoes() async throws -> [Shoes] {
-        let realm = try await Realm.open()
-        let fetchedResult = realm.objects(ShoesDTO.self).where { $0.isGraduated }
-        let result = toEntities(fetchedResult)
-        return result
+        let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
+        let results = try CoreDataManager.shared.context.fetch(request)
+        
+        return toEntities(results.filter({ $0.isGraduated }))
     }
     
     public func fetchSingleShoes(id: UUID) async throws -> Shoes {
-        let realm = try await Realm.open()
-        let fetchedResult = realm.object(ofType: ShoesDTO.self, forPrimaryKey: id)
+        let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        let result = try CoreDataManager.shared.context.fetch(request)
         
-        if let result = fetchedResult {
-            var workouts = [Workout]()
-            result.workouts.forEach { workout in
-                workouts.append(
-                    Workout(
-                        id: workout.id,
-                        distance: workout.distance,
-                        date: workout.date
-                    )
-                )
-            }
-            
-            return Shoes(
-                id: result.id,
-                image: result.image,
-                shoesName: result.shoesName,
-                nickname: result.nickname,
-                goalMileage: result.goalMileage,
-                currentMileage: result.currentMileage,
-                workouts: workouts
-                
-            )
+        if let entity = toEntities(result).first {
+            return entity
         } else {
             throw RepositoryError.fetchFailed
         }
     }
     
     public func createShoes(shoes: Shoes) async throws {
-        let realm = try await Realm.open()
-        let dto = ShoesDTO()
-        dto.image = shoes.image
-        dto.shoesName = shoes.shoesName
-        dto.nickname = shoes.nickname
-        dto.goalMileage = shoes.goalMileage
-        dto.currentMileage = shoes.currentMileage
+        let context = CoreDataManager.shared.backgroundContext
         
-        try realm.write {
-            realm.add(dto)
+        try await context.perform {
+            let CDShoes = CDShoesDTO(context: CoreDataManager.shared.context)
+            CDShoes.id = UUID()
+            CDShoes.createdAt = .now
+            CDShoes.image = shoes.image
+            CDShoes.shoesName = shoes.shoesName
+            CDShoes.nickname = shoes.nickname
+            CDShoes.goalMileage = shoes.goalMileage
+            CDShoes.currentMileage = shoes.currentMileage
+            
+            try context.save()
         }
     }
     
     public func updateShoes(shoes: Shoes) async throws {
-        let realm = try await Realm.open()
+        let context = CoreDataManager.shared.backgroundContext
+        context.mergePolicy = NSMergePolicy.mergeByPropertyObjectTrump
         
-        var list = List<WorkoutDTO>()
-        
-        shoes.workouts.forEach {
-            let workoutDTO = WorkoutDTO()
-            workoutDTO.id = $0.id
-            workoutDTO.distance = $0.distance
-            workoutDTO.date = $0.date
-            list.append(workoutDTO)
-        }
-        
-        list.sort(by: { $0.date ?? .now > $1.date ?? .now })
-        
-        let dto = ShoesDTO()
-        dto.id = shoes.id
-        dto.image = shoes.image
-        dto.shoesName = shoes.shoesName
-        dto.nickname = shoes.nickname
-        dto.goalMileage = shoes.goalMileage
-        dto.currentMileage = shoes.currentMileage
-        dto.isGraduated = shoes.isGradutate
-        dto.workouts = list
-        
-        if !shoes.isGradutate, shoes.isOverGoal {
-            UserNotificationsManager.requestNotification(
-                title: "\(shoes.nickname)의 목표 마일리지를 달성했습니다!",
-                body: "축하드립니다! 이제 명예의 전당으로 갈 일만 남았습니다. 가보실까요?"
-            )
-        }
-        
-        try realm.write {
-            realm.add(dto, update: .modified)
+        try await context.perform {
+            let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", shoes.id as CVarArg)
+            let result = try CoreDataManager.shared.context.fetch(request)
+            
+            
+            if let entity = result.first {
+                entity.image = shoes.image
+                entity.shoesName = shoes.shoesName
+                entity.nickname = shoes.nickname
+                entity.goalMileage = shoes.goalMileage
+                entity.currentMileage = shoes.currentMileage
+                entity.isGraduated = shoes.isGradutate
+                
+                let existingWorkouts = (entity.workouts as? Set<CDWorkoutDTO>) ?? []
+                var workoutMap = Dictionary<UUID, CDWorkoutDTO>(
+                    uniqueKeysWithValues: existingWorkouts.compactMap { entity in
+                        guard let id = entity.id else { return nil }
+                        return (id, entity) // Key: UUID, Value: Entity
+                    }
+                )
+                
+                for workoutModel in shoes.workouts {
+                    let workoutEntity: CDWorkoutDTO
+                    
+                    if let existing = workoutMap[workoutModel.id] {
+                        // A. 이미 존재하면 -> 가져오고, Map에서 제거 (처리됨 표시)
+                        workoutEntity = existing
+                        workoutMap.removeValue(forKey: workoutModel.id)
+                    } else {
+                        // B. 없으면 -> 새로 생성 및 부모 연결
+                        workoutEntity = CDWorkoutDTO(context: context)
+                        workoutEntity.id = workoutModel.id
+                        // 관계 연결 (중요)
+                        workoutEntity.shoes = entity
+                    }
+                    
+                    // 속성 업데이트 (공통)
+                    workoutEntity.distance = workoutModel.distance
+                    workoutEntity.date = workoutModel.date
+                }
+                
+                for orphanedEntity in workoutMap.values {
+                    context.delete(orphanedEntity)
+                }
+            }
+            
+            if !shoes.isGradutate, shoes.isOverGoal {
+                UserNotificationsManager.requestNotification(
+                    title: "\(shoes.nickname)의 목표 마일리지를 달성했습니다!",
+                    body: "축하드립니다! 이제 명예의 전당으로 갈 일만 남았습니다. 가보실까요?"
+                )
+            }
+            
+            if context.hasChanges {
+                try context.save()
+            }
         }
     }
     
     public func deleteShoes(shoes: Shoes) async throws {
-        let realm = try await Realm.open()
-        if let shoesDTO = realm.object(ofType: ShoesDTO.self, forPrimaryKey: shoes.id) {
-            try realm.write {
-                realm.delete(shoesDTO)
+        let context = CoreDataManager.shared.backgroundContext
+        
+        try await context.perform {
+            let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", shoes.id as CVarArg)
+            
+            let fetchedResult = try context.fetch(request)
+            
+            if let entityToDelete = fetchedResult.first {
+                context.delete(entityToDelete)
             }
         }
     }
@@ -131,14 +147,15 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
 }
 
 extension ShoesDataRepositoryImpl {
-    private func toEntities(_ dto: Results<ShoesDTO>) -> [Shoes] {
+    private func toEntities(_ dto: [CDShoesDTO]) -> [Shoes] {
         var resultArray: [Shoes] = []
         dto.forEach {
             var workouts = [Workout]()
-            $0.workouts.forEach { workout in
+        
+            $0.workoutDTOArray.forEach { workout in
                 workouts.append(
                     Workout(
-                        id: workout.id,
+                        id: workout.id ?? .init(),
                         distance: workout.distance,
                         date: workout.date
                     )
@@ -146,11 +163,11 @@ extension ShoesDataRepositoryImpl {
             }
             
             let shoe = Shoes(
-                id: $0.id,
-                image: $0.image,
-                shoesName: $0.shoesName,
-                nickname: $0.nickname,
-                goalMileage: $0.goalMileage,
+                id: $0.id ?? .init(),
+                image: $0.image ?? .init(),
+                shoesName: $0.shoesName ?? "Undefined",
+                nickname: $0.nickname ?? "Undefined",
+                goalMileage: $0.goalMileage ,
                 currentMileage: $0.currentMileage,
                 workouts: workouts
             )

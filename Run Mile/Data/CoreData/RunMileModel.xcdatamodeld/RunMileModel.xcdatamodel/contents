@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788.4" systemVersion="24D60" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="CDShoesDTO" representedClassName="CDShoesDTO" syncable="YES" codeGenerationType="class">
+        <attribute name="createdAt" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="currentMileage" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="goalMileage" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="image" attributeType="Binary"/>
+        <attribute name="isGraduated" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="nickname" attributeType="String"/>
+        <attribute name="shoesName" attributeType="String"/>
+        <relationship name="workouts" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDWorkoutDTO" inverseName="shoes" inverseEntity="CDWorkoutDTO"/>
+    </entity>
+    <entity name="CDWorkoutDTO" representedClassName="CDWorkoutDTO" syncable="YES" codeGenerationType="class">
+        <attribute name="date" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="distance" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" attributeType="UUID" usesScalarValueType="NO"/>
+        <relationship name="shoes" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDShoesDTO" inverseName="workouts" inverseEntity="CDShoesDTO"/>
+    </entity>
+</model>

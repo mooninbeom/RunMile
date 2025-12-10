@@ -19,6 +19,15 @@ extension UserDefaults {
         }
     }
     
+    public var isMigratedToCoreData: Bool {
+        get {
+            self.bool(forKey: "isMigratedToCoreData")
+        }
+        set {
+            self.set(newValue, forKey: "isMigratedToCoreData")
+        }
+    }
+    
     public var lastAnchor: HKQueryAnchor? {
         get {
             self.data(forKey: "anchor").flatMap {
