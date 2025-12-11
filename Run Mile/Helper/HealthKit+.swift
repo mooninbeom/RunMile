@@ -11,12 +11,10 @@ import HealthKit
 extension HKHealthStore: Sendable {
     public func fetchData<T: HKSample>(
         sampleType: HKSampleType,
-        predicate: NSPredicate? = nil,
+        predicate: NSPredicate,
         limit: Int,
         sortDescriptors: [NSSortDescriptor]? = nil
     ) async throws -> [T] {
-        let predicate = HKQuery.predicateForWorkouts(with: .running)
-        
         let data = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[HKSample], any Error>) in
             let query = HKSampleQuery(
                 sampleType: sampleType,
@@ -25,6 +23,7 @@ extension HKHealthStore: Sendable {
                 sortDescriptors: sortDescriptors) { query, samples, error in
                     if let _ = error {
                         continuation.resume(with: .failure(HealthError.failedToLoadWorkoutData))
+                        return
                     }
                     
                     guard let samples = samples else {
@@ -122,4 +121,30 @@ enum HealthKitSampleMethod {
             }
         }
     }
+}
+
+
+
+
+
+// MARK: - 임시
+import CoreLocation
+
+struct ModifiedWorkoutData {
+    let workout: HKWorkout
+    var heartRates: [RunningMetricPoint]
+    var powers: [RunningMetricPoint]
+    var route: [RoutePoint]
+}
+
+struct RunningMetricPoint {
+    let timestamp: Date
+    let value: Double
+    let unit: String
+}
+
+struct RoutePoint {
+    let coordinate: CLLocationCoordinate2D
+    let timestamp: Date
+    let altitude: Double
 }

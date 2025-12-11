@@ -27,6 +27,25 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         return result.map { $0.toEntity }
     }
     
+    func fetchDetailedWorkoutData(workout: HKWorkout, type: HKQuantityType) async throws -> [RunningMetricPoint] {
+        let predicate = HKQuery.predicateForObjects(from: workout)
+        
+        let quantitySamples: [HKQuantitySample] = try await HKHealthStore().fetchData(
+            sampleType: type,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit
+        )
+        
+        var result: [RunningMetricPoint] = []
+        
+        quantitySamples.forEach {
+            let value = $0.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            result.append(.init(timestamp: $0.startDate, value: value, unit: "BPM"))
+        }
+        
+        return result
+    }
+    
     public func fetchUnsavedWorkoutData() async throws -> [Workout] {
         let savedWorkouts = try await fetchSavedWorkoutData()
         let entireWorkouts = try await fetchAllWorkoutData()
