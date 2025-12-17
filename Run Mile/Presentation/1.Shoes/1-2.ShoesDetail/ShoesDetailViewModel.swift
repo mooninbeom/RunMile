@@ -23,7 +23,7 @@ final class ShoesDetailViewModel {
     public var selectedWorkouts: Set<UUID> = []
     
     public var isHallOfFame: Bool {
-        Double(self.shoes.getCurrentMileage)! >= self.shoes.goalMileage
+        self.shoes.totalMileage >= self.shoes.goalMileage
     }
     
     init(useCase: ShoesDetailUseCase, shoes: Shoes) {

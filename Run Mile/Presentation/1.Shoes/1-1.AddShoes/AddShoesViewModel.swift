@@ -231,6 +231,7 @@ extension AddShoesViewModel {
             currentMileage: 0.0, // Default to 0
             workouts: []
         )
+        
         Task {
             do {
                 try await useCase.saveShoes(shoes: shoes)

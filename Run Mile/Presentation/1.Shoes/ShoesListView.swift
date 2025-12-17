@@ -112,7 +112,7 @@ struct ShoeCardView: View {
     // 수명 비율 계산
     private var lifeSpanRatio: Double {
         guard shoe.goalMileage > 0 else { return 0 }
-        return min(shoe.currentMileage / shoe.goalMileage, 1.0)
+        return min(shoe.totalMileage / shoe.goalMileage, 1.0)
     }
     
     // 상태 색상
@@ -180,7 +180,7 @@ struct ShoeCardView: View {
                 // 마일리지 프로그레스 바
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text("\(Int(shoe.currentMileage))km")
+                        Text("\(Int(shoe.totalMileage))km")
                             .fontWeight(.bold)
                             .foregroundStyle(.primary)
                         Text("/ \(Int(shoe.goalMileage))km")
