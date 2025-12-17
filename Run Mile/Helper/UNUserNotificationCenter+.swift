@@ -29,7 +29,7 @@ public enum UserNotificationsManager {
             formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
             content.userInfo = [
                 "id": runningData.id.uuidString,
-                "date": formatter.string(from: runningData.date ?? .now),
+                "date": formatter.string(from: runningData.date),
                 "distance": "\(runningData.distance)",
                 "category": category.rawValue
             ]
@@ -43,7 +43,7 @@ public enum UserNotificationsManager {
     }
     
     public enum NotificationCategory: Hashable {
-        case autoRegister(Workout)
+        case autoRegister
         case manualRegister(Workout)
         case none
         

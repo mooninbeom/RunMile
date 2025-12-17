@@ -164,12 +164,12 @@ extension WorkoutListViewModel {
         
         for workout in workouts {
             if dateHeaders.isEmpty {
-                dateHeaders.append(workout.date!.yearMonth)
+                dateHeaders.append(workout.date.yearMonth)
                 resultWorkouts.append(workout)
                 continue
             }
             
-            let currentDate = workout.date!.yearMonth
+            let currentDate = workout.date.yearMonth
             
             if currentDate != dateHeaders.last! {
                 self.workouts.append(resultWorkouts)

@@ -75,9 +75,23 @@ extension DefaultHealthDataUseCase {
     /// Health 데이터 사용 권한을 요청합니다.
     private func requestAuthorization() async throws {
         if HKHealthStore.isHealthDataAvailable() {
+            let readTypes: Set<HKObjectType> = [
+                HKSeriesType.workoutRoute(),
+                .workoutType(),
+                .quantityType(forIdentifier: .heartRate)!,
+                .quantityType(forIdentifier: .distanceWalkingRunning)!,
+                .quantityType(forIdentifier: .stepCount)!,
+                
+                .quantityType(forIdentifier: .runningPower)!,
+                .quantityType(forIdentifier: .runningSpeed)!,
+                .quantityType(forIdentifier: .runningStrideLength)!,
+                .quantityType(forIdentifier: .runningVerticalOscillation)!,
+                .quantityType(forIdentifier: .runningGroundContactTime)!,
+            ]
+            
             try await store.requestAuthorization(
                 toShare: Set(),
-                read: Set([.workoutType()])
+                read: readTypes
             )
         } else {
             throw HealthError.notAvailableDevice
