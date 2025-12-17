@@ -13,14 +13,14 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
     public func fetchAllShoes() async throws -> [Shoes] {
         let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
         let results = try CoreDataManager.shared.context.fetch(request)
-        return toEntities(results)
+        return try await DTOMapper.CDShoesDTOToEntities(results)
     }
     
     public func fetchCurrentShoes() async throws -> [Shoes] {
         let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
         let results = try CoreDataManager.shared.context.fetch(request)
         
-        return toEntities(results.filter({ !$0.isGraduated }))
+        return try await DTOMapper.CDShoesDTOToEntities(results.filter({ !$0.isGraduated }))
     }
     
     
@@ -28,7 +28,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
         let results = try CoreDataManager.shared.context.fetch(request)
         
-        return toEntities(results.filter({ $0.isGraduated }))
+        return try await DTOMapper.CDShoesDTOToEntities(results.filter({ $0.isGraduated }))
     }
     
     public func fetchSingleShoes(id: UUID) async throws -> Shoes {
@@ -36,7 +36,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         let result = try CoreDataManager.shared.context.fetch(request)
         
-        if let entity = toEntities(result).first {
+        if let entity = try await DTOMapper.CDShoesDTOToEntities(result).first {
             return entity
         } else {
             throw RepositoryError.fetchFailed
@@ -143,37 +143,5 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         if UserDefaults.standard.selectedShoesID == shoes.id.uuidString {
             UserDefaults.standard.selectedShoesID = ""
         }
-    }
-}
-
-extension ShoesDataRepositoryImpl {
-    private func toEntities(_ dto: [CDShoesDTO]) -> [Shoes] {
-        var resultArray: [Shoes] = []
-        dto.forEach {
-            var workouts = [Workout]()
-        
-            $0.workoutDTOArray.forEach { workout in
-                workouts.append(
-                    Workout(
-                        id: workout.id ?? .init(),
-                        distance: workout.distance,
-                        date: workout.date
-                    )
-                )
-            }
-            
-            let shoe = Shoes(
-                id: $0.id ?? .init(),
-                image: $0.image ?? .init(),
-                shoesName: $0.shoesName ?? "Undefined",
-                nickname: $0.nickname ?? "Undefined",
-                goalMileage: $0.goalMileage ,
-                currentMileage: $0.currentMileage,
-                workouts: workouts
-            )
-            resultArray.append(shoe)
-        }
-        
-        return resultArray
     }
 }

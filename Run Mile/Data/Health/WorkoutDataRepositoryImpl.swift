@@ -5,9 +5,9 @@
 //  Created by 문인범 on 4/15/25.
 //
 
-import Foundation
 import HealthKit
 import CoreData
+import MapKit
 
 
 actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
@@ -17,14 +17,88 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         let predicate = HKQuery.predicateForWorkouts(with: .running)
         let descriptor = [NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: false)]
         
-        let result: [HKWorkout] = try await store.fetchData(
+        let fetchedResult: [HKWorkout] = try await store.fetchData(
             sampleType: .workoutType(),
             predicate: predicate,
             limit: HKObjectQueryNoLimit,
             sortDescriptors: descriptor
         )
         
-        return result.map { $0.toEntity }
+        let result = fetchedResult.map {
+            Workout(
+                workout: $0
+            )
+        }
+        
+        return result
+    }
+    
+    func fetchSingleWorkoutData(workout: HKWorkout) async throws -> Workout {
+        let heartRates = try await fetchDetailedWorkoutData(
+            workout: workout,
+            type: .init(.heartRate)
+        )
+        let runningPace = try await fetchDetailedWorkoutData(
+            workout: workout,
+            type: .init(.runningSpeed)
+        )
+        let routes = try await fetchDetailedWorkoutRouteData(workout: workout)
+        
+        let result = Workout(
+            workout: workout,
+            heartRates: heartRates,
+            runningPace: runningPace,
+            route: routes!
+        )
+        
+        return result
+    }
+    
+    
+    func fetchDetailedWorkoutRouteData(workout: HKWorkout) async throws -> [RoutePoint]? {
+        var returnResult: [RoutePoint] = []
+        
+        let routeType = HKSeriesType.workoutRoute()
+        let predicate = HKQuery.predicateForObjects(from: workout)
+        
+        // 경로 객체는 보통 1개지만, 일시정지 등으로 끊기면 여러 개일 수도 있어 sort를 해줍니다.
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+        
+        let routes: [HKWorkoutRoute] = try await store.fetchData(
+            sampleType: routeType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: [sortDescriptor]
+        )
+        
+        if routes.isEmpty { return nil }
+        
+        for route in routes {
+            let routeResult = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[CLLocation], any Error>) in
+                var fetchedLocations: [CLLocation] = []
+                
+                let locationQuery = HKWorkoutRouteQuery(route: route) { query, locations, done, error in
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                        return
+                    }
+                    if let locations = locations {
+                        fetchedLocations.append(contentsOf: locations)
+                    }
+                    
+                    if done {
+                        continuation.resume(returning: fetchedLocations)
+                    }
+                }
+                store.execute(locationQuery)
+            }
+            
+            returnResult.append(contentsOf: routeResult.map {
+                RoutePoint(coordinate: $0.coordinate, timestamp: $0.timestamp, altitude: $0.altitude)
+            })
+        }
+        
+        return returnResult
     }
     
     func fetchDetailedWorkoutData(workout: HKWorkout, type: HKQuantityType) async throws -> [RunningMetricPoint] {
@@ -39,8 +113,15 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         var result: [RunningMetricPoint] = []
         
         quantitySamples.forEach {
-            let value = $0.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
-            result.append(.init(timestamp: $0.startDate, value: value, unit: "BPM"))
+            switch type {
+            case .init(.heartRate):
+                let value = $0.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+                result.append(.init(timestamp: $0.startDate, value: value, unit: "BPM"))
+            case .init(.runningSpeed):
+                let value = $0.quantity.doubleValue(for: .meter().unitDivided(by: .second()))
+                result.append(.init(timestamp: $0.startDate, value: value, unit: "m/s"))
+            default: break
+            }
         }
         
         return result
@@ -61,14 +142,6 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         let request: NSFetchRequest<CDWorkoutDTO> = CDWorkoutDTO.fetchRequest()
         let fetchedResults = try CoreDataManager.shared.context.fetch(request)
         
-        
-        let results: [Workout] = fetchedResults.map {
-            .init(
-                id: $0.id ?? .init(),
-                distance: $0.distance,
-                date: $0.date ?? .now
-            )
-        }
-        return results
+        return try await DTOMapper.CDWorkoutDTOtoEntities(fetchedResults)
     }
 }

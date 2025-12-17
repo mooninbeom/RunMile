@@ -40,6 +40,15 @@ extension HKHealthStore: Sendable {
         
         return result
     }
+    
+    public func fetchSingleWorkoutData(id: UUID) async throws -> HKWorkout? {
+        let sampleType = HKSampleType.workoutType()
+        let predicate = HKSampleQuery.predicateForObject(with: id)
+        
+        let result: [HKWorkout] = try await fetchData(sampleType: sampleType, predicate: predicate, limit: 1)
+        
+        return result.first
+    }
 }
 
 extension HKWorkout {
@@ -51,28 +60,18 @@ extension HKWorkout {
         return nil
     }
     
-    public var toEntity: Workout {
-        let statistics = self.statistics(for: HKQuantityType(.distanceWalkingRunning))!
-        let sumDistance = statistics.sumQuantity()!
-        
-        // 실기기 검증 필요
-//        let localStartDate = Calendar.current.date(
-//            byAdding: .second,
-//            value: TimeZone.current.secondsFromGMT(),
-//            to: self.startDate
-//        )
-        
-        return .init(
-            id: self.uuid,
-            distance: sumDistance.doubleValue(for: .meter()),
-            date: self.startDate
-        )
+    public func getMeterDistance() -> Double {
+        self.totalDistance?.doubleValue(for: .meter()) ?? 0.0
+    }
+    
+    public func getAvgPace() -> String {
+        (self.getMeterDistance() / self.duration).meterPerSecondToPace()
     }
 }
 
 
+// MARK: - Mock Data 메소드
 enum HealthKitSampleMethod {
-    
     static func createSampleWorkoutData() {
         let config = HKWorkoutConfiguration()
         config.activityType = .running
@@ -121,30 +120,4 @@ enum HealthKitSampleMethod {
             }
         }
     }
-}
-
-
-
-
-
-// MARK: - 임시
-import CoreLocation
-
-struct ModifiedWorkoutData {
-    let workout: HKWorkout
-    var heartRates: [RunningMetricPoint]
-    var powers: [RunningMetricPoint]
-    var route: [RoutePoint]
-}
-
-struct RunningMetricPoint {
-    let timestamp: Date
-    let value: Double
-    let unit: String
-}
-
-struct RoutePoint {
-    let coordinate: CLLocationCoordinate2D
-    let timestamp: Date
-    let altitude: Double
 }

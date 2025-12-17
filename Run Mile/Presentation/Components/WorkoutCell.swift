@@ -29,7 +29,7 @@ struct WorkoutCell: View {
                                 .offset(y: 4)
                             
                             /// Date
-                            Text(workout.date?.workoutFormatDate ?? "알 수 없음")
+                            Text(workout.date.workoutFormatDate)
                                 .font(FontStyle.cellSubtitle())
                                 .offset(y: -4)
                         }
