@@ -230,11 +230,8 @@ struct ShoesDetailView: View {
                     Text("평균 거리")
                         .font(.caption)
                         .foregroundStyle(.secondary)
-                    // Logic adaptation needed if simple calculation:
-                    // shoes.getCurrentMileage is String, parsing it or using local data:
-                    let current = viewModel.shoes.totalMileage
-                    let avg = viewModel.shoes.workouts.isEmpty ? 0 : current / Double(viewModel.shoes.workouts.count)
-                    Text(String(format: "%.1fkm", avg))
+                    
+                    Text(viewModel.averageDistance)
                         .font(.headline)
                 }
             }
@@ -276,53 +273,6 @@ struct ShoesDetailView: View {
                 .padding(.horizontal)
             }
         }
-    }
-}
-
-
-// MARK: - Subcomponents
-fileprivate struct WorkoutHistoryCell: View {
-    let workout: Workout
-    
-    var body: some View {
-        HStack(spacing: 16) {
-            // Date Box
-            VStack {
-                Text(workout.date, format: .dateTime.month(.abbreviated))
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .textCase(.uppercase)
-                Text(workout.date, format: .dateTime.day())
-                    .font(.title3)
-                    .fontWeight(.bold)
-            }
-            .frame(width: 50)
-            .padding(.vertical, 8)
-            .background(Color(uiColor: .secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(workout.calculatedDistance) km")
-                    .font(.headline)
-                
-                HStack(spacing: 8) {
-                    Label(workout.avgPace, systemImage: "stopwatch")
-                    Label("\(Int(workout.time / 60))분", systemImage: "clock")
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-            
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
-        }
-        .padding(16)
-        .background(Color(uiColor: .systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
     }
 }
 

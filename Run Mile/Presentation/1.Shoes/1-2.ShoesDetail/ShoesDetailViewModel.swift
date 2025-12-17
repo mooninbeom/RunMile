@@ -26,6 +26,13 @@ final class ShoesDetailViewModel {
         self.shoes.totalMileage >= self.shoes.goalMileage
     }
     
+    public var averageDistance: String {
+        let count = shoes.workouts.count
+        guard count > 0 else { return "0.0km" }
+        let avg = shoes.totalMileage / Double(count)
+        return String(format: "%.1fkm", avg)
+    }
+    
     init(useCase: ShoesDetailUseCase, shoes: Shoes) {
         self.useCase = useCase
         self.shoes = shoes

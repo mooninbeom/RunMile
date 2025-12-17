@@ -26,31 +26,67 @@ struct ChooseShoesView: View {
         self.dismiss = dismiss
     }
     
-    
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            SheetNavigationBar {
-                viewModel.cancelButtonTapped()
+        VStack(spacing: 0) {
+            // Grabber
+            Capsule()
+                .fill(Color.secondary.opacity(0.3))
+                .frame(width: 36, height: 5)
+                .padding(.top, 10)
+                .padding(.bottom, 10)
+            
+            // Header
+            VStack(spacing: 8) {
+                Text("신발 선택")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.primary)
+                
+                Text("\(viewModel.workoutCount)개의 운동 기록을 저장합니다.")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
-            .padding(.bottom, 20)
-            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
             
-            Text("마일리지를 추가할 신발을 선택해주세요!")
-                .font(FontStyle.workoutSubtitle())
-                .padding(.bottom, 20)
-                .padding(.horizontal, 20)
-            
+            // List
             ScrollView {
-                VStack(spacing: 15) {
-                    ForEach(viewModel.shoes) { shoes in
-                        ChooseShoesCell(shoes: shoes) {
-                            viewModel.shoesCellTapped(shoes: shoes)
+                LazyVStack(spacing: 12) {
+                    ForEach(viewModel.shoes) { shoe in
+                        ChooseShoesCell(
+                            shoe: shoe,
+                            isSelected: viewModel.selectedShoe?.id == shoe.id
+                        )
+                        .onTapGesture {
+                            withAnimation(.snappy) {
+                                viewModel.shoesCellTapped(shoe: shoe)
+                            }
                         }
                     }
                 }
                 .padding(.horizontal, 20)
             }
+            
+            // Bottom Action Button
+            VStack {
+                Button {
+                    viewModel.saveButtonTapped()
+                } label: {
+                    Text("저장하기")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 54)
+                        .background(viewModel.selectedShoe == nil ? Color(uiColor: .systemGray4) : Color.blue)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                }
+                .disabled(viewModel.selectedShoe == nil)
+                .padding(.horizontal, 20)
+                .padding(.top, 10)
+                .padding(.bottom, 10)
+            }
         }
+        .background(Color(uiColor: .secondarySystemBackground))
         .task {
             await viewModel.onAppear()
         }
@@ -62,34 +98,63 @@ struct ChooseShoesView: View {
 
 
 private struct ChooseShoesCell: View {
-    let shoes: Shoes
-    
-    let action: () -> Void
+    let shoe: Shoes
+    let isSelected: Bool
     
     var body: some View {
-        Button {
-            action()
-        } label: {
-            RoundedRectangle(cornerRadius: 15)
-                .frame(height: 70)
-                .foregroundStyle(.workoutCell)
+        HStack(spacing: 16) {
+            // Image
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(uiColor: .systemGray6))
+                .frame(width: 60, height: 60)
                 .overlay {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(shoes.nickname)
-                                .font(FontStyle.shoeName())
-                            Text("\(shoes.getCurrentMileage)/\(shoes.goalMileage.toInt)km")
-                                .font(FontStyle.cellSubtitle())
-                        }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 20))
+                    if let uiImage = UIImage(data: shoe.image) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    } else {
+                        Image(systemName: "shoe.fill")
+                            .font(.title2)
+                            .foregroundStyle(.secondary)
                     }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 15)
                 }
+            
+            // Text Info
+            VStack(alignment: .leading, spacing: 4) {
+                Text(shoe.nickname)
+                    .font(.headline)
+                    .foregroundStyle(.primary)
+                
+                Text(shoe.shoesName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+            
+            Spacer()
+            
+            // Selection Indicator
+            if isSelected {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(.blue)
+                    .transition(.scale.combined(with: .opacity))
+            } else {
+                Image(systemName: "circle")
+                    .font(.title2)
+                    .foregroundStyle(.tertiary)
+            }
         }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(uiColor: .systemBackground))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
+                )
+        )
+        .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
     }
 }

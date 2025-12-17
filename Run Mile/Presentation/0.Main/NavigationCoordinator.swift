@@ -120,8 +120,12 @@ extension NavigationCoordinator {
             AddShoesView(dismissAction: action)
         case let .chooseShoes(workouts, action):
             ChooseShoesView(workouts: workouts, dismiss: action)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
         case .automaticRegister:
             AutoMileageShoesView()
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.hidden)
         }
     }
 }

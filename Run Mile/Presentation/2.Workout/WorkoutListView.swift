@@ -17,130 +17,157 @@ struct WorkoutListView: View {
     )
     
     var body: some View {
-        VStack(spacing: 0) {
-            WorkoutNavigationView(viewModel: viewModel)
+        ZStack {
+            Color(uiColor: .secondarySystemBackground)
+                .ignoresSafeArea()
             
             switch viewModel.viewStatus {
-            case .none, .selection, .loading:
-                WorkoutScrollView(viewModel: $viewModel)
-            case .empty:
-                WorkoutEmptyView(
-                    viewModel: viewModel
-                )
-            }
-        }
-        .overlay {
-            if viewModel.viewStatus == .loading {
+            case .loading:
                 ProgressView()
                     .progressViewStyle(.circular)
+            case .empty:
+                workoutEmptyView
+            case .none, .selection:
+                workoutScrollView
+            }
+        }
+        .navigationTitle("운동 기록")
+        .toolbar {
+            if viewModel.viewStatus != .selection {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        viewModel.automaticRegisterButtonTapped()
+                    } label: {
+                        Image(systemName: "gearshape")
+                    }
+                }
+            }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(viewModel.viewStatus == .selection ? "취소" : "선택") {
+                    withAnimation(.snappy) {
+                        if viewModel.viewStatus == .selection {
+                            viewModel.cancelButtonTapped()
+                        } else {
+                            viewModel.selectionButtonTapped()
+                        }
+                    }
+                }
+                .fontWeight(viewModel.viewStatus == .selection ? .regular : .semibold)
+            }
+        }
+        .overlay(alignment: .bottom) {
+            if viewModel.viewStatus == .selection {
+                selectionFloatingPill
             }
         }
         .task {
             await viewModel.onAppear()
         }
-    }
-}
-
-
-private struct WorkoutNavigationView: View {
-    let viewModel: WorkoutListViewModel
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 15) {
-                Text("운동 등록")
-                    .font(FontStyle.hallOfFame())
-                    
-                Spacer()
-                
-                switch viewModel.viewStatus {
-                case .empty, .loading, .none:
-                    Button {
-                        viewModel.selectionButtonTapped()
-                    } label: {
-                        Image(systemName: "checkmark.circle")
-                    }
-                    Button("자동 등록") {
-                        viewModel.automaticRegisterButtonTapped()
-                    }
-                case .selection:
-                    Button("취소") {
-                        viewModel.cancelButtonTapped()
-                    }
-                    
-                    Button("저장") {
-                        viewModel.saveSelectedWorkoutsButtonTapped()
-                    }
-                    .disabled(viewModel.selectedWorkout.isEmpty)
-                }
-            }
-            .padding(.horizontal, 20)
-            
-            Text("마일리지 등록을 원하는 운동 기록을 선택해주세요!")
-                .font(FontStyle.workoutSubtitle())
-                .padding(.bottom, 20)
-                .padding(.horizontal, 20)
+        .refreshable {
+            await viewModel.onAppear()
         }
     }
-}
-
-
-private struct WorkoutScrollView: View {
-    @Binding var viewModel: WorkoutListViewModel
     
-    var body: some View {
+    // MARK: - Subviews
+    
+    private var workoutScrollView: some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: 0) {
-                ForEach(viewModel.dateHeaders.indices, id: \.self) { i in
+            LazyVStack(spacing: 20) {
+                ForEach(viewModel.dateHeaders.indices, id: \.self) { index in
                     Section {
-                        ForEach(viewModel.workouts[i]) { workout in
-                            WorkoutCell(workout: workout) {
-                                viewModel.workoutCellTapped(workout: workout)
-                            }
-                            .overlay {
-                                if viewModel.isSelectedWorkout(workout) {
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .strokeBorder(lineWidth: 1)
-                                        .foregroundStyle(.primary1)
+                        VStack(spacing: 12) {
+                            ForEach(viewModel.workouts[index]) { workout in
+                                Button {
+                                    if viewModel.viewStatus == .selection {
+                                        viewModel.workoutCellTapped(workout: workout)
+                                    } else {
+                                        // Detail Navigation or Action
+                                        viewModel.workoutCellTapped(workout: workout)
+                                    }
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        if viewModel.viewStatus == .selection {
+                                            Image(systemName: viewModel.isSelectedWorkout(workout) ? "checkmark.circle.fill" : "circle")
+                                                .font(.title2)
+                                                .foregroundStyle(viewModel.isSelectedWorkout(workout) ? Color.blue : Color.gray)
+                                        }
+                                        
+                                        WorkoutHistoryCell(workout: workout)
+                                    }
                                 }
+                                .buttonStyle(.plain)
                             }
-                            .padding(.bottom, 15)
                         }
                     } header: {
-                        Text(viewModel.dateHeaders[i])
-                            .font(FontStyle.placeholder())
+                        HStack {
+                            Text(viewModel.dateHeaders[index])
+                                .font(.title)
+                                .fontWeight(.bold)
+                                .foregroundStyle(.primary)
+                                .padding(.leading, 4)
+                            Spacer()
+                        }
+                        .padding(.bottom, 8)
+                        .padding(.top, 10)
                     }
                 }
             }
-            .padding(.horizontal, 20)
-        }
-        .refreshable {
-            Task {
-                await viewModel.onAppear()
-            }
+            .padding(16)
+            .padding(.bottom, 60) // Space for floating pill
         }
     }
-}
-
-
-private struct WorkoutEmptyView: View {
-    let viewModel: WorkoutListViewModel
     
-    var body: some View {
-        Group {
-            Spacer()
-            Text("Fitness에 저장된 달리기 기록이 있으면\n자동으로 연동됩니다.")
-                .foregroundStyle(.placeholder1)
-            Button("기록이 있으나\n나타나지 않을 경우") {
-                viewModel.workoutNotVisibleButtonTapped()
+    private var selectionFloatingPill: some View {
+        HStack {
+            Text("\(viewModel.selectedWorkout.count)개 선택됨")
+                .font(.subheadline)
+                .foregroundStyle(.white)
+            
+            Rectangle()
+                .fill(.white.opacity(0.3))
+                .frame(width: 1, height: 16)
+            
+            Button {
+                viewModel.saveSelectedWorkoutsButtonTapped()
+            } label: {
+                Text("저장")
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white)
             }
-            Spacer()
+            .disabled(viewModel.selectedWorkout.isEmpty)
         }
-        .font(FontStyle.workoutSubtitle())
-        .multilineTextAlignment(.center)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .background(Color.blue)
+        .clipShape(Capsule())
+        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+        .padding(.bottom, 20)
+        .transition(.move(edge: .bottom).combined(with: .opacity))
+    }
+    
+    private var workoutEmptyView: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "figure.run.square.stack")
+                .font(.system(size: 60))
+                .foregroundStyle(.secondary.opacity(0.5))
+            Text("아직 기록된 운동이 없습니다.\nApple Watch나 iPhone으로 달리기를 시작해보세요!")
+                .multilineTextAlignment(.center)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Button("데이터 새로고침") {
+                Task {
+                    await viewModel.onAppear()
+                }
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding()
     }
 }
 
 #Preview {
-    WorkoutListView()
+    NavigationStack {
+        WorkoutListView()
+    }
 }
