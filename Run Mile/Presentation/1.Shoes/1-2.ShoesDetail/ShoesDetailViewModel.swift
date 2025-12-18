@@ -144,7 +144,8 @@ extension ShoesDetailViewModel {
     
     @MainActor
     public func imageTapped() {
-        NavigationCoordinator.shared.push(.imageDetail(shoes.image), tab: .shoes)
+        let currentTab = NavigationCoordinator.shared.tabStatus
+        NavigationCoordinator.shared.push(.imageDetail(shoes.image), tab: currentTab)
     }
 }
 

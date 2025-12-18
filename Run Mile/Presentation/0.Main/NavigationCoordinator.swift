@@ -98,8 +98,6 @@ extension NavigationCoordinator {
             FitnessConnectView()
         case .hof:
             HOFView()
-        case let .hofShoesDetail(shoes):
-            HOFShoesDetailView(shoes: shoes)
         case .info:
             InformationView()
         case let .imageDetail(image):
@@ -150,7 +148,6 @@ extension NavigationCoordinator {
         case myPage
         case fitnessConnect
         case hof
-        case hofShoesDetail(Shoes)
         case info
         
         case imageDetail(Data)
