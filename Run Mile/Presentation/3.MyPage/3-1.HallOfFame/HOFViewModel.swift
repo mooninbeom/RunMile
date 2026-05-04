@@ -38,7 +38,6 @@ extension HOFViewModel {
     
     @MainActor
     public func shoesCellTapped(shoes: Shoes) {
-        NavigationCoordinator.shared
-            .push(.hofShoesDetail(shoes), tab: .myPage)
+        NavigationCoordinator.shared.push(.shoesDetail(shoes), tab: .myPage)
     }
 }

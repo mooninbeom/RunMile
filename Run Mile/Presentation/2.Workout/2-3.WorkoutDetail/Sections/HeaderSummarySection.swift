@@ -1,0 +1,123 @@
+//
+//  HeaderSummarySection.swift
+//  Run Mile
+//
+//  Created by 문인범 on 1/6/26.
+//
+
+import SwiftUI
+import MapKit
+
+
+struct HeaderSummarySection: View {
+    @Binding var viewModel: WorkoutDetailViewModel
+    var namespace: Namespace.ID
+    
+    var body: some View {
+        ZStack(alignment: .bottomLeading) {
+            mapBackground
+            
+            LinearGradient(
+                colors: [.black.opacity(0.8), .clear],
+                startPoint: .bottom,
+                endPoint: .top
+            )
+            .frame(height: 350)
+            .allowsHitTesting(false)
+            
+            headerContent
+                .padding(20)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 24))
+        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+        .padding(.horizontal)
+        .padding(.top, 10)
+    }
+    
+    @ViewBuilder
+    private var mapBackground: some View {
+        if #available(iOS 17.0, *) {
+            if !viewModel.showFullMap {
+                Map {
+                    if viewModel.routeSegments.isEmpty {
+                        MapPolyline(coordinates: viewModel.polylines)
+                            .stroke(.green, lineWidth: 5)
+                    } else {
+                        ForEach(viewModel.routeSegments) { segment in
+                            MapPolyline(coordinates: segment.coordinates)
+                                .stroke(
+                                    segment.routeColor,
+                                    style: StrokeStyle(
+                                        lineWidth: 5,
+                                        lineCap: .round,
+                                        lineJoin: .round
+                                    )
+                                )
+                        }
+                    }
+                }
+                .matchedGeometryEffect(id: "Map", in: namespace)
+                .safeAreaInset(edge: .bottom) {
+                    Color.clear.frame(height: 150)
+                }
+                .frame(height: 350)
+                .onTapGesture {
+                    withAnimation(.spring) {
+                        viewModel.headerMapTapped()
+                    }
+                }
+            } else {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.1))
+                    .frame(height: 350)
+            }
+        } else {
+            LinearGradient(
+                colors: [Color.green.opacity(0.8), Color.blue.opacity(0.8)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .frame(height: 350)
+        }
+    }
+    
+    private var headerContent: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(viewModel.workoutStartDate)
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(.white.opacity(0.8))
+            
+            Text(viewModel.workoutTitle)
+                .font(.largeTitle)
+                .fontWeight(.black)
+                .foregroundStyle(.white)
+            
+            HStack(spacing: 20) {
+                HeaderMetric(value: viewModel.distance, label: "킬로미터")
+                HeaderMetric(value: viewModel.elapsedTime, label: "시간")
+                HeaderMetric(value: viewModel.calories, label: "KCAL")
+            }
+            .padding(.top, 10)
+        }
+    }
+}
+
+
+private struct HeaderMetric: View {
+    let value: String
+    let label: String
+    
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(value)
+                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+            
+            Text(label)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(.white.opacity(0.8))
+        }
+    }
+}

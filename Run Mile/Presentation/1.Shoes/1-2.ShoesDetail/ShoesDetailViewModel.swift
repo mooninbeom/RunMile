@@ -23,7 +23,14 @@ final class ShoesDetailViewModel {
     public var selectedWorkouts: Set<UUID> = []
     
     public var isHallOfFame: Bool {
-        Double(self.shoes.getCurrentMileage)! >= self.shoes.goalMileage
+        self.shoes.totalMileage >= self.shoes.goalMileage
+    }
+    
+    public var averageDistance: String {
+        let count = shoes.workouts.count
+        guard count > 0 else { return "0.0km" }
+        let avg = shoes.totalMileage / Double(count)
+        return String(format: "%.1fkm", avg)
     }
     
     init(useCase: ShoesDetailUseCase, shoes: Shoes) {
@@ -137,7 +144,8 @@ extension ShoesDetailViewModel {
     
     @MainActor
     public func imageTapped() {
-        NavigationCoordinator.shared.push(.imageDetail(shoes.image), tab: .shoes)
+        let currentTab = NavigationCoordinator.shared.tabStatus
+        NavigationCoordinator.shared.push(.imageDetail(shoes.image), tab: currentTab)
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 
 @Observable
@@ -31,6 +32,32 @@ final class MyPageViewModel {
                 "Fitness 연동하기"
             case .info:
                 "개발자 정보"
+            }
+        }
+        
+        var icon: String {
+            switch self {
+            case .contact: return "envelope.fill"
+            case .fitness: return "heart.text.square.fill"
+            case .info: return "info.circle.fill"
+            }
+        }
+        
+        var color: Color {
+            switch self {
+            case .contact: return .blue
+            case .fitness: return .pink
+            case .info: return .gray
+            }
+        }
+        
+        var subtitle: String {
+            switch self {
+            case .contact: return "버그 제보 및 기능 제안"
+            case .fitness: return "HealthKit 권한 설정"
+            case .info:
+                let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+                return "앱 버전 \(version)"
             }
         }
     }

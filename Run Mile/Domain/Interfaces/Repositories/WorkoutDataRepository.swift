@@ -6,6 +6,7 @@
 //
 
 import HealthKit
+import CoreLocation
 
 
 protocol WorkoutDataRepository: Sendable {
@@ -21,9 +22,12 @@ protocol WorkoutDataRepository: Sendable {
     /// 단일 운동의 세부 데이터(파워, 수직진폭, 지면 접촉 시간 등등)를 불러옵니다. (내부 메소드)
     func fetchDetailedWorkoutData(workout: HKWorkout, type: HKQuantityType) async throws -> [RunningMetricPoint]
     
+    /// (내부 메소드)
+    func fetchSplits(workout: HKWorkout) async throws -> [SplitInfo]
+    
     /// 단일 운동의 운동 경로 데이터를 불러옵니다.
-    func fetchDetailedWorkoutRouteData(workout: HKWorkout) async throws -> [RoutePoint]?
+    func fetchDetailedWorkoutRouteData(workout: HKWorkout) async throws -> [CLLocation]
     
     /// 단일 운동의 데이터를 불러옵니다.(세부 데이터 포함)
-    func fetchSingleWorkoutData(workout: HKWorkout) async throws -> Workout
+    func fetchSingleWorkoutData(workout: HKWorkout) async throws -> WorkoutDetailData
 }

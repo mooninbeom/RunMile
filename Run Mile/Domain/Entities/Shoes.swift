@@ -54,7 +54,12 @@ struct Shoes: Sendable, Identifiable, Hashable {
     
     /// 목표 마일리지를 넘어섰는지 여부 판단
     public var isOverGoal: Bool {
-        let reducedMileage = workouts.reduce(0){ $0 + $1.distance } / 1000 + currentMileage
-        return reducedMileage > goalMileage
+        return totalMileage > goalMileage
+    }
+    
+    /// 총 마일리지 (Double)
+    public var totalMileage: Double {
+        let reducedMileage = workouts.reduce(0) { $0 + $1.distance } / 1000
+        return reducedMileage + currentMileage
     }
 }

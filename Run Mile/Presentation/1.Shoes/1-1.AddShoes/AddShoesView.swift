@@ -16,114 +16,189 @@ struct AddShoesView: View {
         )
     )
     
-    @FocusState private var textFieldFocus: AddShoesViewModel.TextFieldCategory?
+    @FocusState private var focusedField: AddShoesViewModel.TextFieldCategory?
     
     let dismissAction: () -> Void
     
     var body: some View {
-        ScrollView {
-            ZStack {
-                Color.clear
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        self.textFieldFocus = nil
+        NavigationStack {
+            ScrollView {
+                VStack(spacing: 24) {
+                    // MARK: - Photo Picker
+                    VStack(spacing: 12) {
+                        if let data = viewModel.image, let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 160, height: 160)
+                                .clipShape(RoundedRectangle(cornerRadius: 20))
+                                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                .overlay(alignment: .topTrailing) {
+                                    // 배경 제거 버튼 (이미지가 있을 때만)
+                                    Button {
+                                        viewModel.removeBackgroundButtonTapped()
+                                    } label: {
+                                        Image(systemName: viewModel.isImageBackgroundRemoved ? "eraser.fill" : "eraser")
+                                            .foregroundStyle(.white)
+                                            .padding(8)
+                                            .background(Color.black.opacity(0.6))
+                                            .clipShape(Circle())
+                                    }
+                                    .padding(8)
+                                }
+                        } else {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color(uiColor: .secondarySystemBackground))
+                                    .frame(width: 160, height: 160)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6]))
+                                            .foregroundStyle(Color.secondary.opacity(0.5))
+                                    )
+                                
+                                VStack(spacing: 8) {
+                                    Image(systemName: "camera.fill")
+                                        .font(.system(size: 40))
+                                        .foregroundStyle(.secondary)
+                                    Text("신발 사진 등록")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
+                        
+                        // 통합 사진 선택 버튼 (카메라/앨범 선택 다이얼로그 호출)
+                        Button {
+                            viewModel.imageButtonTapped()
+                        } label: {
+                            Text(viewModel.image == nil ? "사진 선택" : "사진 변경")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                                .foregroundStyle(.blue)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(Color.blue.opacity(0.1))
+                                .clipShape(Capsule())
+                        }
                     }
-                
-                VStack(spacing: 0) {
-                    SheetNavigationBar {
-                        viewModel.cancelButtonTapped()
+                    .padding(.top, 30)
+                    
+                    // MARK: - Input Fields
+                    VStack(spacing: 20) {
+                        // Brand Picker
+                        inputGroup(title: "브랜드", icon: "tag.fill") {
+                            Picker("브랜드를 선택해주세요", selection: $viewModel.selectedBrand) {
+                                ForEach(viewModel.brandList, id: \.self) { brand in
+                                    Text(brand).tag(brand)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .tint(.primary)
+                            .background(Color(uiColor: .secondarySystemBackground))
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                        }
+                        
+                        // Model Picker
+                        if viewModel.selectedBrand != "기타" {
+                            inputGroup(title: "모델명", icon: "shoe.fill") {
+                                Picker("모델을 선택해주세요", selection: $viewModel.selectedModel) {
+                                    ForEach(viewModel.modelList, id: \.self) { model in
+                                        Text(model).tag(model)
+                                    }
+                                }
+                                .pickerStyle(.menu)
+                                .tint(.primary)
+                                .background(Color(uiColor: .secondarySystemBackground))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            }
+                        }
+                        
+                        // Manual Input (If 'Etc' selected)
+                        if viewModel.selectedBrand == "기타" || viewModel.selectedModel == "기타" {
+                            VStack(spacing: 12) {
+                                if viewModel.selectedBrand == "기타" {
+                                    AddShoesTextField(title: "브랜드 직접 입력", text: $viewModel.customBrand, focusState: $focusedField, category: .customBrand)
+                                }
+                                if viewModel.selectedBrand == "기타" || viewModel.selectedModel == "기타" {
+                                    AddShoesTextField(title: "모델명 직접 입력", text: $viewModel.customModel, focusState: $focusedField, category: .customModel)
+                                }
+                            }
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+                        
+                        // Usage Input
+                        AddShoesTextField(title: "용도 (예: 대회용, 조깅용)", text: $viewModel.usage, icon: "figure.run", maxLength: 10, focusState: $focusedField, category: .usage)
+                        
+                        // Goal Mileage Input
+                        AddShoesTextField(title: "목표 마일리지 (km)", text: $viewModel.goalMileage, icon: "flag.checkered", keyboardType: .numberPad, maxLength: nil, maxMileage: 2000, focusState: $focusedField, category: .goalMileage)
                     }
+                    .padding(.horizontal)
                     
-                    CustomPhotoPicker(viewModel: viewModel)
                     
-                    Button(viewModel.isImageBackgroundRemoved ? "취소" : "배경 제거") {
-                        viewModel.removeBackgroundButtonTapped()
+                    // MARK: - Complete Button
+                    Button {
+                        viewModel.saveButtonTapped()
+                    } label: {
+                        Text("신발 등록하기")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 56)
+                            .background(viewModel.isCompleteButtonAccessible ? Color.black : Color.gray)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
                     }
-                    .disabled(viewModel.image == nil)
-                    
-                    ShoeInfoTextField(category: .name, textFieldFocus: $textFieldFocus, text: $viewModel.name)
-                        .padding(.vertical, 10)
-                    ShoeInfoTextField(category: .nickname, textFieldFocus: $textFieldFocus, text: $viewModel.nickname)
-                        .padding(.vertical, 10)
-                    ShoeInfoTextField(category: .goalMileage, textFieldFocus: $textFieldFocus, text: $viewModel.goalMileage)
-                        .padding(.vertical, 10)
-                    ShoeInfoTextField(category: .runMileage, textFieldFocus: $textFieldFocus, text: $viewModel.runMileage)
-                        .padding(.vertical, 10)
-                    
-                    Spacer()
-                    
-                    CompleteButton(
-                        viewModel: viewModel,
-                        action: viewModel.saveButtonTapped
-                    )
+                    .disabled(!viewModel.isCompleteButtonAccessible)
+                    .padding(.horizontal)
+                }
+                .padding(.bottom, 30)
+            }
+            .overlay {
+                if viewModel.isLoading {
+                    ProgressView()
+                        .progressViewStyle(.circular)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Color.black.opacity(0.2))
                 }
             }
-            .padding(.horizontal, 20)
-        }
-        .overlay {
-            if viewModel.isLoading {
-                ProgressView()
-                    .progressViewStyle(.circular)
+            .navigationTitle("신발 추가")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("취소") {
+                        viewModel.cancelButtonTapped()
+                    }
+                    .foregroundStyle(.primary1)
+                }
+                
+                ToolbarItemGroup(placement: .keyboard) {
+                    HStack {
+                        Button {
+                            viewModel.keyboardToolbarUpButtonTapped(&focusedField)
+                        } label: {
+                            Image(systemName: "chevron.up")
+                        }
+                        .disabled(focusedField?.previous(viewModel: viewModel) == nil)
+                        
+                        Button {
+                            viewModel.keyboardToolbarDownButtonTapped(&focusedField)
+                        } label: {
+                            Image(systemName: "chevron.down")
+                        }
+                        .disabled(focusedField?.next(viewModel: viewModel) == nil)
+                        
+                        Spacer()
+                        
+                        Button("완료") {
+                            viewModel.keyboardToolbarCompleteButtonTapped(&focusedField)
+                        }
+                    }
+                }
             }
         }
         .onDisappear {
             dismissAction()
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                HStack {
-                    Button {
-                        viewModel.keyboardToolbarUpButtonTapped(&textFieldFocus)
-                    } label: {
-                        Image(systemName: "chevron.up")
-                    }
-                    .disabled(textFieldFocus?.isUpButtonDisabled ?? false)
-                    
-                    Button {
-                        viewModel.keyboardToolbarDownButtonTapped(&textFieldFocus)
-                    } label: {
-                        Image(systemName: "chevron.down")
-                    }
-                    .disabled(textFieldFocus?.isDownButtonDisabled ?? false)
-                    
-                    
-                    Spacer()
-                    
-                    Button("완료") {
-                        viewModel.keyboardToolbarCompleteButtonTapped(&textFieldFocus)
-                    }
-                }
-            }
-        }
-    }
-}
-
-
-private struct CustomPhotoPicker: View {
-    @Bindable var viewModel: AddShoesViewModel
-    
-    var body: some View {
-        Group {
-            if let image = viewModel.image?.toImage() {
-                image
-                    .resizable()
-                    .scaledToFit()
-            } else {
-                RoundedRectangle(cornerRadius: 15)
-                    .overlay {
-                        Image(systemName: "photo")
-                            .font(.system(size: 48))
-                            .foregroundStyle(.primary2)
-                    }
-                    .foregroundStyle(.workoutCell)
-            }
-            
-            
-        }
-        .frame(width: 170, height: 170)
-        .padding(.vertical, 20)
-        .onTapGesture {
-            viewModel.imageButtonTapped()
         }
         .confirmationDialog(
             "사진 선택",
@@ -142,100 +217,84 @@ private struct CustomPhotoPicker: View {
             CameraPicker(image: $viewModel.image)
         }
     }
+    
+    // Helper View Builder
+    private func inputGroup<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(spacing: 8) {
+            Label(title, systemImage: icon)
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(.secondary)
+            
+            content()
+        }
+    }
 }
 
 
-private struct ShoeInfoTextField: View {
-    let category: AddShoesViewModel.TextFieldCategory
-    var textFieldFocus: FocusState<AddShoesViewModel.TextFieldCategory?>.Binding
-    
+// Custom TextField Component
+private struct AddShoesTextField: View {
+    let title: String
     @Binding var text: String
+    var icon: String? = nil
+    var keyboardType: UIKeyboardType = .default
+    var maxLength: Int? = nil
+    var maxMileage: Int? = nil
+    var focusState: FocusState<AddShoesViewModel.TextFieldCategory?>.Binding
+    let category: AddShoesViewModel.TextFieldCategory
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: 8) {
             HStack {
-                TextField(category.placeholder, text: $text)
-                    .font(FontStyle.placeholder())
-                    .keyboardType(
-                        (category == .goalMileage || category == .runMileage) ? .numberPad : .default
-                    )
-                    .focused(textFieldFocus, equals: category)
-                
-                switch category {
-                case .name:
-                    Text("\(text.count) / 30")
-                        .font(FontStyle.kilometer())
-                case .nickname:
-                    Text("\(text.count) / 15")
-                        .font(FontStyle.kilometer())
-                case .goalMileage, .runMileage:
-                    Text("km")
-                        .font(FontStyle.kilometer())
-                }
-            }
-            .padding(.bottom, 5)
-            
-            if category == .runMileage {
-                Rectangle()
-                    .foregroundStyle(.hallOfFame3)
-                    .frame(height: 2)
-            } else {
-                Rectangle()
-                    .foregroundStyle( text.isEmpty ? .primary2 : .hallOfFame3 )
-                    .frame(height: 2)
-            }
-            
-            Text("신발의 기존 마일리지가 있는 경우 기입해주세요!")
-                .font(FontStyle.miniPlaceholder())
-                .foregroundStyle(.placeholder1)
-                .opacity( category == .runMileage ? 1 : 0)
-        }
-        .onChange(of: text) {
-            switch category {
-            case .name:
-                text = text.count > 30 ? String(text.prefix(30)) : text
-            case .nickname:
-                text = text.count > 15 ? String(text.prefix(15)) : text
-            default:
-                if text.isEmpty { return }
-                let isNumber = text.allSatisfy{ "0123456789".contains($0) }
-                if isNumber {
-                    let num = Int(text)!
-                    if num > 1000 {
-                        text = "1000"
-                    } else {
-                        text = "\(num)"
-                    }
+                if let icon {
+                    Label(title, systemImage: icon)
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.secondary)
                 } else {
-                    text.removeAll()
+                    Text(title)
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundStyle(.secondary)
+                }
+                
+                Spacer()
+                
+                if let maxLength {
+                    Text("\(text.count) / \(maxLength)")
+                        .font(.caption2)
+                        .foregroundStyle(text.count > maxLength ? .red : .secondary)
+                }
+                
+                if let maxMileage {
+                    Text("최대 \(maxMileage)km")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
-        }
-    }
-}
-
-
-private struct CompleteButton: View {
-    @Bindable var viewModel: AddShoesViewModel
-    let action: () -> Void
-    
-    var body: some View {
-        Button {
-            action()
-        } label: {
-            RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle( viewModel.isCompleteButtonAccessible ? .primary1 : .workoutCell)
-                .frame(height: 50)
-                .overlay {
-                    Text("등록")
-                        .font(FontStyle.button())
-                        .foregroundStyle(.white)
+            
+            TextField(title, text: $text)
+                .padding()
+                .background(Color(uiColor: .secondarySystemBackground))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .keyboardType(keyboardType)
+                .focused(focusState, equals: category)
+                .onChange(of: text) { _, newValue in
+                    // Character Limit
+                    if let maxLength, newValue.count > maxLength {
+                        text = String(newValue.prefix(maxLength))
+                    }
+                    
+                    // Max Mileage Limit
+                    if let maxMileage, let num = Int(newValue) {
+                        if num > maxMileage {
+                            text = String(maxMileage)
+                        }
+                    }
                 }
         }
-        .disabled(!viewModel.isCompleteButtonAccessible)
     }
 }
-
 
 #Preview {
     AddShoesView {}

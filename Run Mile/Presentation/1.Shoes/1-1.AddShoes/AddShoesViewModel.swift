@@ -15,6 +15,7 @@ import UserNotifications
 final class AddShoesViewModel {
     private let useCase: AddShoesUseCase
     
+    // MARK: - Properties
     public var image: Data? {
         willSet {
             if image != newValue {
@@ -22,11 +23,20 @@ final class AddShoesViewModel {
             }
         }
     }
-    public var name: String = ""
-    public var nickname: String = ""
-    public var goalMileage: String = ""
-    public var runMileage: String = ""
     
+    // Brand & Model Selection
+    public var selectedBrand: String = "Nike"
+    public var selectedModel: String = "Alphafly 3"
+    public var customBrand: String = ""
+    public var customModel: String = ""
+    
+    // Usage (Previously Nickname)
+    public var usage: String = ""
+    
+    // Mileage
+    public var goalMileage: String = ""
+    
+    // Photo Picker State
     public var photos: PhotosPickerItem? = nil {
         didSet {
             Task {
@@ -41,88 +51,121 @@ final class AddShoesViewModel {
     public var isImageBackgroundRemoved: Bool = false
     public var isLoading: Bool = false
     
+    // Button Accessibility
     public var isCompleteButtonAccessible: Bool {
-        !name.isEmpty && !nickname.isEmpty && !goalMileage.isEmpty && !(image == nil)
+        return !effectiveShoesName.isEmpty && !usage.isEmpty && !goalMileage.isEmpty && image != nil
     }
     
     private var previousImage: Data?
+    
+    // MARK: - Constants / Data
+    let brands: [String: [String]] = [
+        "Nike": ["Alphafly 3", "Vaporfly 3", "Pegasus 41", "Invite Run 3", "기타"],
+        "Adidas": ["Adizero Adios Pro 3", "Adizero Takumi Sen 10", "Ultraboost Light", "기타"],
+        "New Balance": ["FuelCell SuperComp Elite v4", "Fresh Foam X 1080v13", "기타"],
+        "Hoka": ["Clifton 9", "Bondi 8", "Mach 6", "Rocket X 2", "기타"],
+        "Saucony": ["Endorphin Pro 4", "Endorphin Speed 4", "Ride 17", "기타"],
+        "Asics": ["Metaspeed Sky Paris", "Metaspeed Edge Paris", "Novablast 4", "Gel-Nimbus 26", "기타"],
+        "Mizuno": ["Wave Rebellion Pro 2", "Wave Rider 27", "기타"],
+        "Brooks": ["Ghost 15", "Glycerin 21", "Hyperion Elite 4", "기타"],
+        "기타": []
+    ]
+    
+    var brandList: [String] {
+        brands.keys.sorted().filter { $0 != "기타" } + ["기타"]
+    }
+    
+    var modelList: [String] {
+        if let models = brands[selectedBrand] {
+            return models
+        }
+        return []
+    }
+    
+    // Computed Name
+    var effectiveShoesName: String {
+        if selectedBrand == "기타" {
+            return "\(customBrand) \(customModel)"
+        } else if selectedModel == "기타" {
+            return "\(selectedBrand) \(customModel)"
+        } else {
+            return "\(selectedBrand) \(selectedModel)"
+        }
+    }
     
     init(useCase: AddShoesUseCase) {
         self.useCase = useCase
     }
 }
 
+
+// MARK: - TextField Categories
 extension AddShoesViewModel {
     enum TextFieldCategory: Hashable {
-        case name
-        case nickname
+        case customBrand
+        case customModel
+        case usage
         case goalMileage
-        case runMileage
         
-        
-        public var placeholder: String {
+        // Helper to determine next/previous based on current state
+        func previous(viewModel: AddShoesViewModel) -> TextFieldCategory? {
             switch self {
-            case .name:
-                return "신발 이름"
-            case .nickname:
-                return "닉네임"
+            case .customBrand:
+                return nil
+            case .customModel:
+                return viewModel.selectedBrand == "기타" ? .customBrand : nil
+            case .usage:
+                if viewModel.selectedBrand == "기타" || viewModel.selectedModel == "기타" {
+                    return .customModel
+                }
+                return nil
             case .goalMileage:
-                return "목표 마일리지(최대 1000km)"
-            case .runMileage:
-                return "주행 마일리지(Optional)"
+                return .usage
             }
         }
         
-        public var isUpButtonDisabled: Bool {
+        func next(viewModel: AddShoesViewModel) -> TextFieldCategory? {
             switch self {
-            case .name:
-                true
-            default:
-                false
-            }
-        }
-        
-        public var isDownButtonDisabled: Bool {
-            switch self {
-            case .runMileage:
-                true
-            default:
-                false
-            }
-        }
-        
-        public var next: Self {
-            switch self {
-            case .name:
-                    .nickname
-            case .nickname:
-                    .goalMileage
+            case .customBrand:
+                return .customModel
+            case .customModel:
+                return .usage
+            case .usage:
+                return .goalMileage
             case .goalMileage:
-                    .runMileage
-            case .runMileage:
-                    .runMileage
-            }
-        }
-        
-        public var previous: Self {
-            switch self {
-            case .name:
-                    .name
-            case .nickname:
-                    .name
-            case .goalMileage:
-                    .nickname
-            case .runMileage:
-                    .goalMileage
+                return nil
             }
         }
     }
 }
 
 
+// MARK: - Actions
 extension AddShoesViewModel {
     @MainActor
+    public func keyboardToolbarUpButtonTapped(_ textField: inout TextFieldCategory?) {
+        guard let current = textField else { return }
+        if let previous = current.previous(viewModel: self) {
+            textField = previous
+        }
+    }
+    
+    @MainActor
+    public func keyboardToolbarDownButtonTapped(_ textField: inout TextFieldCategory?) {
+        guard let current = textField else { return }
+        if let next = current.next(viewModel: self) {
+            textField = next
+        }
+    }
+    
+    @MainActor
+    public func keyboardToolbarCompleteButtonTapped(_ textField: inout TextFieldCategory?) {
+        textField = nil
+    }
+    
+    @MainActor
     public func cancelButtonTapped() {
+
         NavigationCoordinator.shared.dismissSheet()
     }
     
@@ -178,35 +221,17 @@ extension AddShoesViewModel {
         }
     }
     
-    @MainActor
-    public func keyboardToolbarUpButtonTapped(_ textField: inout TextFieldCategory?) {
-        if let _ = textField {
-            textField = textField?.previous
-        }
-    }
-    
-    @MainActor
-    public func keyboardToolbarDownButtonTapped(_ textField: inout TextFieldCategory?) {
-        if let _ = textField {
-            textField = textField?.next
-        }
-    }
-    
-    @MainActor
-    public func keyboardToolbarCompleteButtonTapped(_ textField: inout TextFieldCategory?) {
-        textField = nil
-    }
-    
     public func saveButtonTapped() {
         let shoes = Shoes(
             id: .init(),
             image: self.image!,
-            shoesName: self.name,
-            nickname: self.nickname,
-            goalMileage: Double(self.goalMileage)!,
-            currentMileage: self.runMileage.isEmpty ? 0.0 : Double(self.runMileage)!,
+            shoesName: self.effectiveShoesName,
+            nickname: self.usage, // Usage maps to nickname
+            goalMileage: Double(self.goalMileage) ?? 0.0,
+            currentMileage: 0.0, // Default to 0
             workouts: []
         )
+        
         Task {
             do {
                 try await useCase.saveShoes(shoes: shoes)

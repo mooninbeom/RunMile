@@ -47,7 +47,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         let context = CoreDataManager.shared.backgroundContext
         
         try await context.perform {
-            let CDShoes = CDShoesDTO(context: CoreDataManager.shared.context)
+            let CDShoes = CDShoesDTO(context: context)
             CDShoes.id = UUID()
             CDShoes.createdAt = .now
             CDShoes.image = shoes.image
@@ -55,6 +55,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
             CDShoes.nickname = shoes.nickname
             CDShoes.goalMileage = shoes.goalMileage
             CDShoes.currentMileage = shoes.currentMileage
+            CDShoes.isGraduated = false
             
             try context.save()
         }
@@ -67,7 +68,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
         try await context.perform {
             let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
             request.predicate = NSPredicate(format: "id == %@", shoes.id as CVarArg)
-            let result = try CoreDataManager.shared.context.fetch(request)
+            let result = try context.fetch(request)
             
             
             if let entity = result.first {

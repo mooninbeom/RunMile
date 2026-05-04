@@ -13,6 +13,9 @@ final class ChooseShoesViewModel {
     private let workouts: [Workout]
     
     public var shoes: [Shoes] = []
+    public var selectedShoe: Shoes? = nil
+    
+    public var workoutCount: Int { workouts.count }
     
     init(
         useCase: ChooseShoesUseCase,
@@ -45,10 +48,21 @@ extension ChooseShoesViewModel {
     }
     
     @MainActor
-    public func shoesCellTapped(shoes: Shoes) {
+    public func shoesCellTapped(shoe: Shoes) {
+        if self.selectedShoe?.id == shoe.id {
+            self.selectedShoe = nil
+        } else {
+            self.selectedShoe = shoe
+        }
+    }
+    
+    @MainActor
+    public func saveButtonTapped() {
+        guard let selectedShoe = self.selectedShoe else { return }
+        
         Task {
             do {
-                try await useCase.registerWorkouts(shoes: shoes, workouts: workouts)
+                try await useCase.registerWorkouts(shoes: selectedShoe, workouts: workouts)
                 cancelButtonTapped()
             } catch {
                 NavigationCoordinator.shared.push(.init(
