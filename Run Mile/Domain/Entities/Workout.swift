@@ -11,9 +11,6 @@ import HealthKit
 
 public struct Workout: Sendable, Identifiable, Hashable {
     let workout: HKWorkout
-    var heartRates: [RunningMetricPoint] = []
-    var runningPace: [RunningMetricPoint] = []
-    var route: [RoutePoint] = []
     
     public var id: UUID { self.workout.uuid }
     
@@ -36,6 +33,10 @@ public struct Workout: Sendable, Identifiable, Hashable {
     
     var time: Double {
         self.workout.duration
+    }
+    
+    var activeEnergyBurned: Double {
+        self.workout.getActiveEnergyBurned()
     }
     
 }

@@ -55,7 +55,7 @@ extension DefaultHealthDataUseCase {
     private func checkAuthorizationStatus() async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
             store.getRequestStatusForAuthorization(
-                toShare: Set(),
+                toShare: Set([.workoutType()]),
                 read: Set([.workoutType()])
             ) { status, error in
                 if let _ = error {
@@ -89,8 +89,26 @@ extension DefaultHealthDataUseCase {
                 .quantityType(forIdentifier: .runningGroundContactTime)!,
             ]
             
+            var shareTypes = Set<HKSampleType>()
+            
+            #if DEBUG && targetEnvironment(simulator)
+            shareTypes = [
+                HKSeriesType.workoutRoute(),
+                .workoutType(),
+                .quantityType(forIdentifier: .heartRate)!,
+                .quantityType(forIdentifier: .distanceWalkingRunning)!,
+                .quantityType(forIdentifier: .stepCount)!,
+                .quantityType(forIdentifier: .runningPower)!,
+                .quantityType(forIdentifier: .runningSpeed)!,
+                .quantityType(forIdentifier: .runningStrideLength)!,
+                .quantityType(forIdentifier: .runningVerticalOscillation)!,
+                .quantityType(forIdentifier: .runningGroundContactTime)!,
+                .quantityType(forIdentifier: .activeEnergyBurned)!
+            ]
+            #endif
+            
             try await store.requestAuthorization(
-                toShare: Set(),
+                toShare: shareTypes,
                 read: readTypes
             )
         } else {

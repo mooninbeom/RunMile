@@ -12,6 +12,7 @@ struct WorkoutListView: View {
     @State private var viewModel: WorkoutListViewModel = .init(
         useCase: DefaultHealthDataUseCase(
             workoutDataRepository: WorkoutDataRepositoryImpl(),
+//            workoutDataRepository: DebugingWorkoutDataRepository(),
             shoesDataRepository: ShoesDataRepositoryImpl()
         )
     )
@@ -78,25 +79,29 @@ struct WorkoutListView: View {
                     Section {
                         VStack(spacing: 12) {
                             ForEach(viewModel.workouts[index]) { workout in
-                                Button {
-                                    if viewModel.viewStatus == .selection {
+                                if viewModel.viewStatus == .selection {
+                                    Button {
                                         viewModel.workoutCellTapped(workout: workout)
-                                    } else {
-                                        // Detail Navigation or Action
-                                        viewModel.workoutCellTapped(workout: workout)
-                                    }
-                                } label: {
-                                    HStack(spacing: 12) {
-                                        if viewModel.viewStatus == .selection {
+                                    } label: {
+                                        HStack(spacing: 12) {
                                             Image(systemName: viewModel.isSelectedWorkout(workout) ? "checkmark.circle.fill" : "circle")
                                                 .font(.title2)
                                                 .foregroundStyle(viewModel.isSelectedWorkout(workout) ? Color.blue : Color.gray)
+                                            
+                                            WorkoutHistoryCell(workout: workout)
                                         }
-                                        
-                                        WorkoutHistoryCell(workout: workout)
                                     }
+                                    .buttonStyle(.plain)
+                                } else {
+                                    NavigationLink{
+                                        WorkoutDetailView(viewModel: .init(useCase: DefaultWorkoutDetailUseCase(workoutRepository: WorkoutDataRepositoryImpl()), workout: workout))
+                                    } label: {
+                                        HStack(spacing: 12) {
+                                            WorkoutHistoryCell(workout: workout)
+                                        }
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     } header: {

@@ -5,6 +5,7 @@
 //  Created by 문인범 on 4/15/25.
 //
 
+import Foundation
 import HealthKit
 import CoreData
 import MapKit
@@ -33,30 +34,43 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         return result
     }
     
-    func fetchSingleWorkoutData(workout: HKWorkout) async throws -> Workout {
-        let heartRates = try await fetchDetailedWorkoutData(
-            workout: workout,
-            type: .init(.heartRate)
-        )
-        let runningPace = try await fetchDetailedWorkoutData(
-            workout: workout,
-            type: .init(.runningSpeed)
-        )
-        let routes = try await fetchDetailedWorkoutRouteData(workout: workout)
+    func fetchSingleWorkoutData(workout: HKWorkout) async throws -> WorkoutDetailData {
+        var result = WorkoutDetailData()
         
-        let result = Workout(
-            workout: workout,
-            heartRates: heartRates,
-            runningPace: runningPace,
-            route: routes!
-        )
+        let pace = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningSpeed))
+        let heartRate = try await fetchDetailedWorkoutData(workout: workout, type: .init(.heartRate))
+        let power = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningPower))
+        let cadence = try await fetchDetailedWorkoutData(workout: workout, type: .init(.stepCount))
+        let verticalOscillation = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningVerticalOscillation))
+        let groundContactTime = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningGroundContactTime))
+        let strideLength = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningStrideLength))
+        let splits = try await fetchSplits(workout: workout)
+        let route = try await fetchDetailedWorkoutRouteData(workout: workout)
+        
+        let unifiedPace = DTOMapper.normalizeData(workout: workout, data: pace)
+        let unifiedHeartRate = DTOMapper.normalizeData(workout: workout, data: heartRate)
+        let unifiedPower = DTOMapper.normalizeData(workout: workout, data: power)
+        let unifiedVerticalOscillation = DTOMapper.normalizeData(workout: workout, data: verticalOscillation)
+        let unifiedGroundContactTime = DTOMapper.normalizeData(workout: workout, data: groundContactTime)
+        let unifiedStrideLength = DTOMapper.normalizeData(workout: workout, data: strideLength)
+        let avgCadence = cadence.reduce(0.0, { $0 + $1.value }) / (workout.duration / 60)
+        
+        result.heartRate = unifiedHeartRate
+        result.runningPace = unifiedPace
+        result.power = unifiedPower
+        result.cadence = avgCadence
+        result.groundContactTime = unifiedGroundContactTime
+        result.verticalOscillation = unifiedVerticalOscillation
+        result.strideLength = unifiedStrideLength
+        result.splits = splits
+        result.routes = route
         
         return result
     }
     
     
-    func fetchDetailedWorkoutRouteData(workout: HKWorkout) async throws -> [RoutePoint]? {
-        var returnResult: [RoutePoint] = []
+    func fetchDetailedWorkoutRouteData(workout: HKWorkout) async throws -> [CLLocation] {
+        var returnResult: [CLLocation] = []
         
         let routeType = HKSeriesType.workoutRoute()
         let predicate = HKQuery.predicateForObjects(from: workout)
@@ -71,7 +85,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
             sortDescriptors: [sortDescriptor]
         )
         
-        if routes.isEmpty { return nil }
+        if routes.isEmpty { return [] }
         
         for route in routes {
             let routeResult = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[CLLocation], any Error>) in
@@ -93,9 +107,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
                 store.execute(locationQuery)
             }
             
-            returnResult.append(contentsOf: routeResult.map {
-                RoutePoint(coordinate: $0.coordinate, timestamp: $0.timestamp, altitude: $0.altitude)
-            })
+            returnResult.append(contentsOf: routeResult)
         }
         
         return returnResult
@@ -103,31 +115,46 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     
     func fetchDetailedWorkoutData(workout: HKWorkout, type: HKQuantityType) async throws -> [RunningMetricPoint] {
         let predicate = HKQuery.predicateForObjects(from: workout)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
         
-        let quantitySamples: [HKQuantitySample] = try await HKHealthStore().fetchData(
+        
+        // 기존 store 인스턴스 재사용
+        let quantitySamples: [HKQuantitySample] = try await store.fetchData(
             sampleType: type,
             predicate: predicate,
-            limit: HKObjectQueryNoLimit
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: [sortDescriptor]
         )
         
         var result: [RunningMetricPoint] = []
         
-        quantitySamples.forEach {
-            switch type {
-            case .init(.heartRate):
-                let value = $0.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
-                result.append(.init(timestamp: $0.startDate, value: value, unit: "BPM"))
-            case .init(.runningSpeed):
-                let value = $0.quantity.doubleValue(for: .meter().unitDivided(by: .second()))
-                result.append(.init(timestamp: $0.startDate, value: value, unit: "m/s"))
-            default: break
+        for sample in quantitySamples {
+            if sample.count > 1 {
+                let seriesPoints = try await fetchQuantitySeriesPoints(sample: sample, type: type)
+                result.append(contentsOf: seriesPoints)
+            } else if let point = makeRunningMetricPoint(quantity: sample.quantity, timestamp: sample.startDate, type: type) {
+                result.append(point)
             }
         }
         
-        return result
+        let sortedResult = result.sorted { $0.timestamp < $1.timestamp }
+        
+        #if DEBUG
+        logMetricSamples(workout: workout, type: type, samples: quantitySamples, points: sortedResult)
+        #endif
+        
+        return sortedResult
     }
     
     public func fetchUnsavedWorkoutData() async throws -> [Workout] {
+        #if targetEnvironment(simulator) && DEBUG
+        let isWorkoutSaved = UserDefaults.standard.bool(forKey: "TestSample")
+        if !isWorkoutSaved {
+            let _ = try await HealthKitSampleMethod.createDetailedRunningWorkout()
+            UserDefaults.standard.set(true, forKey: "TestSample")
+        }
+        #endif
+        
         let savedWorkouts = try await fetchSavedWorkoutData()
         let entireWorkouts = try await fetchAllWorkoutData()
         
@@ -144,4 +171,341 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         
         return try await DTOMapper.CDWorkoutDTOtoEntities(fetchedResults)
     }
+    
+    public func fetchSplits(workout: HKWorkout) async throws -> [SplitInfo] {
+        // 1. 거리 데이터 가져오기 (시간순 정렬 필수)
+        let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!
+        let predicate = HKQuery.predicateForObjects(from: workout)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+        
+        let samples: [HKQuantitySample] = try await store.fetchData(
+            sampleType: distanceType,
+            predicate: predicate,
+            limit: HKObjectQueryNoLimit,
+            sortDescriptors: [sortDescriptor]
+        )
+        
+        // 2. 일시정지 구간(Pause Intervals) 미리 계산
+        let pauseIntervals = getPauseIntervals(workout: workout)
+        
+        var splits: [SplitInfo] = []
+        var currentKm = 1
+        var accumulatedDistance = 0.0
+        var lastSplitTime = workout.startDate
+        
+        // 3. 샘플 순회
+        for sample in samples {
+            let sampleDistance = sample.quantity.doubleValue(for: .meter())
+            let startDistance = accumulatedDistance
+            let endDistance = accumulatedDistance + sampleDistance
+            
+            // 샘플 구간 안에 타겟(1km, 2km...)이 포함되어 있는지 확인
+            while endDistance >= Double(currentKm * 1000) {
+                let targetDistance = Double(currentKm * 1000)
+                
+                // 보간법(Interpolation): 정확히 1000m가 되는 시점을 추정
+                // 공식: 시작시간 + (전체시간 * (남은거리 / 전체거리))
+                let progress = (targetDistance - startDistance) / (endDistance - startDistance)
+                let sampleDuration = sample.endDate.timeIntervalSince(sample.startDate)
+                let interpolatedTimeOffset = sampleDuration * progress
+                let splitPassTime = sample.startDate.addingTimeInterval(interpolatedTimeOffset)
+                
+                // 순수 운동 시간 계산 (일시정지 제외)
+                let activeDuration = self.calculateActiveDuration(start: lastSplitTime, end: splitPassTime, pauses: pauseIntervals)
+                
+                // 페이스 문자열 변환
+                let minutes = Int(activeDuration) / 60
+                let seconds = Int(activeDuration) % 60
+                let paceString = String(format: "%d'%02d\"", minutes, seconds)
+                
+                splits.append(SplitInfo(
+                    label: String(currentKm),
+                    duration: activeDuration,
+                    pace: paceString
+                ))
+                
+                currentKm += 1
+                lastSplitTime = splitPassTime
+            }
+            
+            accumulatedDistance += sampleDistance
+        }
+        
+        // 4. 마지막 자투리 구간(Remainder) 처리
+        // 예: 5.3km 뛰었으면 나머지 0.3km에 대한 페이스 정보
+        let remainderDistance = accumulatedDistance - Double((currentKm - 1) * 1000)
+        
+        // 최소 10미터 이상일 때만 기록 (노이즈 방지)
+        if remainderDistance > 10 {
+            let finalEndTime = samples.last?.endDate ?? workout.endDate
+            let activeDuration = self.calculateActiveDuration(start: lastSplitTime, end: finalEndTime, pauses: pauseIntervals)
+            
+            // 1km 환산 페이스로 변환해서 보여줌 (옵션)
+            // 환산 안하고 그냥 시간만 보여주려면 activeDuration 그대로 사용
+            let projectedPaceSeconds = activeDuration * (1000.0 / remainderDistance)
+            
+            let minutes = Int(projectedPaceSeconds) / 60
+            let seconds = Int(projectedPaceSeconds) % 60
+            let paceString = String(format: "%d'%02d\"", minutes, seconds)
+            
+            let totalKmLabel = String(format: "%.2f", accumulatedDistance / 1000.0)
+            
+            splits.append(SplitInfo(
+                label: totalKmLabel, // 마지막 구간은 총 거리로 표시 (예: "12.34")
+                duration: activeDuration,
+                pace: paceString // 여기서는 '구간 페이스'를 기록
+            ))
+        }
+        
+        return splits
+    }
+    
+    // MARK: - Helper Methods
+    
+    /// 워크아웃 이벤트에서 일시정지 구간 추출
+    private func getPauseIntervals(workout: HKWorkout) -> [DateInterval] {
+        guard let events = workout.workoutEvents else { return [] }
+        var pauses: [DateInterval] = []
+        var pauseStart: Date?
+        
+        for event in events {
+            if event.type == .pause {
+                pauseStart = event.dateInterval.start
+            } else if event.type == .resume, let start = pauseStart {
+                pauses.append(DateInterval(start: start, end: event.dateInterval.start))
+                pauseStart = nil
+            }
+        }
+        return pauses
+    }
+    
+    /// 시작~종료 시간 사이에서 일시정지 시간을 뺀 '순수 운동 시간' 계산
+    private func calculateActiveDuration(start: Date, end: Date, pauses: [DateInterval]) -> TimeInterval {
+        var duration = end.timeIntervalSince(start)
+        let totalRange = DateInterval(start: start, end: end)
+        
+        for pause in pauses {
+            // 스플릿 구간과 겹치는 일시정지 시간만큼 차감
+            if let intersection = totalRange.intersection(with: pause) {
+                duration -= intersection.duration
+            }
+        }
+        
+        return max(duration, 0)
+    }
+    
+    private func fetchQuantitySeriesPoints(sample: HKQuantitySample, type: HKQuantityType) async throws -> [RunningMetricPoint] {
+        let predicate = HKQuery.predicateForObject(with: sample.uuid)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            var points: [RunningMetricPoint] = []
+            
+            let query = HKQuantitySeriesSampleQuery(quantityType: type, predicate: predicate) { [weak self] _, quantity, dateInterval, _, done, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                
+                if let quantity,
+                   let dateInterval,
+                   let point = self?.makeRunningMetricPoint(quantity: quantity, timestamp: dateInterval.start, type: type) {
+                    points.append(point)
+                }
+                
+                if done {
+                    continuation.resume(returning: points)
+                }
+            }
+            
+            store.execute(query)
+        }
+    }
+    
+    nonisolated private func makeRunningMetricPoint(quantity: HKQuantity, timestamp: Date, type: HKQuantityType) -> RunningMetricPoint? {
+        let value: Double
+        let unit: String
+        
+        switch type.identifier {
+        case HKQuantityTypeIdentifier.heartRate.rawValue:
+            value = quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            unit = "BPM"
+        case HKQuantityTypeIdentifier.runningSpeed.rawValue:
+            value = quantity.doubleValue(for: .meter().unitDivided(by: .second()))
+            unit = "m/s"
+        case HKQuantityTypeIdentifier.runningPower.rawValue:
+            value = quantity.doubleValue(for: .watt())
+            unit = "W"
+        case HKQuantityTypeIdentifier.stepCount.rawValue:
+            value = quantity.doubleValue(for: .count())
+            unit = "Count"
+        case HKQuantityTypeIdentifier.runningVerticalOscillation.rawValue:
+            value = quantity.doubleValue(for: .meterUnit(with: .centi))
+            unit = "cm"
+        case HKQuantityTypeIdentifier.runningGroundContactTime.rawValue:
+            value = quantity.doubleValue(for: .secondUnit(with: .milli))
+            unit = "ms"
+        case HKQuantityTypeIdentifier.runningStrideLength.rawValue:
+            value = quantity.doubleValue(for: .meter())
+            unit = "m"
+        default:
+            return nil
+        }
+        
+        return .init(timestamp: timestamp, value: value, unit: unit)
+    }
 }
+
+#if DEBUG
+private extension WorkoutDataRepositoryImpl {
+    func logMetricSamples(
+        workout: HKWorkout,
+        type: HKQuantityType,
+        samples: [HKQuantitySample],
+        points: [RunningMetricPoint]
+    ) {
+        let sortedSamples = samples.sorted { $0.startDate < $1.startDate }
+        let sortedPoints = points.sorted { $0.timestamp < $1.timestamp }
+        let sampleGaps = zip(sortedSamples, sortedSamples.dropFirst())
+            .map { $1.startDate.timeIntervalSince($0.startDate) }
+            .filter { $0 >= 0 }
+        let pointGaps = zip(sortedPoints, sortedPoints.dropFirst())
+            .map { $1.timestamp.timeIntervalSince($0.timestamp) }
+            .filter { $0 >= 0 }
+        let sampleCounts = sortedSamples.map(\.count)
+        let compressedSampleCount = sampleCounts.filter { $0 > 1 }.count
+        
+        let metricName = readableMetricName(for: type)
+        let workoutStart = Self.metricLogDateFormatter.string(from: workout.startDate)
+        let workoutEnd = Self.metricLogDateFormatter.string(from: workout.endDate)
+        
+        print("""
+        [WorkoutMetricLog] \(metricName)
+        - workout: \(workout.uuid.uuidString)
+        - workoutTime: \(workoutStart) ~ \(workoutEnd) / duration: \(formatSeconds(workout.duration))
+        - rawSampleCount: \(sortedSamples.count), compressedSampleCount: \(compressedSampleCount), expandedPointCount: \(sortedPoints.count)
+        - rawSampleInnerCounts: \(sampleCountSummary(sampleCounts))
+        - rawSampleRange: \(dateRangeDescription(sortedSamples.map(\.startDate)))
+        - rawSampleGaps: \(gapSummary(sampleGaps))
+        - expandedPointGaps: \(gapSummary(pointGaps))
+        - firstSamples:
+        \(samplePreview(sortedSamples.prefix(8).map { ($0.startDate, valueDescription(for: $0, type: type)) }))
+        - lastSamples:
+        \(samplePreview(sortedSamples.suffix(8).map { ($0.startDate, valueDescription(for: $0, type: type)) }))
+        """)
+    }
+    
+    func readableMetricName(for type: HKQuantityType) -> String {
+        switch type.identifier {
+        case HKQuantityTypeIdentifier.heartRate.rawValue:
+            return "heartRate"
+        case HKQuantityTypeIdentifier.runningSpeed.rawValue:
+            return "runningSpeed"
+        case HKQuantityTypeIdentifier.runningPower.rawValue:
+            return "runningPower"
+        case HKQuantityTypeIdentifier.stepCount.rawValue:
+            return "stepCount"
+        case HKQuantityTypeIdentifier.runningVerticalOscillation.rawValue:
+            return "runningVerticalOscillation"
+        case HKQuantityTypeIdentifier.runningGroundContactTime.rawValue:
+            return "runningGroundContactTime"
+        case HKQuantityTypeIdentifier.runningStrideLength.rawValue:
+            return "runningStrideLength"
+        default:
+            return type.identifier
+        }
+    }
+    
+    func valueDescription(for sample: HKQuantitySample, type: HKQuantityType) -> String {
+        let value: Double
+        let unit: String
+        
+        switch type.identifier {
+        case HKQuantityTypeIdentifier.heartRate.rawValue:
+            value = sample.quantity.doubleValue(for: .count().unitDivided(by: .minute()))
+            unit = "BPM"
+        case HKQuantityTypeIdentifier.runningSpeed.rawValue:
+            value = sample.quantity.doubleValue(for: .meter().unitDivided(by: .second()))
+            unit = "m/s"
+        case HKQuantityTypeIdentifier.runningPower.rawValue:
+            value = sample.quantity.doubleValue(for: .watt())
+            unit = "W"
+        case HKQuantityTypeIdentifier.stepCount.rawValue:
+            value = sample.quantity.doubleValue(for: .count())
+            unit = "count"
+        case HKQuantityTypeIdentifier.runningVerticalOscillation.rawValue:
+            value = sample.quantity.doubleValue(for: .meterUnit(with: .centi))
+            unit = "cm"
+        case HKQuantityTypeIdentifier.runningGroundContactTime.rawValue:
+            value = sample.quantity.doubleValue(for: .secondUnit(with: .milli))
+            unit = "ms"
+        case HKQuantityTypeIdentifier.runningStrideLength.rawValue:
+            value = sample.quantity.doubleValue(for: .meter())
+            unit = "m"
+        default:
+            value = sample.quantity.doubleValue(for: .count())
+            unit = "count"
+        }
+        
+        return "\(String(format: "%.2f", value)) \(unit)"
+    }
+    
+    func dateRangeDescription(_ dates: [Date]) -> String {
+        guard let first = dates.first, let last = dates.last else {
+            return "empty"
+        }
+        
+        return "\(Self.metricLogDateFormatter.string(from: first)) ~ \(Self.metricLogDateFormatter.string(from: last))"
+    }
+    
+    func gapSummary(_ gaps: [TimeInterval]) -> String {
+        guard !gaps.isEmpty else {
+            return "not enough samples"
+        }
+        
+        let sortedGaps = gaps.sorted()
+        let minGap = sortedGaps.first ?? 0
+        let medianGap = sortedGaps[sortedGaps.count / 2]
+        let maxGap = sortedGaps.last ?? 0
+        let over30Count = sortedGaps.filter { $0 > 30 }.count
+        let over60Count = sortedGaps.filter { $0 > 60 }.count
+        
+        return "min \(formatSeconds(minGap)), median \(formatSeconds(medianGap)), max \(formatSeconds(maxGap)), >30s \(over30Count), >60s \(over60Count)"
+    }
+    
+    func sampleCountSummary(_ counts: [Int]) -> String {
+        guard !counts.isEmpty else {
+            return "empty"
+        }
+        
+        let sortedCounts = counts.sorted()
+        let minCount = sortedCounts.first ?? 0
+        let medianCount = sortedCounts[sortedCounts.count / 2]
+        let maxCount = sortedCounts.last ?? 0
+        
+        return "min \(minCount), median \(medianCount), max \(maxCount)"
+    }
+    
+    func samplePreview(_ samples: [(Date, String)]) -> String {
+        guard !samples.isEmpty else {
+            return "  empty"
+        }
+        
+        return samples
+            .map { date, value in
+                "  \(Self.metricLogDateFormatter.string(from: date)) / \(value)"
+            }
+            .joined(separator: "\n")
+    }
+    
+    func formatSeconds(_ seconds: TimeInterval) -> String {
+        String(format: "%.1fs", seconds)
+    }
+    
+    static var metricLogDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss.SSS"
+        return formatter
+    }
+}
+#endif
