@@ -15,6 +15,8 @@ protocol HealthDataUseCase {
     func checkHealthAuthorization() async throws -> Bool
     
     func fetchWorkoutData() async throws -> [Workout]
+
+    func fetchWorkoutShoeNames() async throws -> [UUID: String]
 }
 
 
@@ -44,7 +46,20 @@ final class DefaultHealthDataUseCase: HealthDataUseCase {
     }
     
     public func fetchWorkoutData() async throws -> [Workout] {
-        try await workoutDataRepository.fetchUnsavedWorkoutData()
+        try await workoutDataRepository.fetchAllWorkoutData()
+    }
+
+    public func fetchWorkoutShoeNames() async throws -> [UUID: String] {
+        let shoes = try await shoesDataRepository.fetchAllShoes()
+        var result: [UUID: String] = [:]
+
+        for shoe in shoes {
+            for workout in shoe.workouts {
+                result[workout.id] = shoe.shoesName
+            }
+        }
+
+        return result
     }
 }
 

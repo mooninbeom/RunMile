@@ -14,23 +14,35 @@ struct SelectedRouteAnnotationView: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(.white)
-                .frame(width: 22, height: 22)
+                .fill(RunMileColor.card)
+                .frame(width: 24, height: 24)
                 .overlay {
                     Circle()
-                        .fill(.blue)
-                        .frame(width: 13, height: 13)
+                        .fill(RunMileColor.primary)
+                        .frame(width: 12, height: 12)
                 }
-                .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
+                .overlay {
+                    Circle()
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                }
+                .shadow(color: RunMileColor.border, radius: 0, x: 2, y: 2)
             
             Text(pace)
                 .font(.caption2.weight(.black))
                 .monospacedDigit()
-                .foregroundStyle(.white)
-                .padding(.vertical, 5)
-                .padding(.horizontal, 8)
-                .background(.black.opacity(0.72), in: Capsule())
-                .offset(y: -28)
+                .foregroundStyle(RunMileColor.foreground)
+                .padding(.vertical, 6)
+                .padding(.horizontal, 9)
+                .background {
+                    RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                        .fill(RunMileColor.card)
+                        .shadow(color: RunMileColor.border, radius: 0, x: 2, y: 2)
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                }
+                .offset(y: -32)
         }
     }
 }
@@ -40,19 +52,37 @@ struct FastestPaceAnnotationView: View {
     let pace: String
     
     var body: some View {
-        HStack(spacing: 6) {
-            Image(systemName: "flame.fill")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.orange)
+        ZStack {
+            Circle()
+                .fill(RunMileColor.primary)
+                .frame(width: 12, height: 12)
+                .overlay {
+                    Circle()
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
+                }
             
-            Text("최고 \(pace)")
-                .font(.caption.weight(.bold))
-                .monospacedDigit()
-                .foregroundStyle(.white)
+            HStack(spacing: 6) {
+                Image(systemName: "flame.fill")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(RunMileColor.primary)
+
+                Text("최고 \(pace)")
+                    .font(.caption.weight(.bold))
+                    .monospacedDigit()
+                    .foregroundStyle(RunMileColor.secondaryForeground)
+            }
+            .padding(.vertical, 8)
+            .padding(.horizontal, 10)
+            .background {
+                RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                    .fill(RunMileColor.secondary.opacity(0.86))
+                    .shadow(color: RunMileColor.border.opacity(0.72), radius: 0, x: 2, y: 2)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                    .stroke(RunMileColor.border.opacity(0.9), lineWidth: RunMileStroke.border)
+            }
+            .offset(y: -28)
         }
-        .padding(.vertical, 7)
-        .padding(.horizontal, 10)
-        .background(.black.opacity(0.68), in: Capsule())
-        .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 3)
     }
 }

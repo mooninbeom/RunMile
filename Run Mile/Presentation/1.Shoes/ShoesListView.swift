@@ -33,7 +33,7 @@ struct ShoesListView: View {
                         }) {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
-                                .foregroundStyle(Color.blue)
+                                .foregroundStyle(RunMileColor.primary)
                         }
                     }
                     .padding(.horizontal)
@@ -54,7 +54,7 @@ struct ShoesListView: View {
                 }
                 .padding(.bottom, 20)
             }
-            .background(Color(uiColor: .secondarySystemBackground))
+            .background(RunMileColor.background)
         }
         .onAppear {
             viewModel.onAppear()
@@ -66,10 +66,11 @@ struct ShoesListView: View {
             VStack(alignment: .leading) {
                 Text("이번 주 달린 거리")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
                 // TODO: 실제 주간 데이터 연동 필요
                 Text("0.0 km")
                     .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .foregroundStyle(RunMileColor.foreground)
             }
             Spacer()
         }
@@ -81,12 +82,24 @@ struct ShoesListView: View {
         VStack(spacing: 12) {
             Image(systemName: "shoe.2")
                 .font(.system(size: 40))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.foreground)
             Text("신발장이 비어있습니다.\n새로운 신발을 추가해 주세요!")
                 .font(.subheadline)
                 .multilineTextAlignment(.center)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
         }
+        .padding(.vertical, 28)
+        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous)
+                .fill(RunMileColor.muted)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+        }
+        .padding(.horizontal)
         .padding(.top, 40)
     }
 }
@@ -118,32 +131,41 @@ struct ShoeCardView: View {
     // 상태 색상
     private var statusColor: Color {
         switch lifeSpanRatio {
-        case 0..<0.5: return .green
-        case 0.5..<0.8: return .orange
-        default: return .red
+        case 0..<0.5: return RunMileColor.chart4
+        case 0.5..<0.8: return RunMileColor.secondary
+        default: return RunMileColor.primary
         }
     }
     
+    private var statusForegroundColor: Color {
+        lifeSpanRatio >= 0.5 && lifeSpanRatio < 0.8
+        ? RunMileColor.secondaryForeground
+        : RunMileColor.primaryForeground
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
             // 신발 이미지 영역
             ZStack {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(uiColor: .systemGray6))
+                RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                    .fill(RunMileColor.muted)
                     .frame(width: 80, height: 80)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                            .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                    }
                 
                 if let uiImage = UIImage(data: shoe.image) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
                         .frame(width: 70, height: 70)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 } else {
                     Image(systemName: "shoe.fill")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 40)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                 }
             }
             
@@ -153,7 +175,7 @@ struct ShoeCardView: View {
                     Text(shoeBrand.uppercased())
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                     
                     Spacer()
                     
@@ -163,39 +185,45 @@ struct ShoeCardView: View {
                         .fontWeight(.semibold)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(statusColor.opacity(0.1))
-                        .foregroundStyle(statusColor)
-                        .clipShape(Capsule())
+                        .background {
+                            RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
+                                .fill(statusColor)
+                        }
+                        .foregroundStyle(statusForegroundColor)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
+                                .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
+                        }
                 }
                 
                 Text(shoeModel)
                     .font(.headline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(RunMileColor.foreground)
                     .lineLimit(1)
                 
                 Text(shoe.nickname)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
                 
                 // 마일리지 프로그레스 바
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text("\(Int(shoe.totalMileage))km")
                             .fontWeight(.bold)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(RunMileColor.foreground)
                         Text("/ \(Int(shoe.goalMileage))km")
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(RunMileColor.mutedForeground)
                         Spacer()
                     }
                     .font(.caption)
                     
                     GeometryReader { geometry in
                         ZStack(alignment: .leading) {
-                            Capsule()
+                            RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
                                 .frame(height: 6)
-                                .foregroundStyle(Color(uiColor: .systemGray5))
+                                .foregroundStyle(RunMileColor.muted)
                             
-                            Capsule()
+                            RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
                                 .frame(width: geometry.size.width * max(lifeSpanRatio, 0.05), height: 6)
                                 .foregroundStyle(statusColor)
                         }
@@ -206,9 +234,7 @@ struct ShoeCardView: View {
             }
         }
         .padding(16)
-        .background(Color(uiColor: .systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .shadow(color: Color.black.opacity(0.05), radius: 10, x: 0, y: 4)
+        .runMileBrutalCard()
     }
 }
 

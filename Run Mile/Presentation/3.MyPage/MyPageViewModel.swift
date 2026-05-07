@@ -45,9 +45,9 @@ final class MyPageViewModel {
         
         var color: Color {
             switch self {
-            case .contact: return .blue
-            case .fitness: return .pink
-            case .info: return .gray
+            case .contact: return RunMileColor.accent
+            case .fitness: return RunMileColor.primary
+            case .info: return RunMileColor.mutedForeground
             }
         }
         

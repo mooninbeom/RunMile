@@ -16,6 +16,7 @@ struct SplitSection: View {
             VStack(alignment: .leading) {
                 Text("구간 기록")
                     .font(.headline)
+                    .foregroundStyle(RunMileColor.foreground)
                     .padding(.horizontal)
                 
                 VStack(spacing: 0) {
@@ -47,13 +48,12 @@ struct SplitSection: View {
                                 Image(systemName: viewModel.splitMoreButtonIcon)
                                     .font(.caption.weight(.bold))
                             }
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(RunMileColor.mutedForeground)
                             .padding()
                         }
                     }
                 }
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 16))
+                .runMileBrutalCard()
                 .padding(.horizontal)
             }
         }
@@ -69,13 +69,13 @@ private struct SplitRow: View {
             Text("\(split.label) km")
                 .font(.body)
                 .fontWeight(.semibold)
-                .foregroundStyle(.primary)
+                .foregroundStyle(RunMileColor.foreground)
             
             Spacer()
             
             Text(split.pace)
                 .font(.monospacedDigit(.body)())
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
         }
         .padding()
     }

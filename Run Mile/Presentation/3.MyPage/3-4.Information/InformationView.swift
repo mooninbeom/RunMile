@@ -17,27 +17,31 @@ struct InformationView: View {
                 // MARK: - Profile Section
                 VStack(spacing: 16) {
                     ZStack {
-                        Circle()
-                            .fill(LinearGradient(colors: [.blue.opacity(0.1), .purple.opacity(0.1)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                        RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                            .fill(RunMileColor.secondary)
                             .frame(width: 160, height: 160)
+                            .overlay {
+                                RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                                    .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                            }
+                            .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
                         
                         Image(.memoji)
                             .resizable()
                             .scaledToFit()
                             .frame(width: 153, height: 153)
-                            .clipShape(Circle())
-                            .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                            .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
                     }
                     
                     VStack(spacing: 8) {
                         Text("Mooni(문인범)")
                             .font(.title)
                             .fontWeight(.bold)
-                            .foregroundStyle(.primary)
+                            .foregroundStyle(RunMileColor.foreground)
                         
                         Text("지구 최고의 iOS 개발자가 되기 위해\n노력중인 남자")
                             .font(.body)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(RunMileColor.mutedForeground)
                             .multilineTextAlignment(.center)
                             .lineSpacing(4)
                     }
@@ -53,7 +57,7 @@ struct InformationView: View {
                         Button {
                             viewModel.mailButtonTapped()
                         } label: {
-                            ContactRow(icon: "envelope.fill", color: .white, title: "Email", value: "dlsqja567@naver.com")
+                            ContactRow(icon: "envelope.fill", color: RunMileColor.accent, title: "Email", value: "dlsqja567@naver.com")
                         }
                         
                         Divider()
@@ -61,7 +65,7 @@ struct InformationView: View {
                         
                         // GitHub
                         Link(destination: URL(string: "https://github.com/mooninbeom")!) {
-                            ContactRow(icon: .github, title: "GitHub", value: "@mooninbeom")
+                            ContactRow(brandIcon: .github, title: "GitHub", value: "@mooninbeom")
                         }
                         
                         Divider()
@@ -69,29 +73,27 @@ struct InformationView: View {
                         
                         // LinkedIn
                         Link(destination: URL(string: "https://www.linkedin.com/in/인범-문-94ba63298")!) {
-                            ContactRow(icon: .linkedIn, title: "LinkedIn", value: "@문인범")
+                            ContactRow(brandIcon: .linkedIn, title: "LinkedIn", value: "@문인범")
                         }
                     }
-                    .background(Color(uiColor: .systemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 2)
+                    .runMileBrutalCard()
                 }
                 
                 // MARK: - App Info Section
                 VStack(spacing: 8) {
                     Text("Run Mile")
                         .font(.headline)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(RunMileColor.foreground)
                     
                     if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
                         Text("Version \(version)")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(RunMileColor.mutedForeground)
                     }
                     
                     Text("Copyright © 2025 Mooninbeom. All rights reserved.")
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                         .padding(.top, 4)
                 }
                 .padding(.top, 20)
@@ -100,7 +102,7 @@ struct InformationView: View {
             }
             .padding(20)
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(RunMileColor.background)
         .navigationTitle("개발자 정보")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -117,7 +119,7 @@ private struct SectionHeader: View {
             Text(title)
                 .font(.caption)
                 .fontWeight(.bold)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
                 .textCase(.uppercase)
             Spacer()
         }
@@ -127,7 +129,7 @@ private struct SectionHeader: View {
 
 private struct ContactRow: View {
     var icon: String? = nil
-    var imageResource: ImageResource? = nil
+    var brandIcon: BrandIcon? = nil
     var color: Color = .primary
     let title: String
     let value: String
@@ -139,29 +141,26 @@ private struct ContactRow: View {
                     Image(systemName: icon)
                         .font(.title3)
                         .foregroundStyle(color)
-                        .frame(width: 24)
-                } else if let imageResource = imageResource {
-                    Image(imageResource)
-                        .resizable()
-                        .scaledToFit()
                         .frame(width: 24, height: 24)
+                } else if let brandIcon {
+                    brandIconView(brandIcon)
                 }
             }
-            .frame(width: 40) // Fixed width for alignment
+            .frame(width: 40, height: 40)
             
             Text(title)
                 .font(.body)
-                .foregroundStyle(.primary)
+                .foregroundStyle(RunMileColor.foreground)
             
             Spacer()
             
             Text(value)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
             
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(RunMileColor.mutedForeground)
         }
         .padding(16)
         .contentShape(Rectangle()) // For better tap area
@@ -174,9 +173,37 @@ private struct ContactRow: View {
         self.value = value
     }
     
-    init(icon: ImageResource, title: String, value: String) {
-        self.imageResource = icon
+    init(brandIcon: BrandIcon, title: String, value: String) {
+        self.brandIcon = brandIcon
         self.title = title
         self.value = value
     }
+
+    @ViewBuilder
+    private func brandIconView(_ brandIcon: BrandIcon) -> some View {
+        switch brandIcon {
+        case .github:
+            Image(.github)
+                .resizable()
+                .renderingMode(.template)
+                .frame(width: 24, height: 24)
+
+        case .linkedIn:
+            Text("in")
+                .font(.system(size: 16, weight: .black))
+                .foregroundStyle(RunMileColor.primaryForeground)
+                .frame(width: 24, height: 24)
+                .background(RunMileColor.accent)
+                .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.small, style: .continuous))
+                .overlay {
+                    RoundedRectangle(cornerRadius: RunMileRadius.small, style: .continuous)
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
+                }
+        }
+    }
+}
+
+private enum BrandIcon {
+    case github
+    case linkedIn
 }

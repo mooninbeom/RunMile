@@ -28,8 +28,12 @@ struct HeaderSummarySection: View {
             headerContent
                 .padding(20)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 24))
-        .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+        .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+        }
+        .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
         .padding(.horizontal)
         .padding(.top, 10)
     }
@@ -55,6 +59,16 @@ struct HeaderSummarySection: View {
                                 )
                         }
                     }
+
+                    if let marker = viewModel.selectedRouteMarker {
+                        Annotation("", coordinate: marker.coordinate) {
+                            SelectedRouteAnnotationView(pace: marker.pace)
+                        }
+                    } else if let marker = viewModel.fastestRouteMarker {
+                        Annotation("", coordinate: marker.coordinate) {
+                            FastestPaceAnnotationView(pace: marker.pace)
+                        }
+                    }
                 }
                 .matchedGeometryEffect(id: "Map", in: namespace)
                 .safeAreaInset(edge: .bottom) {
@@ -68,12 +82,12 @@ struct HeaderSummarySection: View {
                 }
             } else {
                 Rectangle()
-                    .fill(Color.gray.opacity(0.1))
+                    .fill(RunMileColor.muted)
                     .frame(height: 350)
             }
         } else {
             LinearGradient(
-                colors: [Color.green.opacity(0.8), Color.blue.opacity(0.8)],
+                colors: [RunMileColor.chart4.opacity(0.8), RunMileColor.accent.opacity(0.8)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

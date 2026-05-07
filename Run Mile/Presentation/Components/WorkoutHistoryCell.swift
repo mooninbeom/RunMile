@@ -10,47 +10,73 @@ import HealthKit
 
 struct WorkoutHistoryCell: View {
     let workout: Workout
+    let registeredShoeName: String?
+
+    init(workout: Workout, registeredShoeName: String? = nil) {
+        self.workout = workout
+        self.registeredShoeName = registeredShoeName
+    }
     
     var body: some View {
-        HStack(spacing: 16) {
-            // Date Box
-            VStack {
-                Text(workout.date, format: .dateTime.month(.abbreviated))
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .textCase(.uppercase)
-                Text(workout.date, format: .dateTime.day())
-                    .font(.title3)
-                    .fontWeight(.bold)
-            }
-            .frame(width: 50)
-            .padding(.vertical, 8)
-            .background(Color(uiColor: .secondarySystemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text("\(workout.calculatedDistance) km")
-                    .font(.headline)
-                    .foregroundStyle(.primary)
-                
-                HStack(spacing: 8) {
-                    Label(workout.avgPace, systemImage: "stopwatch")
-                    Label("\(Int(workout.time / 60))분", systemImage: "clock")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(workout.date.koreanMonthDay)
+                        .font(.caption.weight(.black))
+                        .foregroundStyle(RunMileColor.primary)
+
+                    Text("\(workout.calculatedDistance) km")
+                        .font(.title2.weight(.black))
+                        .foregroundStyle(RunMileColor.foreground)
+                        .lineLimit(1)
                 }
-                .font(.caption)
-                .foregroundStyle(.secondary)
+
+                Spacer(minLength: 8)
+
+                registrationBadge
             }
-            
-            Spacer()
-            
-            Image(systemName: "chevron.right")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+
+            HStack(spacing: 12) {
+                metricLine
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.caption.weight(.black))
+                    .foregroundStyle(RunMileColor.mutedForeground)
+            }
         }
         .padding(16)
-        .background(Color(uiColor: .systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-        .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
+        .runMileBrutalCard()
+    }
+
+    private var metricLine: some View {
+        HStack(spacing: 10) {
+            Label(workout.avgPace, systemImage: "stopwatch")
+            Label(workout.time.toKoreanHourMinuteDuration(), systemImage: "clock")
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(RunMileColor.mutedForeground)
+        .lineLimit(1)
+    }
+
+    private var registrationBadge: some View {
+        HStack(spacing: 6) {
+            Image(systemName: registeredShoeName == nil ? "minus.circle" : "shoe.fill")
+                .font(.caption.weight(.black))
+
+            Text(registeredShoeName ?? "미등록")
+                .font(.caption.weight(.black))
+                .lineLimit(1)
+        }
+        .foregroundStyle(registeredShoeName == nil ? RunMileColor.primary : RunMileColor.secondaryForeground)
+        .padding(.horizontal, 10)
+        .frame(height: 30)
+        .frame(maxWidth: 132, alignment: .leading)
+        .background(registeredShoeName == nil ? RunMileColor.card : RunMileColor.secondary)
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                .stroke(registeredShoeName == nil ? RunMileColor.primary : RunMileColor.border, lineWidth: RunMileStroke.border)
+        }
     }
 }
-

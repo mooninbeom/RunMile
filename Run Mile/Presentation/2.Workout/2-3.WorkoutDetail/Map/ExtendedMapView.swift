@@ -71,7 +71,7 @@ struct ExtendedMapView: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.title)
-                        .foregroundStyle(.white, .gray.opacity(0.5))
+                        .foregroundStyle(RunMileColor.foreground, RunMileColor.card)
                         .padding()
                         .padding(.top, 40)
                 }
@@ -93,14 +93,18 @@ struct ExtendedMapView: View {
 	                                    Text("분석 보기")
 	                                        .font(.headline)
 	                                }
-	                                .foregroundStyle(.black)
+	                                .foregroundStyle(RunMileColor.secondaryForeground)
 	                                .padding(.vertical, 12)
 	                                .padding(.horizontal, 24)
 	                                .background {
-	                                    Capsule()
-	                                        .fill(.white)
-	                                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+	                                    RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+	                                        .fill(RunMileColor.secondary)
+	                                        .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
 	                                }
+                                    .overlay {
+                                        RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                                            .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                                    }
 	                            }
 	                            .padding(.bottom, 60)
 	                            Spacer()

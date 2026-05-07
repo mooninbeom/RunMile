@@ -17,32 +17,28 @@ struct WorkoutCell: View {
         Button {
             action()
         } label: {
-            RoundedRectangle(cornerRadius: 15)
-                .foregroundStyle(.workoutCell)
-                .frame(height: 80)
-                .overlay {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 0) {
-                            /// Distance
-                            Text("\(workout.calculatedDistance)km")
-                                .font(FontStyle.cellTitle())
-                                .offset(y: 4)
-                            
-                            /// Date
-                            Text(workout.date.workoutFormatDate)
-                                .font(FontStyle.cellSubtitle())
-                                .offset(y: -4)
-                        }
-                        .foregroundStyle(.white)
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 20))
-                            .foregroundColor(.white)
-                    }
-                    .padding(.horizontal, 15)
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    /// Distance
+                    Text("\(workout.calculatedDistance)km")
+                        .font(FontStyle.cellTitle())
+                        .foregroundStyle(RunMileColor.foreground)
+
+                    /// Date
+                    Text(workout.date.workoutFormatDate)
+                        .font(FontStyle.cellSubtitle())
+                        .foregroundStyle(RunMileColor.mutedForeground)
                 }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 20))
+                    .foregroundStyle(RunMileColor.mutedForeground)
+            }
+            .padding(.horizontal, 15)
+            .frame(height: 80)
+            .runMileBrutalCard()
         }
     }
 }

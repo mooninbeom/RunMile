@@ -48,17 +48,17 @@ enum ChartList: Int {
     public var color: Color {
         switch self {
         case .heart:
-                .red
+                RunMileColor.primary
         case .pace:
-                .blue
+                RunMileColor.accent
         case .power:
-                .yellow
+                RunMileColor.secondary
         case .verticalOscillation:
-                .purple
+                RunMileColor.chart5
         case .groundContactTime:
-                .brown
+                RunMileColor.mutedForeground
         case .strideLength:
-                .cyan
+                RunMileColor.chart4
         }
     }
 }

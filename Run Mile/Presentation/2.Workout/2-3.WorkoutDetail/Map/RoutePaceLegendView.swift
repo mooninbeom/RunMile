@@ -22,7 +22,11 @@ struct RoutePaceLegendView: View {
                 endPoint: .trailing
             )
             .frame(width: legendWidth, height: 7)
-            .clipShape(Capsule())
+            .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
+                    .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
+            }
             
             HStack {
                 Text(fastestPace)
@@ -32,11 +36,19 @@ struct RoutePaceLegendView: View {
             .frame(width: legendWidth)
             .font(.caption2.weight(.semibold))
             .monospacedDigit()
-            .foregroundStyle(.white.opacity(0.9))
+            .foregroundStyle(RunMileColor.foreground)
         }
         .padding(.vertical, 8)
         .padding(.horizontal, 10)
-        .background(.black.opacity(0.45), in: RoundedRectangle(cornerRadius: 12))
+        .background {
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .fill(RunMileColor.card)
+                .shadow(color: RunMileColor.border, radius: 0, x: 3, y: 3)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+        }
     }
 }
 

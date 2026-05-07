@@ -16,47 +16,19 @@ struct WorkoutListView: View {
             shoesDataRepository: ShoesDataRepositoryImpl()
         )
     )
-    
+
     var body: some View {
         ZStack {
-            Color(uiColor: .secondarySystemBackground)
+            RunMileColor.background
                 .ignoresSafeArea()
             
-            switch viewModel.viewStatus {
-            case .loading:
-                ProgressView()
-                    .progressViewStyle(.circular)
-            case .empty:
-                workoutEmptyView
-            case .none, .selection:
-                workoutScrollView
+            VStack(spacing: 0) {
+                headerView
+
+                contentView
             }
         }
-        .navigationTitle("운동 기록")
-        .toolbar {
-            if viewModel.viewStatus != .selection {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        viewModel.automaticRegisterButtonTapped()
-                    } label: {
-                        Image(systemName: "gearshape")
-                    }
-                }
-            }
-            
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(viewModel.viewStatus == .selection ? "취소" : "선택") {
-                    withAnimation(.snappy) {
-                        if viewModel.viewStatus == .selection {
-                            viewModel.cancelButtonTapped()
-                        } else {
-                            viewModel.selectionButtonTapped()
-                        }
-                    }
-                }
-                .fontWeight(viewModel.viewStatus == .selection ? .regular : .semibold)
-            }
-        }
+        .toolbar(.hidden, for: .navigationBar)
         .overlay(alignment: .bottom) {
             if viewModel.viewStatus == .selection {
                 selectionFloatingPill
@@ -69,9 +41,87 @@ struct WorkoutListView: View {
             await viewModel.onAppear()
         }
     }
-    
+
     // MARK: - Subviews
-    
+
+    private var headerView: some View {
+        HStack(alignment: .center, spacing: 16) {
+            Text("운동 기록")
+                .font(.largeTitle.weight(.black))
+                .foregroundStyle(RunMileColor.foreground)
+
+            Spacer(minLength: 12)
+
+            topActionControls
+        }
+        .padding(.horizontal, RunMileSpacing.screenHorizontal)
+        .padding(.top, RunMileSpacing.xLarge)
+        .padding(.bottom, RunMileSpacing.section)
+    }
+
+    @ViewBuilder
+    private var contentView: some View {
+        switch viewModel.viewStatus {
+        case .loading:
+            ProgressView()
+                .progressViewStyle(.circular)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .empty:
+            workoutEmptyView
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        case .none, .selection:
+            workoutScrollView
+        }
+    }
+
+    private var topActionControls: some View {
+        HStack(spacing: 0) {
+            if viewModel.viewStatus != .selection {
+                Button {
+                    viewModel.automaticRegisterButtonTapped()
+                } label: {
+                    Image(systemName: "bolt.fill")
+                        .font(.title3.weight(.black))
+                        .foregroundStyle(RunMileColor.secondaryForeground)
+                        .frame(width: 46, height: 38)
+                        .background(RunMileColor.secondary)
+                }
+                .buttonStyle(.plain)
+
+                Rectangle()
+                    .fill(RunMileColor.border)
+                    .frame(width: RunMileStroke.hairline, height: 30)
+            }
+
+            Button {
+                withAnimation(.snappy) {
+                    if viewModel.viewStatus == .selection {
+                        viewModel.cancelButtonTapped()
+                    } else {
+                        viewModel.selectionButtonTapped()
+                    }
+                }
+            } label: {
+                Text(viewModel.viewStatus == .selection ? "취소" : "선택")
+                    .font(.headline.weight(.black))
+                    .foregroundStyle(RunMileColor.primary)
+                    .frame(minWidth: 62)
+                    .frame(height: 38)
+            }
+            .buttonStyle(.plain)
+        }
+        .fixedSize()
+        .background {
+            RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                .fill(RunMileColor.card)
+                .shadow(color: RunMileColor.border, radius: 0, x: 2, y: 2)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+        }
+    }
+
     private var workoutScrollView: some View {
         ScrollView {
             LazyVStack(spacing: 20) {
@@ -86,9 +136,12 @@ struct WorkoutListView: View {
                                         HStack(spacing: 12) {
                                             Image(systemName: viewModel.isSelectedWorkout(workout) ? "checkmark.circle.fill" : "circle")
                                                 .font(.title2)
-                                                .foregroundStyle(viewModel.isSelectedWorkout(workout) ? Color.blue : Color.gray)
+                                                .foregroundStyle(viewModel.isSelectedWorkout(workout) ? RunMileColor.accent : RunMileColor.mutedForeground)
                                             
-                                            WorkoutHistoryCell(workout: workout)
+                                            WorkoutHistoryCell(
+                                                workout: workout,
+                                                registeredShoeName: viewModel.registeredShoeName(for: workout)
+                                            )
                                         }
                                     }
                                     .buttonStyle(.plain)
@@ -97,7 +150,10 @@ struct WorkoutListView: View {
                                         WorkoutDetailView(viewModel: .init(useCase: DefaultWorkoutDetailUseCase(workoutRepository: WorkoutDataRepositoryImpl()), workout: workout))
                                     } label: {
                                         HStack(spacing: 12) {
-                                            WorkoutHistoryCell(workout: workout)
+                                            WorkoutHistoryCell(
+                                                workout: workout,
+                                                registeredShoeName: viewModel.registeredShoeName(for: workout)
+                                            )
                                         }
                                     }
                                     .buttonStyle(.plain)
@@ -109,7 +165,7 @@ struct WorkoutListView: View {
                             Text(viewModel.dateHeaders[index])
                                 .font(.title)
                                 .fontWeight(.bold)
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(RunMileColor.foreground)
                                 .padding(.leading, 4)
                             Spacer()
                         }
@@ -127,10 +183,10 @@ struct WorkoutListView: View {
         HStack {
             Text("\(viewModel.selectedWorkout.count)개 선택됨")
                 .font(.subheadline)
-                .foregroundStyle(.white)
+                .foregroundStyle(RunMileColor.primaryForeground)
             
             Rectangle()
-                .fill(.white.opacity(0.3))
+                .fill(RunMileColor.primaryForeground.opacity(0.35))
                 .frame(width: 1, height: 16)
             
             Button {
@@ -138,15 +194,21 @@ struct WorkoutListView: View {
             } label: {
                 Text("저장")
                     .fontWeight(.bold)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(RunMileColor.primaryForeground)
             }
             .disabled(viewModel.selectedWorkout.isEmpty)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
-        .background(Color.blue)
-        .clipShape(Capsule())
-        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
+        .background {
+            RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                .fill(RunMileColor.primary)
+                .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+        }
         .padding(.bottom, 20)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
@@ -155,17 +217,18 @@ struct WorkoutListView: View {
         VStack(spacing: 16) {
             Image(systemName: "figure.run.square.stack")
                 .font(.system(size: 60))
-                .foregroundStyle(.secondary.opacity(0.5))
+                .foregroundStyle(RunMileColor.foreground)
             Text("아직 기록된 운동이 없습니다.\nApple Watch나 iPhone으로 달리기를 시작해보세요!")
                 .multilineTextAlignment(.center)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
             Button("데이터 새로고침") {
                 Task {
                     await viewModel.onAppear()
                 }
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.plain)
+            .runMileSecondaryButton()
         }
         .padding()
     }
