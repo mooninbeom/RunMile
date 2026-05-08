@@ -22,24 +22,23 @@ struct StatCard: View {
                     .foregroundStyle(color)
                 Text(title)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
             }
             
             HStack(alignment: .bottom, spacing: 4) {
                 Text(value)
                     .font(.title2)
                     .fontWeight(.bold)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(RunMileColor.foreground)
                 Text(unit)
                     .font(.caption)
                     .fontWeight(.semibold)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
                     .padding(.bottom, 2)
             }
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .runMileBrutalCard()
     }
 }

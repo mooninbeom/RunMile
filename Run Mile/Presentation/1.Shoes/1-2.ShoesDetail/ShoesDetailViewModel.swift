@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 
 @Observable
@@ -31,6 +32,34 @@ final class ShoesDetailViewModel {
         guard count > 0 else { return "0.0km" }
         let avg = shoes.totalMileage / Double(count)
         return String(format: "%.1fkm", avg)
+    }
+    
+    private var shoePresentationInfo: ShoePresentationInfo {
+        ShoePresentationInfo(shoe: shoes)
+    }
+    
+    public var shoeBrand: String {
+        shoePresentationInfo.brand
+    }
+    
+    public var shoeModel: String {
+        shoePresentationInfo.model
+    }
+    
+    public var lifeSpanRatio: Double {
+        shoePresentationInfo.lifeSpanRatio
+    }
+    
+    public var remainingPercentText: String {
+        shoePresentationInfo.remainingPercentText
+    }
+    
+    public var statusColor: Color {
+        shoePresentationInfo.statusColor
+    }
+    
+    public var statusForegroundColor: Color {
+        shoePresentationInfo.statusForegroundColor
     }
     
     init(useCase: ShoesDetailUseCase, shoes: Shoes) {
@@ -114,7 +143,9 @@ extension ShoesDetailViewModel {
             } else {
                 selectedWorkouts.insert(workout.id)
             }
-        default: break
+        default:
+            let currentTab = NavigationCoordinator.shared.tabStatus
+            NavigationCoordinator.shared.push(.workoutDetail(workout), tab: currentTab)
         }
     }
     

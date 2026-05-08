@@ -17,52 +17,9 @@ struct MyPageView: View {
         ScrollView {
             VStack(spacing: 24) {
                 // MARK: - Hall of Fame Hero Card
-                Button {
+                HallOfFameCard {
                     viewModel.HOFButtonTapped()
-                } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "trophy.fill")
-                                    .foregroundStyle(.yellow)
-                                Text("LEGENDARY")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(.yellow)
-                                    .tracking(1)
-                            }
-                            
-                            Text("명예의 전당")
-                                .font(.title)
-                                .fontWeight(.heavy)
-                                .foregroundStyle(.white)
-                            
-                            Text("목표를 달성한 신발들을 확인해보세요")
-                                .font(.subheadline)
-                                .foregroundStyle(.white.opacity(0.8))
-                                .multilineTextAlignment(.leading)
-                        }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "laurel.leading")
-                            .font(.system(size: 80))
-                            .foregroundStyle(.white.opacity(0.1))
-                            .rotationEffect(.degrees(-15))
-                            .offset(x: 20)
-                    }
-                    .padding(24)
-                    .background(
-                        LinearGradient(colors: [Color(hex: "1C1C1E"), Color(hex: "2C2C2E")], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 24)
-                            .stroke(.white.opacity(0.1), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.2), radius: 15, x: 0, y: 10)
                 }
-                .buttonStyle(ScaleButtonStyle())
                 
                 // MARK: - Menu Grid
                 VStack(spacing: 16) {
@@ -81,7 +38,7 @@ struct MyPageView: View {
             }
             .padding(20)
         }
-        .background(Color(uiColor: .secondarySystemBackground))
+        .background(RunMileColor.background)
         .sheet(isPresented: $viewModel.isContactPresented) {
             ContactView()
         }
@@ -90,6 +47,71 @@ struct MyPageView: View {
 
 
 // MARK: - Subviews
+
+private struct HallOfFameCard: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button {
+            action()
+        } label: {
+            hallOfFameBody
+        }
+        .buttonStyle(ScaleButtonStyle())
+    }
+
+    private var hallOfFameBody: some View {
+        HStack(spacing: 16) {
+            trophyBadge(size: 72)
+
+            VStack(alignment: .leading, spacing: 8) {
+                legendaryLabel(foreground: RunMileColor.primary)
+
+                Text("명예의 전당")
+                    .font(.title2.weight(.heavy))
+                    .foregroundStyle(RunMileColor.foreground)
+
+                Text("목표를 달성한 신발들을 확인해보세요")
+                    .font(.subheadline)
+                    .foregroundStyle(RunMileColor.mutedForeground)
+                    .multilineTextAlignment(.leading)
+            }
+
+            Spacer(minLength: 8)
+
+            Image(systemName: "chevron.right")
+                .font(.subheadline.weight(.bold))
+                .foregroundStyle(RunMileColor.mutedForeground)
+        }
+        .padding(16)
+        .runMileBrutalCard()
+    }
+
+    private func legendaryLabel(foreground: Color) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "sparkles")
+            Text("LEGENDARY")
+                .tracking(1)
+        }
+        .font(.caption.weight(.bold))
+        .foregroundStyle(foreground)
+    }
+
+    private func trophyBadge(size: CGFloat) -> some View {
+        RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+            .fill(RunMileColor.secondary)
+            .frame(width: size, height: size)
+            .overlay {
+                Image(systemName: "trophy.fill")
+                    .font(.system(size: size * 0.42, weight: .bold))
+                    .foregroundStyle(RunMileColor.secondaryForeground)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                    .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+            }
+    }
+}
 
 private struct MenuCard: View {
     let icon: String
@@ -103,35 +125,37 @@ private struct MenuCard: View {
             action()
         } label: {
             HStack(spacing: 16) {
-                Circle()
-                    .fill(color.opacity(0.15))
+                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                    .fill(color)
                     .frame(width: 48, height: 48)
                     .overlay {
                         Image(systemName: icon)
                             .font(.title3)
-                            .foregroundStyle(color)
+                            .foregroundStyle(icon == "info.circle.fill" ? RunMileColor.primaryForeground : RunMileColor.accentForeground)
+                    }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                            .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
                     }
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.headline)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(RunMileColor.foreground)
                     
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                 }
                 
                 Spacer()
                 
                 Image(systemName: "chevron.right")
                     .font(.subheadline)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
             }
             .padding(16)
-            .background(Color(uiColor: .systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
-            .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
+            .runMileBrutalCard()
         }
         .buttonStyle(ScaleButtonStyle())
     }
@@ -150,4 +174,3 @@ private struct ScaleButtonStyle: ButtonStyle {
 #Preview {
     MyPageView()
 }
-

@@ -17,17 +17,17 @@ struct FitnessConnectView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(alignment: .top) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.orange)
+                            .foregroundStyle(RunMileColor.primary)
                             .font(.title3)
                         
                         VStack(alignment: .leading, spacing: 4) {
                             Text("러닝 데이터가 보이지 않나요?")
                                 .font(.headline)
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(RunMileColor.foreground)
                             
                             Text("건강 데이터 권한이 꺼져있으면 앱이 정상적으로 동작하지 않을 수 있습니다.")
                                 .font(.subheadline)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(RunMileColor.mutedForeground)
                                 .fixedSize(horizontal: false, vertical: true)
                         }
                     }
@@ -44,9 +44,7 @@ struct FitnessConnectView: View {
                     
                 }
                 .padding(20)
-                .background(Color(uiColor: .systemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                .runMileBrutalCard()
                 
                 
                 // MARK: - Screenshots Carousel
@@ -54,6 +52,7 @@ struct FitnessConnectView: View {
                     Text("설정 가이드")
                         .font(.title3)
                         .fontWeight(.bold)
+                        .foregroundStyle(RunMileColor.foreground)
                         .padding(.horizontal, 4)
                     
                     TabView {
@@ -71,23 +70,20 @@ struct FitnessConnectView: View {
                                 .resizable()
                                 .scaledToFit()
                         }
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 5)
+                        .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
                         .padding(.bottom, 20)
                         .padding(.horizontal, 20)
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
                     .frame(height: 500)
-                    .background(Color(uiColor: .systemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 24))
-                    .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 5)
+                    .runMileBrutalCard()
                 }
                 
                 Spacer()
             }
             .padding(20)
         }
-        .background(Color(uiColor: .systemGroupedBackground))
+        .background(RunMileColor.background)
         .navigationTitle("Fitness 연동하기")
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -101,19 +97,23 @@ private struct StepRow: View {
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            Circle()
-                .fill(Color.secondary.opacity(0.2))
+            RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
+                .fill(RunMileColor.secondary)
                 .frame(width: 24, height: 24)
+                .overlay {
+                    RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
+                }
                 .overlay {
                     Text("\(number)")
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.secondaryForeground)
                 }
             
             Text(text)
                 .font(.body)
-                .foregroundStyle(.primary)
+                .foregroundStyle(RunMileColor.foreground)
         }
     }
 }

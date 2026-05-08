@@ -17,20 +17,13 @@ struct HOFView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // Background
-            Color(uiColor: .secondarySystemBackground)
+            RunMileColor.background
                 .ignoresSafeArea()
             
-            // Header Background Gradient (Extending to Safe Area)
-            GeometryReader { proxy in
-                LinearGradient(
-                    colors: [Color(uiColor: .systemBackground), Color(uiColor: .secondarySystemBackground)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 300 + proxy.safeAreaInsets.top)
+            RunMileColor.muted
+                .frame(height: 120)
+                .frame(maxHeight: .infinity, alignment: .top)
                 .ignoresSafeArea(edges: .top)
-            }
             
             ScrollView {
                 VStack(spacing: 24) {
@@ -55,6 +48,12 @@ struct HOFView: View {
                         .padding(.bottom, 40)
                     }
                 }
+                .frame(maxWidth: .infinity)
+                .background(alignment: .top) {
+                    RunMileColor.muted
+                        .frame(height: 300)
+                        .ignoresSafeArea(edges: .top)
+                }
             }
         }
         .toolbarBackground(.hidden, for: .navigationBar)
@@ -68,23 +67,23 @@ struct HOFView: View {
         VStack(spacing: 8) {
             Image(systemName: "laurel.leading")
                 .font(.system(size: 60))
-                .foregroundStyle(.yellow)
+                .foregroundStyle(RunMileColor.secondary)
                 .padding(.bottom, 8)
             
             Text("LEGENDARY")
                 .font(.caption)
                 .fontWeight(.black)
-                .foregroundStyle(.yellow)
+                .foregroundStyle(RunMileColor.primary)
                 .tracking(2)
             
             Text("명예의 전당")
                 .font(.largeTitle)
                 .fontWeight(.heavy)
-                .foregroundStyle(.primary)
+                .foregroundStyle(RunMileColor.foreground)
             
             Text("목표를 달성한 전설적인 신발들입니다.")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 30)
@@ -98,16 +97,16 @@ struct HOFView: View {
             
             Image(systemName: "trophy")
                 .font(.system(size: 80))
-                .foregroundStyle(.secondary.opacity(0.3))
+                .foregroundStyle(RunMileColor.secondary)
             
             Text("아직 전설이 된 신발이 없습니다.")
                 .font(.title3)
                 .fontWeight(.bold)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.foreground)
             
             Text("꾸준한 러닝으로 마일리지를 채워\n명예의 전당에 이름을 올려보세요!")
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
                 .multilineTextAlignment(.center)
             
             Spacer()
@@ -129,19 +128,23 @@ struct HOFShoesCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 100, height: 100)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(.white.opacity(0.1), lineWidth: 1)
-                    )
+                    .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                    .overlay {
+                        RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                            .strokeBorder(RunMileColor.border, lineWidth: RunMileStroke.border)
+                    }
             } else {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(uiColor: .tertiarySystemGroupedBackground))
+                RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                    .fill(RunMileColor.muted)
                     .frame(width: 100, height: 100)
                     .overlay {
                         Image(systemName: "shoe.fill")
                             .font(.largeTitle)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(RunMileColor.mutedForeground)
+                    }
+                    .overlay {
+                        RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                            .strokeBorder(RunMileColor.border, lineWidth: RunMileStroke.border)
                     }
             }
             
@@ -150,18 +153,18 @@ struct HOFShoesCard: View {
                 HStack {
                     Text(shoes.nickname)
                         .font(.headline)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(RunMileColor.foreground)
                         .lineLimit(1)
                     
                     Spacer()
                     
                     Image(systemName: "laurel.leading")
-                        .foregroundStyle(.yellow)
+                        .foregroundStyle(RunMileColor.secondary)
                 }
                 
                 Text(shoes.shoesName)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
                     .lineLimit(1)
                 
                 Spacer()
@@ -170,12 +173,12 @@ struct HOFShoesCard: View {
                     Text("\(Int(shoes.totalMileage))")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(RunMileColor.foreground)
                     
                     Text("km 달성")
                         .font(.caption)
                         .fontWeight(.semibold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                         .padding(.bottom, 2)
                 }
             }
@@ -185,16 +188,14 @@ struct HOFShoesCard: View {
             
             Image(systemName: "chevron.right")
                 .font(.subheadline)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(RunMileColor.mutedForeground)
         }
         .padding(12)
-        .background(Color(uiColor: .systemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 20))
-        .shadow(color: .black.opacity(0.05), radius: 10, x: 0, y: 4)
-        .overlay(
-            RoundedRectangle(cornerRadius: 20)
-                .strokeBorder(Color.yellow.opacity(0.3), lineWidth: 1)
-        )
+        .runMileBrutalCard()
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous)
+                .strokeBorder(RunMileColor.secondary, lineWidth: RunMileStroke.selection)
+        }
     }
 }
 

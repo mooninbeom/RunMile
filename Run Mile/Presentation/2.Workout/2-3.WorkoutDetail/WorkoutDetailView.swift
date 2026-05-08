@@ -41,7 +41,7 @@ struct WorkoutDetailView: View {
             .task {
                 await viewModel.onAppear()
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(RunMileColor.background)
             .navigationTitle("운동 상세")
             .navigationBarTitleDisplayMode(.inline)
             

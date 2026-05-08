@@ -31,8 +31,8 @@ struct AddShoesView: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: 160, height: 160)
-                                .clipShape(RoundedRectangle(cornerRadius: 20))
-                                .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
+                                .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .runMileBrutalCard(cornerRadius: RunMileRadius.image)
                                 .overlay(alignment: .topTrailing) {
                                     // 배경 제거 버튼 (이미지가 있을 때만)
                                     Button {
@@ -48,22 +48,22 @@ struct AddShoesView: View {
                                 }
                         } else {
                             ZStack {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color(uiColor: .secondarySystemBackground))
+                                RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                                    .fill(RunMileColor.muted)
                                     .frame(width: 160, height: 160)
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [6]))
-                                            .foregroundStyle(Color.secondary.opacity(0.5))
+                                        RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                                            .strokeBorder(style: StrokeStyle(lineWidth: RunMileStroke.border, dash: [6]))
+                                            .foregroundStyle(RunMileColor.border)
                                     )
                                 
-                                VStack(spacing: 8) {
+                                VStack(spacing: 12) {
                                     Image(systemName: "camera.fill")
                                         .font(.system(size: 40))
-                                        .foregroundStyle(.secondary)
+                                        .foregroundStyle(RunMileColor.foreground)
                                     Text("신발 사진 등록")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                        .font(.caption.weight(.bold))
+                                        .foregroundStyle(RunMileColor.foreground)
                                 }
                             }
                         }
@@ -74,12 +74,18 @@ struct AddShoesView: View {
                         } label: {
                             Text(viewModel.image == nil ? "사진 선택" : "사진 변경")
                                 .font(.subheadline)
-                                .fontWeight(.medium)
-                                .foregroundStyle(.blue)
+                                .fontWeight(.bold)
+                                .foregroundStyle(RunMileColor.secondaryForeground)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 8)
-                                .background(Color.blue.opacity(0.1))
-                                .clipShape(Capsule())
+                                .background {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                                        .fill(RunMileColor.secondary)
+                                }
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                                }
                         }
                     }
                     .padding(.top, 30)
@@ -94,9 +100,17 @@ struct AddShoesView: View {
                                 }
                             }
                             .pickerStyle(.menu)
-                            .tint(.primary)
-                            .background(Color(uiColor: .secondarySystemBackground))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .tint(RunMileColor.foreground)
+                            .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                            .padding(.horizontal, 14)
+                            .background {
+                                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                                    .fill(RunMileColor.card)
+                            }
+                            .overlay {
+                                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                                    .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
+                            }
                         }
                         
                         // Model Picker
@@ -108,9 +122,17 @@ struct AddShoesView: View {
                                     }
                                 }
                                 .pickerStyle(.menu)
-                                .tint(.primary)
-                                .background(Color(uiColor: .secondarySystemBackground))
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                .tint(RunMileColor.foreground)
+                                .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                                .padding(.horizontal, 14)
+                                .background {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                                        .fill(RunMileColor.card)
+                                }
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                                        .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
+                                }
                             }
                         }
                         
@@ -141,13 +163,7 @@ struct AddShoesView: View {
                         viewModel.saveButtonTapped()
                     } label: {
                         Text("신발 등록하기")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 56)
-                            .background(viewModel.isCompleteButtonAccessible ? Color.black : Color.gray)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                            .shadow(color: .black.opacity(0.15), radius: 10, x: 0, y: 5)
+                            .runMilePrimaryButton(isEnabled: viewModel.isCompleteButtonAccessible)
                     }
                     .disabled(!viewModel.isCompleteButtonAccessible)
                     .padding(.horizontal)
@@ -164,12 +180,13 @@ struct AddShoesView: View {
             }
             .navigationTitle("신발 추가")
             .navigationBarTitleDisplayMode(.inline)
+            .background(RunMileColor.background)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("취소") {
                         viewModel.cancelButtonTapped()
                     }
-                    .foregroundStyle(.primary1)
+                    .foregroundStyle(RunMileColor.primary)
                 }
                 
                 ToolbarItemGroup(placement: .keyboard) {
@@ -220,14 +237,15 @@ struct AddShoesView: View {
     
     // Helper View Builder
     private func inputGroup<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
             Label(title, systemImage: icon)
                 .font(.caption)
                 .fontWeight(.bold)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
             
             content()
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -250,12 +268,12 @@ private struct AddShoesTextField: View {
                     Label(title, systemImage: icon)
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                 } else {
                     Text(title)
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                 }
                 
                 Spacer()
@@ -263,20 +281,34 @@ private struct AddShoesTextField: View {
                 if let maxLength {
                     Text("\(text.count) / \(maxLength)")
                         .font(.caption2)
-                        .foregroundStyle(text.count > maxLength ? .red : .secondary)
+                        .foregroundStyle(text.count > maxLength ? RunMileColor.primary : RunMileColor.mutedForeground)
                 }
                 
                 if let maxMileage {
                     Text("최대 \(maxMileage)km")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                 }
             }
             
-            TextField(title, text: $text)
+            ZStack(alignment: .leading) {
+                if text.isEmpty {
+                    Text(title)
+                        .foregroundStyle(RunMileColor.mutedForeground.opacity(0.7))
+                }
+
+                TextField("", text: $text)
+                    .foregroundStyle(RunMileColor.foreground)
+            }
                 .padding()
-                .background(Color(uiColor: .secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .background {
+                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                        .fill(RunMileColor.card)
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                        .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
+                }
                 .keyboardType(keyboardType)
                 .focused(focusState, equals: category)
                 .onChange(of: text) { _, newValue in

@@ -34,12 +34,16 @@ struct MapAnalysisBottomPanel: View {
         .padding(.top, 16)
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
-        .background(Color(red: 0.12, green: 0.18, blue: 0.19).opacity(0.92), in: RoundedRectangle(cornerRadius: 28))
-        .overlay {
-            RoundedRectangle(cornerRadius: 28)
-                .stroke(.white.opacity(0.16), lineWidth: 1)
+        .background {
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .fill(RunMileColor.card)
+                .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
         }
-        .shadow(color: .black.opacity(0.28), radius: 18, x: 0, y: 10)
+        .foregroundStyle(RunMileColor.cardForeground)
+        .overlay {
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+        }
     }
     
     private var header: some View {
@@ -51,7 +55,7 @@ struct MapAnalysisBottomPanel: View {
                 Text(viewModel.selectedElapsedTimeText)
                     .font(.caption.weight(.semibold))
                     .monospacedDigit()
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
             }
             
             Spacer()
@@ -63,7 +67,7 @@ struct MapAnalysisBottomPanel: View {
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.title3.weight(.bold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.foreground, RunMileColor.muted)
             }
         }
     }
@@ -121,7 +125,7 @@ private struct PaceAnalysisChart: View {
             if let selectedSeconds = viewModel.selectedSeconds {
                 RuleMark(x: .value("Selected", selectedSeconds))
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [4]))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(RunMileColor.foreground.opacity(0.55))
             }
         }
         .chartXScale(domain: viewModel.paceChartXScale)
@@ -129,7 +133,7 @@ private struct PaceAnalysisChart: View {
         .chartXAxis {
             AxisMarks(values: viewModel.analysisXAxisValues) { value in
                 AxisGridLine()
-                    .foregroundStyle(.white.opacity(0.12))
+                    .foregroundStyle(RunMileColor.border.opacity(0.12))
                 
                 AxisValueLabel {
                     if let seconds = value.as(Int.self) {
@@ -147,19 +151,19 @@ private struct PaceAnalysisChart: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: viewModel.analysisAltitudeYAxisValues) { value in
                 AxisGridLine()
-                    .foregroundStyle(.green.opacity(0.045))
+                    .foregroundStyle(RunMileColor.chart4.opacity(0.12))
                 
                 AxisValueLabel {
                     if let mappedValue = value.as(Double.self) {
                         Text(viewModel.analysisAltitudeLabel(for: mappedValue))
-                            .foregroundStyle(.green.opacity(0.68))
+                            .foregroundStyle(RunMileColor.chart4.opacity(0.85))
                     }
                 }
             }
             
             AxisMarks(position: .trailing, values: viewModel.analysisPaceYAxisValues) { value in
                 AxisGridLine()
-                    .foregroundStyle(.white.opacity(0.12))
+                    .foregroundStyle(RunMileColor.border.opacity(0.12))
                 
                 AxisValueLabel {
                     if let speed = value.as(Double.self) {
@@ -190,10 +194,10 @@ private struct PaceAnalysisChart: View {
             }
         }
         .padding(14)
-        .background(.black.opacity(0.42), in: RoundedRectangle(cornerRadius: 18))
+        .background(RunMileColor.muted, in: RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 18)
-                .stroke(.white.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
         }
     }
 }
@@ -210,7 +214,7 @@ private struct AnalysisMetricPill: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.caption2.weight(.bold))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(RunMileColor.mutedForeground)
             
             HStack(alignment: .firstTextBaseline, spacing: 3) {
                 Text(value)
@@ -220,7 +224,7 @@ private struct AnalysisMetricPill: View {
                 if let unit {
                     Text(unit)
                         .font(.caption2.weight(.bold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(RunMileColor.mutedForeground)
                 }
                 
                 if let symbol {
@@ -229,15 +233,15 @@ private struct AnalysisMetricPill: View {
                         .foregroundStyle(symbolColor(for: symbol))
                 }
             }
-            .foregroundStyle(.primary)
+            .foregroundStyle(RunMileColor.foreground)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 10)
         .padding(.horizontal, 12)
-        .background(tint.opacity(0.14), in: RoundedRectangle(cornerRadius: 14))
+        .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
         .overlay {
-            RoundedRectangle(cornerRadius: 14)
-                .stroke(tint.opacity(0.22), lineWidth: 1)
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
         }
     }
     
@@ -248,7 +252,7 @@ private struct AnalysisMetricPill: View {
         case "arrow.down.right":
             return .cyan
         default:
-            return .white.opacity(0.75)
+            return RunMileColor.mutedForeground
         }
     }
 }

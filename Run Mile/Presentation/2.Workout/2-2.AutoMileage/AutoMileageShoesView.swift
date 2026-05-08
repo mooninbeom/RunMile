@@ -8,16 +8,6 @@
 import SwiftUI
 
 
-//
-//  AutoMileageShoesView.swift
-//  Run Mile
-//
-//  Created by 문인범 on 5/11/25.
-//
-
-import SwiftUI
-
-
 struct AutoMileageShoesView: View {
     @State private var viewModel: AutoMileageShoesViewModel = .init(
         useCase: DefaultAddMileageShoesUseCase(
@@ -29,7 +19,7 @@ struct AutoMileageShoesView: View {
         VStack(spacing: 0) {
             // Grabber
             Capsule()
-                .fill(Color.secondary.opacity(0.3))
+                .fill(RunMileColor.mutedForeground.opacity(0.35))
                 .frame(width: 36, height: 5)
                 .padding(.top, 10)
                 .padding(.bottom, 10)
@@ -39,21 +29,18 @@ struct AutoMileageShoesView: View {
                 Text("운동 자동 등록")
                     .font(.title3)
                     .fontWeight(.bold)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(RunMileColor.foreground)
                 
                 Text(viewModel.shoes.isEmpty ? "자동 등록할 신발이 없습니다." : "새로운 운동 기록이 추가되면 자동으로 등록됩니다.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
             .padding(.bottom, 24)
             
             if viewModel.shoes.isEmpty {
-                Spacer()
-                Text("등록 가능한 신발이 없습니다.")
-                    .foregroundStyle(.secondary)
-                Spacer()
+                emptyStateView
             } else {
                 // List
                 ScrollView {
@@ -75,29 +62,40 @@ struct AutoMileageShoesView: View {
             }
             
             // Bottom Action Button
-            VStack {
-                Button {
-                    viewModel.saveButtonTapped()
-                } label: {
-                    Text("저장하기")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 54)
-                        .background(viewModel.isSaveButtonDisabled ? Color(uiColor: .systemGray4) : Color.blue)
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+            if !viewModel.shoes.isEmpty {
+                VStack {
+                    Button {
+                        viewModel.saveButtonTapped()
+                    } label: {
+                        Text("저장하기")
+                            .runMilePrimaryButton(isEnabled: !viewModel.isSaveButtonDisabled)
+                    }
+                    .disabled(viewModel.isSaveButtonDisabled)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
                 }
-                .disabled(viewModel.isSaveButtonDisabled)
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 10)
             }
         }
-        .background(Color(uiColor: .secondarySystemBackground))
+        .background(RunMileColor.background)
         .task {
             await viewModel.onAppear()
         }
+    }
+
+    private var emptyStateView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "shoe.2")
+                .font(.system(size: 40, weight: .bold))
+                .foregroundStyle(RunMileColor.mutedForeground)
+
+            Text("신발장에서 자동 등록할 신발을 먼저 추가해 주세요.")
+                .font(.subheadline)
+                .foregroundStyle(RunMileColor.mutedForeground)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 32)
     }
 }
 
@@ -109,19 +107,23 @@ private struct ChooseShoesCell: View {
     var body: some View {
         HStack(spacing: 16) {
             // Image
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(uiColor: .systemGray6))
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .fill(RunMileColor.muted)
                 .frame(width: 60, height: 60)
+                .overlay {
+                    RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                }
                 .overlay {
                     if let uiImage = UIImage(data: shoe.image) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
                     } else {
                         Image(systemName: "shoe.fill")
                             .font(.title2)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(RunMileColor.mutedForeground)
                     }
                 }
             
@@ -129,11 +131,11 @@ private struct ChooseShoesCell: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(shoe.nickname)
                     .font(.headline)
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(RunMileColor.foreground)
                 
                 Text(shoe.shoesName)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
                     .lineLimit(1)
             }
             
@@ -143,23 +145,16 @@ private struct ChooseShoesCell: View {
             if isSelected {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.title2)
-                    .foregroundStyle(.blue)
+                    .foregroundStyle(RunMileColor.accent)
                     .transition(.scale.combined(with: .opacity))
             } else {
                 Image(systemName: "circle")
                     .font(.title2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(RunMileColor.mutedForeground)
             }
         }
         .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color(uiColor: .systemBackground))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(isSelected ? Color.blue : Color.clear, lineWidth: 2)
-                )
-        )
-        .shadow(color: .black.opacity(0.03), radius: 5, x: 0, y: 2)
+        .runMileBrutalCard()
+        .runMileSelectionBorder(isVisible: isSelected)
     }
 }

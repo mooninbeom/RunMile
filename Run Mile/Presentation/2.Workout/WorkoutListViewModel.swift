@@ -14,9 +14,11 @@ final class WorkoutListViewModel {
     
     public var dateHeaders: [String] = []
     public var workouts: [[Workout]] = []
+    public var workoutShoeNames: [UUID: String] = [:]
     public var viewStatus: ViewStatus = .none
     
     public var selectedWorkout: Set<UUID> = []
+    private var hasLoadedWorkoutData = false
     
     init(useCase: HealthDataUseCase) {
         self.useCase = useCase
@@ -35,22 +37,48 @@ final class WorkoutListViewModel {
 extension WorkoutListViewModel {
     @MainActor
     public func onAppear() async {
-        self.viewStatus = .loading
+        await loadWorkoutData(showFullLoading: !hasLoadedWorkoutData)
+    }
+    
+    @MainActor
+    public func refresh() async {
+        await loadWorkoutData(showFullLoading: true)
+    }
+    
+    @MainActor
+    private func loadWorkoutData(showFullLoading: Bool) async {
+        let previousStatus = viewStatus
         
+        if showFullLoading {
+            self.viewStatus = .loading
+        }
+
         do {
             let isRequested = try await useCase.checkHealthAuthorization()
-            let workouts = try await useCase.fetchWorkoutData()
+            let workouts = try await reloadWorkoutData()
             
             if !isRequested, workouts.isEmpty {
                 self.viewStatus = .empty
+                self.hasLoadedWorkoutData = true
                 return
             }
-            self.viewStatus = .none
             
             self.classifyWorkoutsByDate(workouts: workouts)
+            if workouts.isEmpty {
+                self.viewStatus = .empty
+            } else if !showFullLoading, previousStatus == .selection {
+                self.viewStatus = .selection
+            } else {
+                self.viewStatus = .none
+            }
+            self.hasLoadedWorkoutData = true
             
             await AppDelegate.setBackgroundDelivery()
         } catch {
+            if showFullLoading {
+                self.viewStatus = hasLoadedWorkoutData ? previousStatus : .empty
+            }
+            
             if let error = error as? HealthError,
                error == .unknownError || error == .notAvailableDevice {
                 NavigationCoordinator.shared.push(.init(
@@ -87,21 +115,7 @@ extension WorkoutListViewModel {
                 self.selectedWorkout.insert(id)
             }
         } else {
-            NavigationCoordinator.shared.push(.chooseShoes([workout], {
-                Task {
-                    do {
-                        let workouts = try await self.useCase.fetchWorkoutData()
-                        self.classifyWorkoutsByDate(workouts: workouts)
-                    } catch {
-                        NavigationCoordinator.shared.push(.init(
-                            title: "데이터 로딩 과정 중 오류가 발생했습니다.",
-                            message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
-                            firstButton: .cancel(title: "확인", action: {}),
-                            secondButton: nil
-                        ))
-                    }
-                }
-            }))
+            NavigationCoordinator.shared.push(.workoutDetail(workout), tab: .workout)
         }
     }
     
@@ -125,7 +139,7 @@ extension WorkoutListViewModel {
             Task {
                 self.selectedWorkout.removeAll()
                 do {
-                    let workouts = try await self.useCase.fetchWorkoutData()
+                    let workouts = try await self.reloadWorkoutData()
                     if workouts.isEmpty {
                         self.viewStatus = .empty
                     } else {
@@ -153,10 +167,20 @@ extension WorkoutListViewModel {
     public func isSelectedWorkout(_ workout: Workout) -> Bool {
         self.selectedWorkout.contains(workout.id)
     }
+
+    public func registeredShoeName(for workout: Workout) -> String? {
+        workoutShoeNames[workout.id]
+    }
 }
 
 
 extension WorkoutListViewModel {
+    private func reloadWorkoutData() async throws -> [Workout] {
+        let workouts = try await useCase.fetchWorkoutData()
+        workoutShoeNames = try await useCase.fetchWorkoutShoeNames()
+        return workouts
+    }
+
     private func classifyWorkoutsByDate(workouts: [Workout]) {
         self.workouts.removeAll()
         self.dateHeaders.removeAll()

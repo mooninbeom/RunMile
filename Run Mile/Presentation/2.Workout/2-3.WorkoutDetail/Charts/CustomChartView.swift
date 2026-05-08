@@ -37,15 +37,14 @@ struct CustomChartView: View {
             .chartYScale(domain: yScale)
             .frame(height: 200)
             .padding()
-            .background(Color(uiColor: .secondarySystemGroupedBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .runMileBrutalCard()
             .padding(.horizontal)
             .chartPlotStyle { plotArea in
                 plotArea
                     .background(alignment: .bottom) {
                         // 차트 영역의 바닥(bottom)에 높이 1짜리 검은 선을 깔아라
                         Rectangle()
-                            .fill(Color.white) // 선 색상
+                            .fill(RunMileColor.border) // 선 색상
                             .frame(height: 1.5)  // 선 두께
                     }
             }
@@ -92,4 +91,3 @@ struct CustomChartView: View {
         }
     }
 }
-
