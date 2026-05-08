@@ -52,7 +52,7 @@ enum ChartList: Int {
         case .pace:
                 RunMileColor.accent
         case .power:
-                RunMileColor.secondary
+                RunMileColor.power
         case .verticalOscillation:
                 RunMileColor.chart5
         case .groundContactTime:

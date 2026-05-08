@@ -24,7 +24,7 @@ struct AllStatsGridSection: View {
             }
             
             if let avgPower = viewModel.avgPower {
-                StatCard(title: "평균 파워", value: avgPower, unit: "W", icon: "bolt.fill", color: RunMileColor.secondary)
+                StatCard(title: "평균 파워", value: avgPower, unit: "W", icon: "bolt.fill", color: RunMileColor.power)
             }
             
             if let avgCadence = viewModel.avgCadence {

@@ -30,6 +30,8 @@ enum RunMileColor {
     static let chart4 = Color(hex: "00CC00")
     static let chart5 = Color(hex: "CC00CC")
 
+    static let power = Color(hex: "8A4B00")
+
     static let success = chart4
     static let warning = chart2
     static let danger = primary
