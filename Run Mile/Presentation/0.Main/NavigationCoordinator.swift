@@ -91,6 +91,15 @@ extension NavigationCoordinator {
             
         case .workout:
             WorkoutListView()
+        case let .workoutDetail(workout):
+            WorkoutDetailView(
+                viewModel: .init(
+                    useCase: DefaultWorkoutDetailUseCase(
+                        workoutRepository: WorkoutDataRepositoryImpl()
+                    ),
+                    workout: workout
+                )
+            )
             
         case .myPage:
             MyPageView()
@@ -144,6 +153,7 @@ extension NavigationCoordinator {
         case shoesDetail(Shoes)
         
         case workout
+        case workoutDetail(Workout)
         
         case myPage
         case fitnessConnect

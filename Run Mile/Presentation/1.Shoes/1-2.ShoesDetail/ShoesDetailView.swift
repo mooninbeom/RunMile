@@ -250,6 +250,10 @@ struct ShoesDetailView: View {
                 LazyVStack(spacing: 12) {
                     ForEach(viewModel.shoes.workouts) { workout in
                         WorkoutHistoryCell(workout: workout, registeredShoeName: viewModel.shoes.shoesName)
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                viewModel.workoutCellTapped(workout)
+                            }
                     }
                 }
                 .padding(.horizontal)

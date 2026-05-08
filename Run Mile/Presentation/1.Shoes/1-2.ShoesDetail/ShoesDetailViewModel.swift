@@ -143,7 +143,9 @@ extension ShoesDetailViewModel {
             } else {
                 selectedWorkouts.insert(workout.id)
             }
-        default: break
+        default:
+            let currentTab = NavigationCoordinator.shared.tabStatus
+            NavigationCoordinator.shared.push(.workoutDetail(workout), tab: currentTab)
         }
     }
     
