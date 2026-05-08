@@ -18,6 +18,7 @@ final class WorkoutListViewModel {
     public var viewStatus: ViewStatus = .none
     
     public var selectedWorkout: Set<UUID> = []
+    private var hasLoadedWorkoutData = false
     
     init(useCase: HealthDataUseCase) {
         self.useCase = useCase
@@ -36,22 +37,48 @@ final class WorkoutListViewModel {
 extension WorkoutListViewModel {
     @MainActor
     public func onAppear() async {
-        self.viewStatus = .loading
+        await loadWorkoutData(showFullLoading: !hasLoadedWorkoutData)
+    }
+    
+    @MainActor
+    public func refresh() async {
+        await loadWorkoutData(showFullLoading: true)
+    }
+    
+    @MainActor
+    private func loadWorkoutData(showFullLoading: Bool) async {
+        let previousStatus = viewStatus
         
+        if showFullLoading {
+            self.viewStatus = .loading
+        }
+
         do {
             let isRequested = try await useCase.checkHealthAuthorization()
             let workouts = try await reloadWorkoutData()
             
             if !isRequested, workouts.isEmpty {
                 self.viewStatus = .empty
+                self.hasLoadedWorkoutData = true
                 return
             }
-            self.viewStatus = .none
             
             self.classifyWorkoutsByDate(workouts: workouts)
+            if workouts.isEmpty {
+                self.viewStatus = .empty
+            } else if !showFullLoading, previousStatus == .selection {
+                self.viewStatus = .selection
+            } else {
+                self.viewStatus = .none
+            }
+            self.hasLoadedWorkoutData = true
             
             await AppDelegate.setBackgroundDelivery()
         } catch {
+            if showFullLoading {
+                self.viewStatus = hasLoadedWorkoutData ? previousStatus : .empty
+            }
+            
             if let error = error as? HealthError,
                error == .unknownError || error == .notAvailableDevice {
                 NavigationCoordinator.shared.push(.init(

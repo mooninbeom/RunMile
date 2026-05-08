@@ -37,7 +37,7 @@ struct WorkoutListView: View {
             await viewModel.onAppear()
         }
         .refreshable {
-            await viewModel.onAppear()
+            await viewModel.refresh()
         }
     }
 
@@ -211,7 +211,7 @@ struct WorkoutListView: View {
                 .foregroundStyle(RunMileColor.mutedForeground)
             Button("데이터 새로고침") {
                 Task {
-                    await viewModel.onAppear()
+                    await viewModel.refresh()
                 }
             }
             .buttonStyle(.plain)
