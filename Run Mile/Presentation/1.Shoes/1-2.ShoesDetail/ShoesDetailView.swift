@@ -20,41 +20,6 @@ struct ShoesDetailView: View {
         )
     }
     
-    // Status Logic for Mileage
-    private var lifeSpanRatio: Double {
-        guard viewModel.shoes.goalMileage > 0 else { return 0 }
-        return min(viewModel.shoes.totalMileage / viewModel.shoes.goalMileage, 1.0)
-    }
-    
-    private var statusColor: Color {
-        switch lifeSpanRatio {
-        case 0..<0.5: return RunMileColor.chart4
-        case 0.5..<0.8: return RunMileColor.secondary
-        default: return RunMileColor.primary
-        }
-    }
-
-    private var statusForegroundColor: Color {
-        lifeSpanRatio >= 0.5 && lifeSpanRatio < 0.8
-        ? RunMileColor.secondaryForeground
-        : RunMileColor.primaryForeground
-    }
-    
-    // Brand Extraction
-    private var shoeBrand: String {
-        let components = viewModel.shoes.shoesName.split(separator: " ")
-        return components.first.map(String.init) ?? "BRAND"
-    }
-    
-    private var shoeModel: String {
-        let components = viewModel.shoes.shoesName.split(separator: " ")
-        if components.count > 1 {
-            return components.dropFirst().joined(separator: " ")
-        }
-        return viewModel.shoes.shoesName
-    }
-    
-    
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -70,7 +35,7 @@ struct ShoesDetailView: View {
             .padding(.bottom, 40)
         }
         .background(RunMileColor.background)
-        .navigationTitle(shoeModel) // Show Model Name
+        .navigationTitle(viewModel.shoeModel)
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -101,7 +66,7 @@ struct ShoesDetailView: View {
             
             // Text Info
             VStack(spacing: 8) {
-                Text(shoeBrand.uppercased())
+                Text(viewModel.shoeBrand.uppercased())
                     .font(.caption)
                     .fontWeight(.bold)
                     .foregroundStyle(RunMileColor.primaryForeground)
@@ -112,8 +77,8 @@ struct ShoesDetailView: View {
                             .fill(RunMileColor.primary)
                     }
                 
-                Text(shoeModel)
-                    .font(.title) // Larger title
+                Text(viewModel.shoeModel)
+                    .font(.title)
                     .fontWeight(.heavy)
                     .foregroundStyle(RunMileColor.foreground)
                     .multilineTextAlignment(.center)
@@ -169,16 +134,16 @@ struct ShoesDetailView: View {
                 
                 Spacer()
                 
-                Text("\(Int((1.0 - lifeSpanRatio) * 100))% 남음")
+                Text(viewModel.remainingPercentText)
                     .font(.caption)
                     .fontWeight(.bold)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .background {
                         RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
-                            .fill(statusColor)
+                            .fill(viewModel.statusColor)
                     }
-                    .foregroundStyle(statusForegroundColor)
+                    .foregroundStyle(viewModel.statusForegroundColor)
                     .overlay {
                         RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
                             .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
@@ -194,8 +159,8 @@ struct ShoesDetailView: View {
                             .frame(height: 12)
                         
                         RoundedRectangle(cornerRadius: RunMileRadius.progress, style: .continuous)
-                            .fill(statusColor)
-                            .frame(width: geometry.size.width * max(lifeSpanRatio, 0.05), height: 12)
+                            .fill(viewModel.statusColor)
+                            .frame(width: geometry.size.width * max(viewModel.lifeSpanRatio, 0.05), height: 12)
                     }
                 }
                 .frame(height: 12)
@@ -204,7 +169,7 @@ struct ShoesDetailView: View {
                     Text(viewModel.shoes.getCurrentMileage + "km")
                         .font(.title3)
                         .fontWeight(.bold)
-                        .foregroundStyle(statusColor)
+                        .foregroundStyle(viewModel.statusColor)
                     
                     Text("사용")
                         .font(.caption)

@@ -11,12 +11,17 @@ import Foundation
 @Observable
 final class ShoesListViewModel {
     public var shoes: [Shoes] = []
+    public var monthlyDistanceText: String = "0.0 km"
     
     
     let useCase: ShoesListUseCase
     
     init(useCase: ShoesListUseCase) {
         self.useCase = useCase
+    }
+    
+    public var shoeCardItems: [ShoePresentationInfo] {
+        shoes.map { ShoePresentationInfo(shoe: $0) }
     }
 }
 
@@ -38,8 +43,11 @@ extension ShoesListViewModel {
     public func onAppear() {
         Task {
             do {
-                let result = try await self.useCase.fetchShoes()
-                self.shoes = result
+                async let shoes = useCase.fetchShoes()
+                async let monthlyDistance = useCase.fetchMonthlyRunningDistance()
+                
+                self.shoes = try await shoes
+                self.monthlyDistanceText = String(format: "%.1f km", try await monthlyDistance)
             } catch {
                 await NavigationCoordinator.shared.push(.init(
                     title: "데이터 로딩 과정 중 오류가 발생했습니다.",
