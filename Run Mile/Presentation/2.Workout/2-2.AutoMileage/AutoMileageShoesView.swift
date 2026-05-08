@@ -99,6 +99,12 @@ struct AutoMileageShoesView: View {
     }
 }
 
+#Preview {
+    AutoMileageShoesView(
+        viewModel: PreviewDIContainer().makeAutoMileageShoesViewModel()
+    )
+}
+
 
 private struct ChooseShoesCell: View {
     let shoe: Shoes

@@ -199,6 +199,8 @@ struct HOFShoesCard: View {
 }
 
 
-#Preview("Empty") {
-    HOFView(viewModel: AppDIContainer().makeHOFViewModel())
+#Preview("Hall of Fame") {
+    NavigationStack {
+        HOFView(viewModel: PreviewDIContainer().makeHOFViewModel())
+    }
 }

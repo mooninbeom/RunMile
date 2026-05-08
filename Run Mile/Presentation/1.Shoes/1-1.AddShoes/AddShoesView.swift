@@ -334,7 +334,7 @@ private struct AddShoesTextField: View {
 
 #Preview {
     AddShoesView(
-        viewModel: AppDIContainer().makeAddShoesViewModel(),
+        viewModel: PreviewDIContainer().makeAddShoesViewModel(),
         dismissAction: {}
     )
 }

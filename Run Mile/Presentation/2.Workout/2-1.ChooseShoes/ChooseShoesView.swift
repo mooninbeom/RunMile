@@ -85,6 +85,15 @@ struct ChooseShoesView: View {
     }
 }
 
+#Preview {
+    ChooseShoesView(
+        viewModel: PreviewDIContainer().makeChooseShoesViewModel(
+            workouts: Array(PreviewShoesMockData.workouts.prefix(2))
+        ),
+        dismiss: {}
+    )
+}
+
 
 private struct ChooseShoesCell: View {
     let shoe: Shoes

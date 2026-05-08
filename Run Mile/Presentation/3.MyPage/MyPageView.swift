@@ -174,5 +174,5 @@ private struct ScaleButtonStyle: ButtonStyle {
 
 
 #Preview {
-    MyPageView(viewModel: AppDIContainer().makeMyPageViewModel())
+    MyPageView(viewModel: PreviewDIContainer().makeMyPageViewModel())
 }

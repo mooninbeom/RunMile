@@ -101,5 +101,5 @@ struct ShoesListView: View {
 }
 
 #Preview {
-    ShoesListView(viewModel: AppDIContainer().makeShoesListViewModel())
+    ShoesListView(viewModel: PreviewDIContainer().makeShoesListViewModel())
 }

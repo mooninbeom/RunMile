@@ -211,3 +211,9 @@ private enum BrandIcon {
     case github
     case linkedIn
 }
+
+#Preview {
+    NavigationStack {
+        InformationView(viewModel: PreviewDIContainer().makeInformationViewModel())
+    }
+}

@@ -256,3 +256,13 @@ struct ShoesDetailView: View {
         }
     }
 }
+
+#Preview {
+    NavigationStack {
+        ShoesDetailView(
+            viewModel: PreviewDIContainer().makeShoesDetailViewModel(
+                shoes: PreviewShoesMockData.primaryShoes
+            )
+        )
+    }
+}

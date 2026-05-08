@@ -222,6 +222,6 @@ struct WorkoutListView: View {
 
 #Preview {
     NavigationStack {
-        WorkoutListView(viewModel: AppDIContainer().makeWorkoutListViewModel())
+        WorkoutListView(viewModel: PreviewDIContainer().makeWorkoutListViewModel())
     }
 }
