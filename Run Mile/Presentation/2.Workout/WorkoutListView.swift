@@ -9,12 +9,11 @@ import SwiftUI
 
 
 struct WorkoutListView: View {
-    @State private var viewModel: WorkoutListViewModel = .init(
-        useCase: DefaultHealthDataUseCase(
-            workoutDataRepository: WorkoutDataRepositoryImpl(),
-            shoesDataRepository: ShoesDataRepositoryImpl()
-        )
-    )
+    @State private var viewModel: WorkoutListViewModel
+    
+    init(viewModel: WorkoutListViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
         ZStack {
@@ -223,6 +222,6 @@ struct WorkoutListView: View {
 
 #Preview {
     NavigationStack {
-        WorkoutListView()
+        WorkoutListView(viewModel: AppDIContainer().makeWorkoutListViewModel())
     }
 }

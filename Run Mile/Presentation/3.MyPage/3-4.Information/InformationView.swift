@@ -9,7 +9,11 @@ import SwiftUI
 
 
 struct InformationView: View {
-    let viewModel: InformationViewModel = .init()
+    let viewModel: InformationViewModel
+    
+    init(viewModel: InformationViewModel) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         ScrollView {

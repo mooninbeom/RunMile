@@ -10,16 +10,16 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var navigationCoordinator: NavigationCoordinator = .shared
-    @State private var viewModel: MainTabViewModel = .init()
+    private let screenFactory: ScreenFactory = .init(container: AppDIContainer())
     
     var body: some View {
         TabView(selection: $navigationCoordinator.tabStatus) {
             NavigationStack(path: $navigationCoordinator.shoesPath) {
-                navigationCoordinator.build(.shoes)
+                screenFactory.makeView(for: .shoes)
                     .navigationDestination(
                         for: NavigationCoordinator.Screen.self,
                         destination: {
-                            navigationCoordinator.build($0)
+                            screenFactory.makeView(for: $0)
                         }
                     )
             }
@@ -30,11 +30,11 @@ struct MainTabView: View {
             }
             
             NavigationStack(path: $navigationCoordinator.workoutPath) {
-                navigationCoordinator.build(.workout)
+                screenFactory.makeView(for: .workout)
                     .navigationDestination(
                         for: NavigationCoordinator.Screen.self,
                         destination: {
-                            navigationCoordinator.build($0)
+                            screenFactory.makeView(for: $0)
                         }
                     )
             }
@@ -45,11 +45,11 @@ struct MainTabView: View {
             }
             
             NavigationStack(path: $navigationCoordinator.myPagePath) {
-                navigationCoordinator.build(.myPage)
+                screenFactory.makeView(for: .myPage)
                     .navigationDestination(
                         for: NavigationCoordinator.Screen.self,
                         destination: {
-                            navigationCoordinator.build($0)
+                            screenFactory.makeView(for: $0)
                         }
                     )
             }
@@ -60,7 +60,7 @@ struct MainTabView: View {
             }
         }
         .sheet(item: $navigationCoordinator.sheet) {
-            navigationCoordinator.build($0)
+            screenFactory.makeSheet(for: $0)
         }
         .alert(
             navigationCoordinator.alert?.title ?? "알 수 없음",
@@ -91,5 +91,4 @@ struct MainTabView: View {
         }
     }
 }
-
 

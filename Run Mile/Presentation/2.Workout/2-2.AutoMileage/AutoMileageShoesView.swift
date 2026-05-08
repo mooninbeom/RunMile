@@ -9,11 +9,11 @@ import SwiftUI
 
 
 struct AutoMileageShoesView: View {
-    @State private var viewModel: AutoMileageShoesViewModel = .init(
-        useCase: DefaultAddMileageShoesUseCase(
-            shoesRepository: ShoesDataRepositoryImpl()
-        )
-    )
+    @State private var viewModel: AutoMileageShoesViewModel
+    
+    init(viewModel: AutoMileageShoesViewModel) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         VStack(spacing: 0) {

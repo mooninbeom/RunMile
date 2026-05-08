@@ -14,15 +14,10 @@ struct ChooseShoesView: View {
     let dismiss: () -> Void
     
     init(
-        workouts: [Workout],
+        viewModel: ChooseShoesViewModel,
         dismiss: @escaping () -> Void
     ) {
-        self.viewModel = .init(
-            useCase: DefaultChooseShoesUseCase(
-                repository: ShoesDataRepositoryImpl()
-            ),
-            workouts: workouts
-        )
+        self.viewModel = viewModel
         self.dismiss = dismiss
     }
     
