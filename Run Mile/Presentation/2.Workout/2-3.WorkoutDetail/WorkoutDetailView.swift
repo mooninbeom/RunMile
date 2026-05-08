@@ -56,3 +56,13 @@ struct WorkoutDetailView: View {
         .toolbar(viewModel.showFullMap ? .hidden : .visible, for: .tabBar)
     }
 }
+
+#Preview {
+    NavigationStack {
+        WorkoutDetailView(
+            viewModel: PreviewDIContainer().makeWorkoutDetailViewModel(
+                workout: PreviewShoesMockData.primaryWorkout
+            )
+        )
+    }
+}

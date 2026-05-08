@@ -10,15 +10,19 @@ import PhotosUI
 
 
 struct AddShoesView: View {
-    @State private var viewModel: AddShoesViewModel = .init(
-        useCase: DefaultAddShoesUseCase(
-            repository: ShoesDataRepositoryImpl()
-        )
-    )
+    @State private var viewModel: AddShoesViewModel
     
     @FocusState private var focusedField: AddShoesViewModel.TextFieldCategory?
     
     let dismissAction: () -> Void
+    
+    init(
+        viewModel: AddShoesViewModel,
+        dismissAction: @escaping () -> Void
+    ) {
+        self.viewModel = viewModel
+        self.dismissAction = dismissAction
+    }
     
     var body: some View {
         NavigationStack {
@@ -329,5 +333,8 @@ private struct AddShoesTextField: View {
 }
 
 #Preview {
-    AddShoesView {}
+    AddShoesView(
+        viewModel: PreviewDIContainer().makeAddShoesViewModel(),
+        dismissAction: {}
+    )
 }

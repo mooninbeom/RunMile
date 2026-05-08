@@ -80,61 +80,6 @@ extension NavigationCoordinator {
     public func dismissSheet() {
         self.sheet = nil
     }
-    
-    @ViewBuilder
-    public func build(_ screen: Screen) -> some View {
-        switch screen {
-        case .shoes:
-            ShoesListView()
-        case let .shoesDetail(shoes):
-            ShoesDetailView(shoes: shoes)
-            
-        case .workout:
-            WorkoutListView()
-        case let .workoutDetail(workout):
-            WorkoutDetailView(
-                viewModel: .init(
-                    useCase: DefaultWorkoutDetailUseCase(
-                        workoutRepository: WorkoutDataRepositoryImpl()
-                    ),
-                    workout: workout
-                )
-            )
-            
-        case .myPage:
-            MyPageView()
-        case .fitnessConnect:
-            FitnessConnectView()
-        case .hof:
-            HOFView()
-        case .info:
-            InformationView()
-        case let .imageDetail(image):
-            if #available(iOS 18.0, *) {
-                ImageDetailView(image: image)
-                    .toolbarVisibility(.hidden, for: .tabBar)
-            } else {
-                ImageDetailView(image: image)
-                    .toolbar(.hidden, for: .tabBar)
-            }
-        }
-    }
-    
-    @ViewBuilder
-    public func build(_ sheet: Sheet) -> some View {
-        switch sheet {
-        case let .addShoes(action):
-            AddShoesView(dismissAction: action)
-        case let .chooseShoes(workouts, action):
-            ChooseShoesView(workouts: workouts, dismiss: action)
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
-        case .automaticRegister:
-            AutoMileageShoesView()
-                .presentationDetents([.medium, .large])
-                .presentationDragIndicator(.hidden)
-        }
-    }
 }
 
 
@@ -177,8 +122,8 @@ extension NavigationCoordinator {
 extension NavigationCoordinator.TabStatus: Hashable {}
 extension NavigationCoordinator.Screen: Hashable {}
 extension NavigationCoordinator.Sheet: Hashable, Identifiable {
-    static func == (rhs: Self, lhs: Self) -> Bool {
-        switch (rhs, lhs) {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        switch (lhs, rhs) {
         case (.addShoes, .addShoes):
             return true
         case let (.chooseShoes(first, _), .chooseShoes(second, _)):
@@ -191,6 +136,14 @@ extension NavigationCoordinator.Sheet: Hashable, Identifiable {
     }
     
     func hash(into hasher: inout Hasher) {
-        hasher.combine(self)
+        switch self {
+        case .addShoes:
+            hasher.combine("addShoes")
+        case let .chooseShoes(workouts, _):
+            hasher.combine("chooseShoes")
+            hasher.combine(workouts)
+        case .automaticRegister:
+            hasher.combine("automaticRegister")
+        }
     }
 }

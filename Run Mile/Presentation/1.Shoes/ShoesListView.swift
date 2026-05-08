@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct ShoesListView: View {
-    @State private var viewModel: ShoesListViewModel = .init(
-        useCase: DefaultShoesViewUseCase(
-            repository: ShoesDataRepositoryImpl(),
-            workoutRepository: WorkoutDataRepositoryImpl()
-        )
-    )
+    @State private var viewModel: ShoesListViewModel
+    
+    init(viewModel: ShoesListViewModel) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         NavigationStack {
@@ -102,5 +101,5 @@ struct ShoesListView: View {
 }
 
 #Preview {
-    ShoesListView()
+    ShoesListView(viewModel: PreviewDIContainer().makeShoesListViewModel())
 }

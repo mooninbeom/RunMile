@@ -8,12 +8,11 @@
 import SwiftUI
 
 struct HOFView: View {
-    @State private var viewModel: HOFViewModel = .init(
-        useCase: DefaultHOFUseCase(
-            repository: ShoesDataRepositoryImpl()
-        )
-    )
+    @State private var viewModel: HOFViewModel
     
+    init(viewModel: HOFViewModel) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         ZStack(alignment: .top) {
@@ -200,6 +199,8 @@ struct HOFShoesCard: View {
 }
 
 
-#Preview("Empty") {
-    HOFView()
+#Preview("Hall of Fame") {
+    NavigationStack {
+        HOFView(viewModel: PreviewDIContainer().makeHOFViewModel())
+    }
 }

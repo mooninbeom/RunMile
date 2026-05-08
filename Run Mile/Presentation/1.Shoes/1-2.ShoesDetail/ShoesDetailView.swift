@@ -11,13 +11,8 @@ import SwiftUI
 struct ShoesDetailView: View {
     @State private var viewModel: ShoesDetailViewModel
     
-    init(shoes: Shoes) {
-        self.viewModel = .init(
-            useCase: DefaultShoesDetailUseCase(
-                repository: ShoesDataRepositoryImpl()
-            ),
-            shoes: shoes
-        )
+    init(viewModel: ShoesDetailViewModel) {
+        self.viewModel = viewModel
     }
     
     var body: some View {
@@ -259,5 +254,15 @@ struct ShoesDetailView: View {
                 .padding(.horizontal)
             }
         }
+    }
+}
+
+#Preview {
+    NavigationStack {
+        ShoesDetailView(
+            viewModel: PreviewDIContainer().makeShoesDetailViewModel(
+                shoes: PreviewShoesMockData.primaryShoes
+            )
+        )
     }
 }

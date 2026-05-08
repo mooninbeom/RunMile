@@ -1,0 +1,22 @@
+//
+//  ScreenDependencyProviding.swift
+//  Run Mile
+//
+//  Created by 테스트 on 5/8/26.
+//
+
+import Foundation
+
+
+protocol ScreenDependencyProviding {
+    func makeShoesListViewModel() -> ShoesListViewModel
+    func makeShoesDetailViewModel(shoes: Shoes) -> ShoesDetailViewModel
+    func makeAddShoesViewModel() -> AddShoesViewModel
+    func makeWorkoutListViewModel() -> WorkoutListViewModel
+    func makeWorkoutDetailViewModel(workout: Workout) -> WorkoutDetailViewModel
+    func makeChooseShoesViewModel(workouts: [Workout]) -> ChooseShoesViewModel
+    func makeAutoMileageShoesViewModel() -> AutoMileageShoesViewModel
+    func makeMyPageViewModel() -> MyPageViewModel
+    func makeHOFViewModel() -> HOFViewModel
+    func makeInformationViewModel() -> InformationViewModel
+}

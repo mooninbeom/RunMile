@@ -9,9 +9,11 @@ import SwiftUI
 
 
 struct MyPageView: View {
-    @State private var viewModel: MyPageViewModel = .init(
-        useCase: DefaultMyPageUseCase()
-    )
+    @State private var viewModel: MyPageViewModel
+    
+    init(viewModel: MyPageViewModel) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         ScrollView {
@@ -172,5 +174,5 @@ private struct ScaleButtonStyle: ButtonStyle {
 
 
 #Preview {
-    MyPageView()
+    MyPageView(viewModel: PreviewDIContainer().makeMyPageViewModel())
 }

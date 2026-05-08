@@ -9,7 +9,11 @@ import SwiftUI
 
 
 struct InformationView: View {
-    let viewModel: InformationViewModel = .init()
+    let viewModel: InformationViewModel
+    
+    init(viewModel: InformationViewModel) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         ScrollView {
@@ -206,4 +210,10 @@ private struct ContactRow: View {
 private enum BrandIcon {
     case github
     case linkedIn
+}
+
+#Preview {
+    NavigationStack {
+        InformationView(viewModel: PreviewDIContainer().makeInformationViewModel())
+    }
 }
