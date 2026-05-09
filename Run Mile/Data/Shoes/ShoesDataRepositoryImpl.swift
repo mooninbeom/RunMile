@@ -137,6 +137,10 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
             if let entityToDelete = fetchedResult.first {
                 context.delete(entityToDelete)
             }
+            
+            if context.hasChanges {
+                try context.save()
+            }
         }
     }
     

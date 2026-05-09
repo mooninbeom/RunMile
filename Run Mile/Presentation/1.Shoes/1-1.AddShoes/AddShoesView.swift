@@ -118,7 +118,7 @@ struct AddShoesView: View {
                         }
                         
                         // Model Picker
-                        if viewModel.selectedBrand != "기타" {
+                        if viewModel.selectedBrand != ShoeCatalog.other {
                             inputGroup(title: "모델명", icon: "shoe.fill") {
                                 Picker("모델을 선택해주세요", selection: $viewModel.selectedModel) {
                                     ForEach(viewModel.modelList, id: \.self) { model in
@@ -141,12 +141,12 @@ struct AddShoesView: View {
                         }
                         
                         // Manual Input (If 'Etc' selected)
-                        if viewModel.selectedBrand == "기타" || viewModel.selectedModel == "기타" {
+                        if viewModel.selectedBrand == ShoeCatalog.other || viewModel.selectedModel == ShoeCatalog.other {
                             VStack(spacing: 12) {
-                                if viewModel.selectedBrand == "기타" {
+                                if viewModel.selectedBrand == ShoeCatalog.other {
                                     AddShoesTextField(title: "브랜드 직접 입력", text: $viewModel.customBrand, focusState: $focusedField, category: .customBrand)
                                 }
-                                if viewModel.selectedBrand == "기타" || viewModel.selectedModel == "기타" {
+                                if viewModel.selectedBrand == ShoeCatalog.other || viewModel.selectedModel == ShoeCatalog.other {
                                     AddShoesTextField(title: "모델명 직접 입력", text: $viewModel.customModel, focusState: $focusedField, category: .customModel)
                                 }
                             }
