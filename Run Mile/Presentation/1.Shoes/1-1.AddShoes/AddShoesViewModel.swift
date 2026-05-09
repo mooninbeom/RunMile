@@ -25,8 +25,13 @@ final class AddShoesViewModel {
     }
     
     // Brand & Model Selection
-    public var selectedBrand: String = "Nike"
-    public var selectedModel: String = "Alphafly 3"
+    public var selectedBrand: String = ShoeCatalog.defaultBrand {
+        didSet {
+            guard oldValue != selectedBrand else { return }
+            selectedModel = ShoeCatalog.defaultModel(for: selectedBrand)
+        }
+    }
+    public var selectedModel: String = ShoeCatalog.defaultModel
     public var customBrand: String = ""
     public var customModel: String = ""
     
@@ -58,39 +63,22 @@ final class AddShoesViewModel {
     
     private var previousImage: Data?
     
-    // MARK: - Constants / Data
-    let brands: [String: [String]] = [
-        "Nike": ["Alphafly 3", "Vaporfly 3", "Pegasus 41", "Invite Run 3", "기타"],
-        "Adidas": ["Adizero Adios Pro 3", "Adizero Takumi Sen 10", "Ultraboost Light", "기타"],
-        "New Balance": ["FuelCell SuperComp Elite v4", "Fresh Foam X 1080v13", "기타"],
-        "Hoka": ["Clifton 9", "Bondi 8", "Mach 6", "Rocket X 2", "기타"],
-        "Saucony": ["Endorphin Pro 4", "Endorphin Speed 4", "Ride 17", "기타"],
-        "Asics": ["Metaspeed Sky Paris", "Metaspeed Edge Paris", "Novablast 4", "Gel-Nimbus 26", "기타"],
-        "Mizuno": ["Wave Rebellion Pro 2", "Wave Rider 27", "기타"],
-        "Brooks": ["Ghost 15", "Glycerin 21", "Hyperion Elite 4", "기타"],
-        "기타": []
-    ]
-    
     var brandList: [String] {
-        brands.keys.sorted().filter { $0 != "기타" } + ["기타"]
+        ShoeCatalog.brandList
     }
     
     var modelList: [String] {
-        if let models = brands[selectedBrand] {
-            return models
-        }
-        return []
+        ShoeCatalog.modelList(for: selectedBrand)
     }
     
     // Computed Name
     var effectiveShoesName: String {
-        if selectedBrand == "기타" {
-            return "\(customBrand) \(customModel)"
-        } else if selectedModel == "기타" {
-            return "\(selectedBrand) \(customModel)"
-        } else {
-            return "\(selectedBrand) \(selectedModel)"
-        }
+        ShoeCatalog.shoesName(
+            selectedBrand: selectedBrand,
+            selectedModel: selectedModel,
+            customBrand: customBrand,
+            customModel: customModel
+        )
     }
     
     init(useCase: AddShoesUseCase) {
@@ -113,9 +101,9 @@ extension AddShoesViewModel {
             case .customBrand:
                 return nil
             case .customModel:
-                return viewModel.selectedBrand == "기타" ? .customBrand : nil
+                return viewModel.selectedBrand == ShoeCatalog.other ? .customBrand : nil
             case .usage:
-                if viewModel.selectedBrand == "기타" || viewModel.selectedModel == "기타" {
+                if viewModel.selectedBrand == ShoeCatalog.other || viewModel.selectedModel == ShoeCatalog.other {
                     return .customModel
                 }
                 return nil
