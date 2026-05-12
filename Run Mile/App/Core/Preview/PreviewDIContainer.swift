@@ -111,5 +111,6 @@ private final class PreviewHealthBackgroundSyncService: HealthBackgroundSyncServ
     func enableBackgroundDelivery() async {}
     func registerHealthBackgroundQueryTask() {}
     func processPendingRunningWorkoutsIfNeeded() async {}
+    func fetchRunningWorkout(id: UUID) async throws -> Workout? { nil }
 }
 #endif

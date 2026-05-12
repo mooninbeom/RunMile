@@ -13,6 +13,7 @@ protocol HealthBackgroundSyncService {
     func enableBackgroundDelivery() async
     func registerHealthBackgroundQueryTask()
     func processPendingRunningWorkoutsIfNeeded() async
+    func fetchRunningWorkout(id: UUID) async throws -> Workout?
 }
 
 
@@ -108,6 +109,16 @@ final class DefaultHealthBackgroundSyncService: HealthBackgroundSyncService {
         
         await processUpdatedRunningWorkouts(workouts)
         removePendingRunningWorkouts(workouts)
+    }
+    
+    /// HealthKit에 저장된 러닝 workout을 UUID로 조회해 앱 도메인 모델로 변환합니다.
+    func fetchRunningWorkout(id: UUID) async throws -> Workout? {
+        guard let workout = try await healthStore.fetchSingleWorkoutData(id: id),
+              workout.workoutActivityType == .running else {
+            return nil
+        }
+        
+        return Workout(workout: workout)
     }
 }
 

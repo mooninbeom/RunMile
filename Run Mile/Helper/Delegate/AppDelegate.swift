@@ -135,30 +135,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     ) {
         let userInfo = response.notification.request.content.userInfo
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        
-        
-        if let category = userInfo["category"] as? String,
-           category == "ManualRegister",
-           let uuidString = userInfo["id"] as? String,
-           let uuid = UUID(uuidString: uuidString),
-           let dateString = userInfo["date"] as? String,
-           let date = dateFormatter.date(from: dateString),
-           let distanceString = userInfo["distance"] as? String,
-           let distance = Double(distanceString)
-        {
-            // TODO: To be completed
-//            let runningData = Workout(
-//                id: uuid,
-//                distance: distance,
-//                date: date
-//            )
-//            
-//            NavigationCoordinator.shared.push(.chooseShoes([runningData], {}))
+        guard routeManualRegisterNotification(userInfo: userInfo, completionHandler: completionHandler) else {
+            completionHandler()
+            return
         }
-        
-        completionHandler()
     }
     
     /// Push Notfication 생성 Delegate
@@ -168,5 +148,53 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.list, .banner, .badge, .banner])
+    }
+}
+
+private extension AppDelegate {
+    /// 수동 등록 노티를 탭했을 때 workout UUID를 복원해 신발 선택 화면으로 이동합니다.
+    func routeManualRegisterNotification(
+        userInfo: [AnyHashable: Any],
+        completionHandler: @escaping () -> Void
+    ) -> Bool {
+        guard let category = userInfo["category"] as? String,
+              category == UserNotificationsManager.NotificationCategory.manualRegisterRawValue,
+              let uuidString = userInfo["id"] as? String,
+              let workoutID = UUID(uuidString: uuidString) else {
+            return false
+        }
+        
+        Task {
+            await navigateToManualWorkoutRegistration(workoutID: workoutID)
+            completionHandler()
+        }
+        
+        return true
+    }
+    
+    /// HealthKit에서 workout을 다시 가져온 뒤 선택된 운동을 신발에 등록하는 Sheet를 표시합니다.
+    func navigateToManualWorkoutRegistration(workoutID: UUID) async {
+        do {
+            guard let workout = try await healthBackgroundSyncService.fetchRunningWorkout(id: workoutID) else {
+                presentWorkoutRegistrationFailureAlert()
+                return
+            }
+            
+            await NavigationCoordinator.shared.push(.chooseShoes([workout], {}))
+        } catch {
+            print(error.localizedDescription)
+            presentWorkoutRegistrationFailureAlert()
+        }
+    }
+    
+    /// 노티에 연결된 workout을 찾지 못했을 때 사용자에게 안내합니다.
+    @MainActor
+    func presentWorkoutRegistrationFailureAlert() {
+        NavigationCoordinator.shared.push(.init(
+            title: "운동 기록을 불러오지 못했습니다.",
+            message: "해당 운동이 삭제되었거나 HealthKit에서 아직 조회되지 않았습니다.",
+            firstButton: .cancel(title: "확인", action: {}),
+            secondButton: nil
+        ))
     }
 }
