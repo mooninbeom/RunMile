@@ -41,4 +41,13 @@ extension UserDefaults {
             }
         }
     }
+    
+    public var pendingRunningWorkoutIDs: [String] {
+        get {
+            self.stringArray(forKey: "pendingRunningWorkoutIDs") ?? []
+        }
+        set {
+            self.set(newValue, forKey: "pendingRunningWorkoutIDs")
+        }
+    }
 }

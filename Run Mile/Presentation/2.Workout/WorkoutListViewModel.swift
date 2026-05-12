@@ -11,6 +11,7 @@ import Foundation
 @Observable
 final class WorkoutListViewModel {
     private let useCase: HealthDataUseCase
+    private let healthBackgroundSyncService: HealthBackgroundSyncService
     
     public var dateHeaders: [String] = []
     public var workouts: [[Workout]] = []
@@ -20,8 +21,12 @@ final class WorkoutListViewModel {
     public var selectedWorkout: Set<UUID> = []
     private var hasLoadedWorkoutData = false
     
-    init(useCase: HealthDataUseCase) {
+    init(
+        useCase: HealthDataUseCase,
+        healthBackgroundSyncService: HealthBackgroundSyncService
+    ) {
         self.useCase = useCase
+        self.healthBackgroundSyncService = healthBackgroundSyncService
     }
     
     enum ViewStatus {
@@ -73,7 +78,8 @@ extension WorkoutListViewModel {
             }
             self.hasLoadedWorkoutData = true
             
-            await AppDelegate.setBackgroundDelivery()
+            await healthBackgroundSyncService.enableBackgroundDelivery()
+            healthBackgroundSyncService.registerHealthBackgroundQueryTask()
         } catch {
             if showFullLoading {
                 self.viewStatus = hasLoadedWorkoutData ? previousStatus : .empty

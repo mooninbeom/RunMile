@@ -46,7 +46,10 @@ final class PreviewDIContainer: ScreenDependencyProviding {
     
     /// 운동 목록 Preview용 ViewModel을 샘플 운동 기록이 채워진 상태로 생성합니다.
     func makeWorkoutListViewModel() -> WorkoutListViewModel {
-        let viewModel = WorkoutListViewModel(useCase: PreviewHealthDataUseCase())
+        let viewModel = WorkoutListViewModel(
+            useCase: PreviewHealthDataUseCase(),
+            healthBackgroundSyncService: PreviewHealthBackgroundSyncService()
+        )
         let currentMonthWorkouts = Array(PreviewShoesMockData.workouts.prefix(3))
         let previousMonthWorkouts = Array(PreviewShoesMockData.workouts.suffix(2))
         viewModel.dateHeaders = [
@@ -102,5 +105,11 @@ final class PreviewDIContainer: ScreenDependencyProviding {
     func makeInformationViewModel() -> InformationViewModel {
         InformationViewModel()
     }
+}
+
+private final class PreviewHealthBackgroundSyncService: HealthBackgroundSyncService {
+    func enableBackgroundDelivery() async {}
+    func registerHealthBackgroundQueryTask() {}
+    func processPendingRunningWorkoutsIfNeeded() async {}
 }
 #endif

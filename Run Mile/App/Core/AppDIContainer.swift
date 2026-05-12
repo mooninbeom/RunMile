@@ -9,15 +9,26 @@ import Foundation
 
 
 final class AppDIContainer: ScreenDependencyProviding {
+    static let shared = AppDIContainer()
+    
     private let workoutRepository: WorkoutDataRepository
     private let shoesRepository: ShoesDataRepository
+    private let healthBackgroundSyncService: HealthBackgroundSyncService
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
-        shoesRepository: ShoesDataRepository = ShoesDataRepositoryImpl()
+        shoesRepository: ShoesDataRepository = ShoesDataRepositoryImpl(),
+        healthBackgroundSyncService: HealthBackgroundSyncService? = nil
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
+        self.healthBackgroundSyncService = healthBackgroundSyncService
+        ?? DefaultHealthBackgroundSyncService(shoesRepository: shoesRepository)
+    }
+    
+    /// HealthKit 백그라운드 운동 감지와 신발 자동 등록을 담당하는 서비스를 제공합니다.
+    func makeHealthBackgroundSyncService() -> HealthBackgroundSyncService {
+        healthBackgroundSyncService
     }
     
     /// 신발 목록 화면의 상태와 액션을 관리하는 ViewModel을 생성합니다.
@@ -55,7 +66,8 @@ final class AppDIContainer: ScreenDependencyProviding {
             useCase: DefaultHealthDataUseCase(
                 workoutDataRepository: workoutRepository,
                 shoesDataRepository: shoesRepository
-            )
+            ),
+            healthBackgroundSyncService: healthBackgroundSyncService
         )
     }
     
@@ -109,4 +121,3 @@ final class AppDIContainer: ScreenDependencyProviding {
         InformationViewModel()
     }
 }
-

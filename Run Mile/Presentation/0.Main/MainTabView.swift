@@ -10,7 +10,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var navigationCoordinator: NavigationCoordinator = .shared
-    private let screenFactory: ScreenFactory = .init(container: AppDIContainer())
+    private let screenFactory: ScreenFactory = .init(container: AppDIContainer.shared)
     
     var body: some View {
         TabView(selection: $navigationCoordinator.tabStatus) {
@@ -91,4 +91,3 @@ struct MainTabView: View {
         }
     }
 }
-
