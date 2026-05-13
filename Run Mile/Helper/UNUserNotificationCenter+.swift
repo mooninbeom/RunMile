@@ -47,6 +47,10 @@ public enum UserNotificationsManager {
         case manualRegister(Workout)
         case none
         
+        public static var manualRegisterRawValue: String {
+            "ManualRegister"
+        }
+        
         public var rawValue: String {
             switch self {
             case .autoRegister:

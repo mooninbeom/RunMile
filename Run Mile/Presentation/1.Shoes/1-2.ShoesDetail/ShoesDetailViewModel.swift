@@ -272,9 +272,7 @@ extension ShoesDetailViewModel {
                 title: "삭제를 완료했습니다.",
                 message: nil,
                 firstButton: .cancel(title: "확인") {
-                    Task {
-                        await NavigationCoordinator.shared.pop(currentTab)
-                    }
+                    NavigationCoordinator.shared.pop(currentTab)
                 },
                 secondButton: nil
             )

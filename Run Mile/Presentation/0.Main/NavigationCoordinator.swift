@@ -77,6 +77,21 @@ extension NavigationCoordinator {
     }
     
     @MainActor
+    public func popIfPossible(_ tab: TabStatus) {
+        switch tab {
+        case .shoes:
+            guard !shoesPath.isEmpty else { return }
+            shoesPath.removeLast()
+        case .workout:
+            guard !workoutPath.isEmpty else { return }
+            workoutPath.removeLast()
+        case .myPage:
+            guard !myPagePath.isEmpty else { return }
+            myPagePath.removeLast()
+        }
+    }
+    
+    @MainActor
     public func dismissSheet() {
         self.sheet = nil
     }

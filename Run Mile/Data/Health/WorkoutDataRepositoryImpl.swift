@@ -37,15 +37,15 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     func fetchSingleWorkoutData(workout: HKWorkout) async throws -> WorkoutDetailData {
         var result = WorkoutDetailData()
         
-        let pace = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningSpeed))
-        let heartRate = try await fetchDetailedWorkoutData(workout: workout, type: .init(.heartRate))
-        let power = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningPower))
-        let cadence = try await fetchDetailedWorkoutData(workout: workout, type: .init(.stepCount))
-        let verticalOscillation = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningVerticalOscillation))
-        let groundContactTime = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningGroundContactTime))
-        let strideLength = try await fetchDetailedWorkoutData(workout: workout, type: .init(.runningStrideLength))
-        let splits = try await fetchSplits(workout: workout)
-        let route = try await fetchDetailedWorkoutRouteData(workout: workout)
+        let pace = try await fetchRequiredDetailedWorkoutData(workout: workout, type: .init(.runningSpeed))
+        let heartRate = await fetchOptionalDetailedWorkoutData(workout: workout, type: .init(.heartRate))
+        let power = await fetchOptionalDetailedWorkoutData(workout: workout, type: .init(.runningPower))
+        let cadence = await fetchOptionalDetailedWorkoutData(workout: workout, type: .init(.stepCount))
+        let verticalOscillation = await fetchOptionalDetailedWorkoutData(workout: workout, type: .init(.runningVerticalOscillation))
+        let groundContactTime = await fetchOptionalDetailedWorkoutData(workout: workout, type: .init(.runningGroundContactTime))
+        let strideLength = await fetchOptionalDetailedWorkoutData(workout: workout, type: .init(.runningStrideLength))
+        let splits = await fetchOptionalSplits(workout: workout)
+        let route = await fetchOptionalWorkoutRouteData(workout: workout)
         
         let unifiedPace = DTOMapper.normalizeData(workout: workout, data: pace)
         let unifiedHeartRate = DTOMapper.normalizeData(workout: workout, data: heartRate)
@@ -144,6 +144,54 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         #endif
         
         return sortedResult
+    }
+    
+    /// 운동 상세의 핵심 metric을 가져오며, 실패 시 상세 화면 전체 실패로 전파합니다.
+    private func fetchRequiredDetailedWorkoutData(workout: HKWorkout, type: HKQuantityType) async throws -> [RunningMetricPoint] {
+        do {
+            return try await fetchDetailedWorkoutData(workout: workout, type: type)
+        } catch {
+            #if DEBUG
+            print("[WorkoutDetail] required metric failed: \(type.identifier), error: \(error.localizedDescription)")
+            #endif
+            throw error
+        }
+    }
+    
+    /// 보조 metric은 기기/운동/권한에 따라 없을 수 있으므로 실패 시 빈 배열로 대체합니다.
+    private func fetchOptionalDetailedWorkoutData(workout: HKWorkout, type: HKQuantityType) async -> [RunningMetricPoint] {
+        do {
+            return try await fetchDetailedWorkoutData(workout: workout, type: type)
+        } catch {
+            #if DEBUG
+            print("[WorkoutDetail] optional metric skipped: \(type.identifier), error: \(error.localizedDescription)")
+            #endif
+            return []
+        }
+    }
+    
+    /// route는 실내 러닝처럼 없는 것이 정상인 운동이 있어 실패 시 빈 배열로 대체합니다.
+    private func fetchOptionalWorkoutRouteData(workout: HKWorkout) async -> [CLLocation] {
+        do {
+            return try await fetchDetailedWorkoutRouteData(workout: workout)
+        } catch {
+            #if DEBUG
+            print("[WorkoutDetail] route skipped: \(error.localizedDescription)")
+            #endif
+            return []
+        }
+    }
+    
+    /// 구간 기록은 보조 정보이므로 거리 샘플 조회 실패 시 상세 로딩을 막지 않습니다.
+    private func fetchOptionalSplits(workout: HKWorkout) async -> [SplitInfo] {
+        do {
+            return try await fetchSplits(workout: workout)
+        } catch {
+            #if DEBUG
+            print("[WorkoutDetail] splits skipped: \(error.localizedDescription)")
+            #endif
+            return []
+        }
     }
     
     public func fetchUnsavedWorkoutData() async throws -> [Workout] {

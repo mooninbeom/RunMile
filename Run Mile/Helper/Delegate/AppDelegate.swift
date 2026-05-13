@@ -6,24 +6,25 @@
 //
 
 import UIKit
-import SwiftUI
+import UserNotifications
 import Firebase
-import HealthKit
 import RealmSwift
 
 
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    private let healthBackgroundSyncService = AppDIContainer.shared.makeHealthBackgroundSyncService()
+    
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         self.realmMigration()
         FirebaseApp.configure()
+        self.registerWorkoutShoesBackgroundSync()
         
         Task {
             await self.userNotificationAuthorize()
-            await Self.setBackgroundDelivery()
-            self.setHealthBackgroundQueryTask()
+            await self.prepareWorkoutShoesBackgroundSync()
             await self.migrateRealmToCD()
         }
         
@@ -42,6 +43,27 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 
+// MARK: - Workout/Shoes Data
+
+extension AppDelegate {
+    /// DIContainer가 보관하는 HealthKit 백그라운드 동기화 서비스에 observer query 등록을 위임합니다.
+    ///
+    /// AppDelegate는 앱 생명주기 진입점만 담당하고, 실제 운동 변경 감지와 신발 자동 등록 플로우는
+    /// `DefaultHealthBackgroundSyncService`가 처리합니다.
+    private func registerWorkoutShoesBackgroundSync() {
+        healthBackgroundSyncService.registerHealthBackgroundQueryTask()
+    }
+    
+    /// HealthKit background delivery와 이전 실행에서 완료하지 못한 운동 처리 재시도를 준비합니다.
+    private func prepareWorkoutShoesBackgroundSync() async {
+        await healthBackgroundSyncService.enableBackgroundDelivery()
+        await healthBackgroundSyncService.processPendingRunningWorkoutsIfNeeded()
+    }
+}
+
+
+// MARK: - UserNotifications
+
 extension AppDelegate {
     /// UserNotification 권한 허용
     private func userNotificationAuthorize() async {
@@ -59,124 +81,11 @@ extension AppDelegate {
             }
         }
     }
-    
-    /// 백그라운드에서 Health 데이터 사용 업데이트 설정
-    public static func setBackgroundDelivery() async {
-        let store = HKHealthStore()
-        
-        do {
-            try await store.enableBackgroundDelivery(for: .workoutType(), frequency: .immediate)
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
-    
-    /// 백그라운드에서 사용할 HealthKit Query 설정
-    private func setHealthBackgroundQueryTask() {
-        let store = HKHealthStore()
-        
-        let anchoredQuery = HKAnchoredObjectQuery(
-            type: .workoutType(),
-            predicate: nil,
-            anchor: UserDefaults.standard.lastAnchor,
-            limit: HKObjectQueryNoLimit
-        ) { query, samples, deletedObjects, anchor, error in
-            if UserDefaults.standard.lastAnchor != anchor {
-                UserDefaults.standard.lastAnchor = anchor
-            }
-        }
-        
-        anchoredQuery.updateHandler = { [weak self] query, samples, deletedObjects, anchor, error in
-            let currentAnchor = UserDefaults.standard.lastAnchor
-            
-            if currentAnchor != anchor {
-                UserDefaults.standard.lastAnchor = anchor
-            } else {
-                return
-            }
-            
-            if let error = error {
-                print(error)
-                return
-            }
-            
-            guard let samples = samples as? [HKWorkout],
-                  !samples.isEmpty
-            else {
-                print(#function)
-                return
-            }
-            
-            guard let workout = samples.first else {
-                return
-            }
-            
-            guard case .running = workout.workoutActivityType else {
-                return
-            }
-            
-            let distance = workout.getKilometerDistance()
-            
-            if !UserDefaults.standard.selectedShoesID.isEmpty {
-                UserNotificationsManager.requestNotification(
-                    category: .autoRegister,
-                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
-                    body: distance == nil
-                    ? "신발에 자동 등록이 완료되었습니다!"
-                    : String(format: "신발에 자동 등록이 완료되었습니다. 러닝 후 스트레칭 꼭 잊지 마세요!", distance!)
-                )
-                
-                self?.autoRegisterShoes(workout: workout)
-            } else {
-                let entity = Workout(
-                    workout: workout
-                )
-                
-                UserNotificationsManager.requestNotification(
-                    category: .manualRegister(entity),
-                    title: String(format: "%.2fkm 러닝 완료 🔥🔥", distance!),
-                    body: distance == nil
-                    ? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
-                    : String(format: "%.2fkm, 잊지 말고 마일리지를 등록하러 오세요!", distance!)
-                )
-            }
-        }
-        
-        store.execute(anchoredQuery)
-    }
-    
-    /// 업데이트된 운동 자동 등록 메소드
-    private func autoRegisterShoes(workout: HKWorkout) {
-        let shoesDataRepository: ShoesDataRepository = ShoesDataRepositoryImpl()
-        let newWorkout = Workout(workout: workout)
-        Task {
-            do {
-                let shoesID = UUID(uuidString: UserDefaults.standard.selectedShoesID)!
-                let shoes = try await shoesDataRepository.fetchSingleShoes(id: shoesID)
-                var workouts = shoes.workouts
-                
-                workouts.append(newWorkout)
-                
-                let newShoes = Shoes(
-                    id: shoes.id,
-                    image: shoes.image,
-                    shoesName: shoes.shoesName,
-                    nickname: shoes.nickname,
-                    goalMileage: shoes.goalMileage,
-                    currentMileage: shoes.currentMileage,
-                    workouts: workouts
-                )
-                
-                try await shoesDataRepository.updateShoes(shoes: newShoes)
-            } catch {
-                UserNotificationsManager.requestNotification(
-                    category: .manualRegister(newWorkout),
-                    title: "마일리지 자동 등록에 실패했습니다.",
-                    body: "앱에서 수동으로 등록 부탁드립니다."
-                )
-            }
-        }
-    }
+}
+
+// MARK: - Others
+
+extension AppDelegate {
     
     // TODO: Error Handling
     private func migrateRealmToCD() async {
@@ -215,6 +124,8 @@ extension AppDelegate {
     }
 }
 
+// MARK: - UNUserNotificationCenterDelegate
+
 extension AppDelegate: UNUserNotificationCenterDelegate {
     /// Push Notification 액션 Delegate
     func userNotificationCenter(
@@ -224,30 +135,10 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     ) {
         let userInfo = response.notification.request.content.userInfo
         
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
-        
-        
-        if let category = userInfo["category"] as? String,
-           category == "ManualRegister",
-           let uuidString = userInfo["id"] as? String,
-           let uuid = UUID(uuidString: uuidString),
-           let dateString = userInfo["date"] as? String,
-           let date = dateFormatter.date(from: dateString),
-           let distanceString = userInfo["distance"] as? String,
-           let distance = Double(distanceString)
-        {
-            // TODO: To be completed
-//            let runningData = Workout(
-//                id: uuid,
-//                distance: distance,
-//                date: date
-//            )
-//            
-//            NavigationCoordinator.shared.push(.chooseShoes([runningData], {}))
+        guard routeManualRegisterNotification(userInfo: userInfo, completionHandler: completionHandler) else {
+            completionHandler()
+            return
         }
-        
-        completionHandler()
     }
     
     /// Push Notfication 생성 Delegate
@@ -257,5 +148,53 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
         completionHandler([.list, .banner, .badge, .banner])
+    }
+}
+
+private extension AppDelegate {
+    /// 수동 등록 노티를 탭했을 때 workout UUID를 복원해 신발 선택 화면으로 이동합니다.
+    func routeManualRegisterNotification(
+        userInfo: [AnyHashable: Any],
+        completionHandler: @escaping () -> Void
+    ) -> Bool {
+        guard let category = userInfo["category"] as? String,
+              category == UserNotificationsManager.NotificationCategory.manualRegisterRawValue,
+              let uuidString = userInfo["id"] as? String,
+              let workoutID = UUID(uuidString: uuidString) else {
+            return false
+        }
+        
+        Task {
+            await navigateToManualWorkoutRegistration(workoutID: workoutID)
+            completionHandler()
+        }
+        
+        return true
+    }
+    
+    /// HealthKit에서 workout을 다시 가져온 뒤 선택된 운동을 신발에 등록하는 Sheet를 표시합니다.
+    func navigateToManualWorkoutRegistration(workoutID: UUID) async {
+        do {
+            guard let workout = try await healthBackgroundSyncService.fetchRunningWorkout(id: workoutID) else {
+                presentWorkoutRegistrationFailureAlert()
+                return
+            }
+            
+            await NavigationCoordinator.shared.push(.chooseShoes([workout], {}))
+        } catch {
+            print(error.localizedDescription)
+            presentWorkoutRegistrationFailureAlert()
+        }
+    }
+    
+    /// 노티에 연결된 workout을 찾지 못했을 때 사용자에게 안내합니다.
+    @MainActor
+    func presentWorkoutRegistrationFailureAlert() {
+        NavigationCoordinator.shared.push(.init(
+            title: "운동 기록을 불러오지 못했습니다.",
+            message: "해당 운동이 삭제되었거나 HealthKit에서 아직 조회되지 않았습니다.",
+            firstButton: .cancel(title: "확인", action: {}),
+            secondButton: nil
+        ))
     }
 }

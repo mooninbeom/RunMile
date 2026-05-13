@@ -11,7 +11,7 @@ import Foundation
 @Observable
 final class ShoesListViewModel {
     public var shoes: [Shoes] = []
-    public var monthlyDistanceText: String = "0.0 km"
+    public var monthlyDistanceText: String = "연동 후 표시"
     
     
     let useCase: ShoesListUseCase
@@ -43,11 +43,7 @@ extension ShoesListViewModel {
     public func onAppear() {
         Task {
             do {
-                async let shoes = useCase.fetchShoes()
-                async let monthlyDistance = useCase.fetchMonthlyRunningDistance()
-                
-                self.shoes = try await shoes
-                self.monthlyDistanceText = String(format: "%.1f km", try await monthlyDistance)
+                self.shoes = try await useCase.fetchShoes()
             } catch {
                 await NavigationCoordinator.shared.push(.init(
                     title: "데이터 로딩 과정 중 오류가 발생했습니다.",
@@ -56,6 +52,25 @@ extension ShoesListViewModel {
                     secondButton: nil
                 ))
             }
+        }
+        
+        Task {
+            await fetchMonthlyRunningDistance()
+        }
+    }
+    
+    /// HealthKit 권한이 준비되지 않은 경우 알럿 없이 월간 거리 플레이스홀더를 유지합니다.
+    @MainActor
+    private func fetchMonthlyRunningDistance() async {
+        do {
+            let monthlyDistance = try await useCase.fetchMonthlyRunningDistance()
+            self.monthlyDistanceText = String(format: "%.1f km", monthlyDistance)
+        } catch {
+            self.monthlyDistanceText = "연동 후 표시"
+            
+            #if DEBUG
+            print("[ShoesListViewModel] monthly distance unavailable: \(error.localizedDescription)")
+            #endif
         }
     }
 }

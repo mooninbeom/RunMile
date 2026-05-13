@@ -43,36 +43,42 @@ struct ChooseShoesView: View {
             }
             .padding(.bottom, 24)
             
-            // List
-            ScrollView {
-                LazyVStack(spacing: 12) {
-                    ForEach(viewModel.shoes) { shoe in
-                        ChooseShoesCell(
-                            shoe: shoe,
-                            isSelected: viewModel.selectedShoe?.id == shoe.id
-                        )
-                        .onTapGesture {
-                            withAnimation(.snappy) {
-                                viewModel.shoesCellTapped(shoe: shoe)
+            if viewModel.shoes.isEmpty {
+                emptyStateView
+            } else {
+                // List
+                ScrollView {
+                    LazyVStack(spacing: 12) {
+                        ForEach(viewModel.shoes) { shoe in
+                            ChooseShoesCell(
+                                shoe: shoe,
+                                isSelected: viewModel.selectedShoe?.id == shoe.id
+                            )
+                            .onTapGesture {
+                                withAnimation(.snappy) {
+                                    viewModel.shoesCellTapped(shoe: shoe)
+                                }
                             }
                         }
                     }
+                    .padding(.horizontal, 20)
                 }
-                .padding(.horizontal, 20)
             }
             
             // Bottom Action Button
-            VStack {
-                Button {
-                    viewModel.saveButtonTapped()
-                } label: {
-                    Text("저장하기")
-                        .runMilePrimaryButton(isEnabled: viewModel.selectedShoe != nil)
+            if !viewModel.shoes.isEmpty {
+                VStack {
+                    Button {
+                        viewModel.saveButtonTapped()
+                    } label: {
+                        Text("저장하기")
+                            .runMilePrimaryButton(isEnabled: viewModel.selectedShoe != nil)
+                    }
+                    .disabled(viewModel.selectedShoe == nil)
+                    .padding(.horizontal, 20)
+                    .padding(.top, 10)
+                    .padding(.bottom, 10)
                 }
-                .disabled(viewModel.selectedShoe == nil)
-                .padding(.horizontal, 20)
-                .padding(.top, 10)
-                .padding(.bottom, 10)
             }
         }
         .background(RunMileColor.background)
@@ -82,6 +88,21 @@ struct ChooseShoesView: View {
         .onDisappear {
             dismiss()
         }
+    }
+    
+    private var emptyStateView: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "shoe.2")
+                .font(.system(size: 40, weight: .bold))
+                .foregroundStyle(RunMileColor.mutedForeground)
+            
+            Text("신발장에서 운동을 등록할 신발을 먼저 추가해 주세요.")
+                .font(.subheadline)
+                .foregroundStyle(RunMileColor.mutedForeground)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 32)
     }
 }
 

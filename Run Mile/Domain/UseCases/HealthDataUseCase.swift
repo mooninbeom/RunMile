@@ -70,11 +70,12 @@ extension DefaultHealthDataUseCase {
     private func checkAuthorizationStatus() async throws -> Bool {
         return try await withCheckedThrowingContinuation { continuation in
             store.getRequestStatusForAuthorization(
-                toShare: Set([.workoutType()]),
-                read: Set([.workoutType()])
+                toShare: healthShareTypes,
+                read: healthReadTypes
             ) { status, error in
-                if let _ = error {
+                if error != nil {
                     continuation.resume(throwing: HealthError.unknownError)
+                    return
                 }
                 
                 switch status {
@@ -90,44 +91,49 @@ extension DefaultHealthDataUseCase {
     /// Health 데이터 사용 권한을 요청합니다.
     private func requestAuthorization() async throws {
         if HKHealthStore.isHealthDataAvailable() {
-            let readTypes: Set<HKObjectType> = [
-                HKSeriesType.workoutRoute(),
-                .workoutType(),
-                .quantityType(forIdentifier: .heartRate)!,
-                .quantityType(forIdentifier: .distanceWalkingRunning)!,
-                .quantityType(forIdentifier: .stepCount)!,
-                
-                .quantityType(forIdentifier: .runningPower)!,
-                .quantityType(forIdentifier: .runningSpeed)!,
-                .quantityType(forIdentifier: .runningStrideLength)!,
-                .quantityType(forIdentifier: .runningVerticalOscillation)!,
-                .quantityType(forIdentifier: .runningGroundContactTime)!,
-            ]
-            
-            var shareTypes = Set<HKSampleType>()
-            
-            #if DEBUG && targetEnvironment(simulator)
-            shareTypes = [
-                HKSeriesType.workoutRoute(),
-                .workoutType(),
-                .quantityType(forIdentifier: .heartRate)!,
-                .quantityType(forIdentifier: .distanceWalkingRunning)!,
-                .quantityType(forIdentifier: .stepCount)!,
-                .quantityType(forIdentifier: .runningPower)!,
-                .quantityType(forIdentifier: .runningSpeed)!,
-                .quantityType(forIdentifier: .runningStrideLength)!,
-                .quantityType(forIdentifier: .runningVerticalOscillation)!,
-                .quantityType(forIdentifier: .runningGroundContactTime)!,
-                .quantityType(forIdentifier: .activeEnergyBurned)!
-            ]
-            #endif
-            
             try await store.requestAuthorization(
-                toShare: shareTypes,
-                read: readTypes
+                toShare: healthShareTypes,
+                read: healthReadTypes
             )
         } else {
             throw HealthError.notAvailableDevice
         }
+    }
+    
+    /// 앱에서 읽어오는 HealthKit 데이터 타입을 한 곳에서 관리합니다.
+    private var healthReadTypes: Set<HKObjectType> {
+        [
+            HKSeriesType.workoutRoute(),
+            .workoutType(),
+            .quantityType(forIdentifier: .heartRate)!,
+            .quantityType(forIdentifier: .distanceWalkingRunning)!,
+            .quantityType(forIdentifier: .stepCount)!,
+            .quantityType(forIdentifier: .runningPower)!,
+            .quantityType(forIdentifier: .runningSpeed)!,
+            .quantityType(forIdentifier: .runningStrideLength)!,
+            .quantityType(forIdentifier: .runningVerticalOscillation)!,
+            .quantityType(forIdentifier: .runningGroundContactTime)!
+        ]
+    }
+    
+    /// Simulator 디버깅에서 샘플 운동을 생성할 때 필요한 쓰기 권한 타입을 관리합니다.
+    private var healthShareTypes: Set<HKSampleType> {
+        #if DEBUG && targetEnvironment(simulator)
+        return [
+            HKSeriesType.workoutRoute(),
+            .workoutType(),
+            .quantityType(forIdentifier: .heartRate)!,
+            .quantityType(forIdentifier: .distanceWalkingRunning)!,
+            .quantityType(forIdentifier: .stepCount)!,
+            .quantityType(forIdentifier: .runningPower)!,
+            .quantityType(forIdentifier: .runningSpeed)!,
+            .quantityType(forIdentifier: .runningStrideLength)!,
+            .quantityType(forIdentifier: .runningVerticalOscillation)!,
+            .quantityType(forIdentifier: .runningGroundContactTime)!,
+            .quantityType(forIdentifier: .activeEnergyBurned)!
+        ]
+        #else
+        return []
+        #endif
     }
 }

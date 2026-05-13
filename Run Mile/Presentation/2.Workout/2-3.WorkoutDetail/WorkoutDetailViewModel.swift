@@ -55,6 +55,7 @@ extension WorkoutDetailViewModel {
             self.prepareAnalysisCaches(from: fetchedResult)
         } catch {
             print(error)
+            await presentWorkoutDetailLoadFailureAlert(error: error)
         }
     }
     
@@ -115,6 +116,20 @@ extension WorkoutDetailViewModel {
         showMapAnalysis = false
         selectedSeconds = nil
         selectedAnalysis = nil
+    }
+    
+    /// 핵심 운동 상세 데이터 로딩 실패 시 안내 후 이전 화면으로 돌아갑니다.
+    @MainActor
+    private func presentWorkoutDetailLoadFailureAlert(error: Error) {
+        let currentTab = NavigationCoordinator.shared.tabStatus
+        NavigationCoordinator.shared.push(.init(
+            title: "운동 상세를 불러오지 못했습니다.",
+            message: "운동의 핵심 분석 데이터를 가져오는 중 문제가 발생했습니다.\n** \(error.localizedDescription)",
+            firstButton: .cancel(title: "확인") {
+                NavigationCoordinator.shared.popIfPossible(currentTab)
+            },
+            secondButton: nil
+        ))
     }
     
     /// 지도 분석 차트에서 반복적으로 쓰는 고도 데이터와 축 범위를 미리 계산합니다.

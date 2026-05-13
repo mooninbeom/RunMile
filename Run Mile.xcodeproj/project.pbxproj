@@ -508,8 +508,8 @@
 				INFOPLIST_FILE = "Run-Mile-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Run Mile";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSCameraUsageDescription = "카메라를 통해 바로 촬영한 이미지를 앱의 신발 이미지로 등록하기 위해선 사용자의 허락이 필요합니다!";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "앱에서 운동 기록을 가져오기 위해서는 사용자의 허락이 필요합니다!";
+				INFOPLIST_KEY_NSCameraUsageDescription = "러닝화 사진을 촬영해 신발 프로필 이미지로 등록하기 위해 카메라를 사용합니다.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "러닝 운동 기록, 경로, 심박 데이터를 불러와 신발 마일리지 기록과 운동 분석에 사용합니다.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "앱에서 운동 기록을 가져오기 위해서는 사용자의 허락이 필요합니다!";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -552,8 +552,8 @@
 				INFOPLIST_FILE = "Run-Mile-Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Run Mile";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
-				INFOPLIST_KEY_NSCameraUsageDescription = "카메라를 통해 바로 촬영한 이미지를 앱의 신발 이미지로 등록하기 위해선 사용자의 허락이 필요합니다!";
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "앱에서 운동 기록을 가져오기 위해서는 사용자의 허락이 필요합니다!";
+				INFOPLIST_KEY_NSCameraUsageDescription = "러닝화 사진을 촬영해 신발 프로필 이미지로 등록하기 위해 카메라를 사용합니다.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "러닝 운동 기록, 경로, 심박 데이터를 불러와 신발 마일리지 기록과 운동 분석에 사용합니다.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "앱에서 운동 기록을 가져오기 위해서는 사용자의 허락이 필요합니다!";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
