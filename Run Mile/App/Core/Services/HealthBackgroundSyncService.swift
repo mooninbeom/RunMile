@@ -262,7 +262,7 @@ private extension DefaultHealthBackgroundSyncService {
             )
             
             try await shoesRepository.updateShoes(shoes: newShoes)
-            requestAutoRegisterNotification(workout: workout)
+            requestAutoRegisterNotification(workout: workout, shoesName: shoesNotificationName(for: shoes))
         } catch {
             UserNotificationsManager.requestNotification(
                 category: .manualRegister(newWorkout),
@@ -273,26 +273,36 @@ private extension DefaultHealthBackgroundSyncService {
     }
     
     /// 자동 등록 성공 후 사용자에게 완료 알림을 보냅니다.
-    func requestAutoRegisterNotification(workout: HKWorkout) {
-        let distance = workout.getKilometerDistance()
-        
+    func requestAutoRegisterNotification(workout: HKWorkout, shoesName: String) {
         UserNotificationsManager.requestNotification(
             category: .autoRegister,
-            title: distance.map { String(format: "%.2fkm 러닝 완료 🔥🔥", $0) } ?? "러닝 완료 🔥🔥",
-            body: "신발에 자동 등록이 완료되었습니다. 러닝 후 스트레칭 꼭 잊지 마세요!"
+            title: notificationTitle(for: workout),
+            body: "\(shoesName)에 마일리지가 자동으로 추가됐어요."
         )
     }
     
     /// 자동 등록 신발이 없을 때 수동 등록 안내 알림을 보냅니다.
     func requestManualRegisterNotification(workout: HKWorkout) {
         let entity = Workout(workout: workout)
-        let distance = workout.getKilometerDistance()
         
         UserNotificationsManager.requestNotification(
             category: .manualRegister(entity),
-            title: distance.map { String(format: "%.2fkm 러닝 완료 🔥🔥", $0) } ?? "러닝 완료 🔥🔥",
-            body: distance.map { String(format: "%.2fkm, 잊지 말고 마일리지를 등록하러 오세요!", $0) }
-            ?? "신발 마일리지를 등록할 준비가 완료되었습니다. 등록하러 가볼까요?"
+            title: notificationTitle(for: workout),
+            body: "오늘 함께 달린 신발을 선택해 마일리지를 기록해요."
         )
+    }
+    
+    /// 러닝 완료 노티에서 공통으로 사용할 거리 기반 제목을 생성합니다.
+    func notificationTitle(for workout: HKWorkout) -> String {
+        guard let distance = workout.getKilometerDistance() else {
+            return "러닝 완료🔥"
+        }
+        
+        return String(format: "%.2fkm 러닝 완료🔥", distance)
+    }
+    
+    /// 자동 등록 노티에 표시할 신발 이름을 결정합니다.
+    func shoesNotificationName(for shoes: Shoes) -> String {
+        shoes.shoesName.isEmpty ? shoes.nickname : shoes.shoesName
     }
 }
