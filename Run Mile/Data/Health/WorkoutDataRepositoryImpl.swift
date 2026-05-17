@@ -220,8 +220,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         return try await DTOMapper.CDWorkoutDTOtoEntities(fetchedResults)
     }
     
-    public func fetchSplits(workout: HKWorkout) async throws -> [SplitInfo] {
-        // 1. 거리 데이터 가져오기 (시간순 정렬 필수)
+    public func fetchDistanceSamples(workout: HKWorkout) async throws -> [WorkoutDistanceSample] {
         let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)!
         let predicate = HKQuery.predicateForObjects(from: workout)
         let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
@@ -233,6 +232,57 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
             sortDescriptors: [sortDescriptor]
         )
         
+        var result: [WorkoutDistanceSample] = []
+        
+        for sample in samples {
+            if sample.count > 1 {
+                let seriesSamples = try await fetchQuantitySeriesDistanceSamples(sample: sample, type: distanceType)
+                result.append(contentsOf: seriesSamples)
+            } else {
+                let distance = sample.quantity.doubleValue(for: .meter())
+                guard distance > 0 else { continue }
+                
+                result.append(
+                    WorkoutDistanceSample(
+                        startDate: sample.startDate,
+                        endDate: sample.endDate,
+                        distance: distance
+                    )
+                )
+            }
+        }
+        
+        return result.compactMap { sample in
+            let startDate = sample.startDate < workout.startDate ? workout.startDate : sample.startDate
+            let endDate = sample.endDate > workout.endDate ? workout.endDate : sample.endDate
+            
+            guard endDate > startDate else { return nil }
+            
+            let originalDuration = sample.endDate.timeIntervalSince(sample.startDate)
+            let overlapDuration = endDate.timeIntervalSince(startDate)
+            let distance: Double
+            
+            if originalDuration > 0 {
+                distance = sample.distance * min(overlapDuration / originalDuration, 1)
+            } else {
+                distance = sample.distance
+            }
+            
+            guard distance > 0 else { return nil }
+            
+            return WorkoutDistanceSample(
+                startDate: startDate,
+                endDate: endDate,
+                distance: distance
+            )
+        }
+        .sorted { $0.startDate < $1.startDate }
+    }
+    
+    public func fetchSplits(workout: HKWorkout) async throws -> [SplitInfo] {
+        // 1. 거리 데이터 가져오기 (시간순 정렬 필수)
+        let samples = try await fetchDistanceSamples(workout: workout)
+        
         // 2. 일시정지 구간(Pause Intervals) 미리 계산
         let pauseIntervals = getPauseIntervals(workout: workout)
         
@@ -243,7 +293,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         
         // 3. 샘플 순회
         for sample in samples {
-            let sampleDistance = sample.quantity.doubleValue(for: .meter())
+            let sampleDistance = sample.distance
             let startDistance = accumulatedDistance
             let endDistance = accumulatedDistance + sampleDistance
             
@@ -320,7 +370,10 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
             if event.type == .pause {
                 pauseStart = event.dateInterval.start
             } else if event.type == .resume, let start = pauseStart {
-                pauses.append(DateInterval(start: start, end: event.dateInterval.start))
+                let end = event.dateInterval.start
+                if end > start {
+                    pauses.append(DateInterval(start: start, end: end))
+                }
                 pauseStart = nil
             }
         }
@@ -329,6 +382,8 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     
     /// 시작~종료 시간 사이에서 일시정지 시간을 뺀 '순수 운동 시간' 계산
     private func calculateActiveDuration(start: Date, end: Date, pauses: [DateInterval]) -> TimeInterval {
+        guard end > start else { return 0 }
+        
         var duration = end.timeIntervalSince(start)
         let totalRange = DateInterval(start: start, end: end)
         
@@ -340,6 +395,41 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         }
         
         return max(duration, 0)
+    }
+    
+    private func fetchQuantitySeriesDistanceSamples(sample: HKQuantitySample, type: HKQuantityType) async throws -> [WorkoutDistanceSample] {
+        let predicate = HKQuery.predicateForObject(with: sample.uuid)
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            var samples: [WorkoutDistanceSample] = []
+            
+            let query = HKQuantitySeriesSampleQuery(quantityType: type, predicate: predicate) { _, quantity, dateInterval, _, done, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                
+                if let quantity,
+                   let dateInterval {
+                    let distance = quantity.doubleValue(for: .meter())
+                    if distance > 0 {
+                        samples.append(
+                            WorkoutDistanceSample(
+                                startDate: dateInterval.start,
+                                endDate: dateInterval.end,
+                                distance: distance
+                            )
+                        )
+                    }
+                }
+                
+                if done {
+                    continuation.resume(returning: samples)
+                }
+            }
+            
+            store.execute(query)
+        }
     }
     
     private func fetchQuantitySeriesPoints(sample: HKQuantitySample, type: HKQuantityType) async throws -> [RunningMetricPoint] {

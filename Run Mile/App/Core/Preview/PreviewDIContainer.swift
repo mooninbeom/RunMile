@@ -101,6 +101,11 @@ final class PreviewDIContainer: ScreenDependencyProviding {
         return viewModel
     }
     
+    /// 졸업 리포트 Preview용 ViewModel을 샘플 신발 데이터로 생성합니다.
+    func makeHOFReportViewModel(shoes: Shoes) -> HOFReportViewModel {
+        HOFReportViewModel(shoes: shoes, useCase: PreviewHOFUseCase())
+    }
+    
     /// 개발자 정보 Preview용 ViewModel을 생성합니다.
     func makeInformationViewModel() -> InformationViewModel {
         InformationViewModel()
