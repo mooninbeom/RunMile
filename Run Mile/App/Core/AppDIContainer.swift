@@ -13,15 +13,18 @@ final class AppDIContainer: ScreenDependencyProviding {
     
     private let workoutRepository: WorkoutDataRepository
     private let shoesRepository: ShoesDataRepository
+    private let distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository
     private let healthBackgroundSyncService: HealthBackgroundSyncService
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
         shoesRepository: ShoesDataRepository = ShoesDataRepositoryImpl(),
+        distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository = WorkoutDistanceRecordCacheRepositoryImpl(),
         healthBackgroundSyncService: HealthBackgroundSyncService? = nil
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
+        self.distanceRecordCacheRepository = distanceRecordCacheRepository
         self.healthBackgroundSyncService = healthBackgroundSyncService
         ?? DefaultHealthBackgroundSyncService(shoesRepository: shoesRepository)
     }
@@ -111,7 +114,21 @@ final class AppDIContainer: ScreenDependencyProviding {
     func makeHOFViewModel() -> HOFViewModel {
         HOFViewModel(
             useCase: DefaultHOFUseCase(
-                repository: shoesRepository
+                repository: shoesRepository,
+                workoutRepository: workoutRepository,
+                distanceRecordCacheRepository: distanceRecordCacheRepository
+            )
+        )
+    }
+    
+    /// 졸업 신발의 리포트 표시 데이터를 관리하는 ViewModel을 생성합니다.
+    func makeHOFReportViewModel(shoes: Shoes) -> HOFReportViewModel {
+        HOFReportViewModel(
+            shoes: shoes,
+            useCase: DefaultHOFUseCase(
+                repository: shoesRepository,
+                workoutRepository: workoutRepository,
+                distanceRecordCacheRepository: distanceRecordCacheRepository
             )
         )
     }

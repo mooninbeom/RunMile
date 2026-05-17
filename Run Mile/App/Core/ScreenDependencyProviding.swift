@@ -18,5 +18,6 @@ protocol ScreenDependencyProviding {
     func makeAutoMileageShoesViewModel() -> AutoMileageShoesViewModel
     func makeMyPageViewModel() -> MyPageViewModel
     func makeHOFViewModel() -> HOFViewModel
+    func makeHOFReportViewModel(shoes: Shoes) -> HOFReportViewModel
     func makeInformationViewModel() -> InformationViewModel
 }

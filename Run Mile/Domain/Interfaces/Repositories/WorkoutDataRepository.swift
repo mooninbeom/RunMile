@@ -25,6 +25,9 @@ protocol WorkoutDataRepository: Sendable {
     /// (내부 메소드)
     func fetchSplits(workout: HKWorkout) async throws -> [SplitInfo]
     
+    /// 거리별 PB 계산에 사용할 거리 샘플을 시간순으로 불러옵니다.
+    func fetchDistanceSamples(workout: HKWorkout) async throws -> [WorkoutDistanceSample]
+    
     /// 단일 운동의 운동 경로 데이터를 불러옵니다.
     func fetchDetailedWorkoutRouteData(workout: HKWorkout) async throws -> [CLLocation]
     

@@ -35,6 +35,8 @@ struct ScreenFactory {
             FitnessConnectView()
         case .hof:
             HOFView(viewModel: container.makeHOFViewModel())
+        case let .hofReport(shoes):
+            HOFReportView(viewModel: container.makeHOFReportViewModel(shoes: shoes))
         case .info:
             InformationView(viewModel: container.makeInformationViewModel())
         case let .imageDetail(image):

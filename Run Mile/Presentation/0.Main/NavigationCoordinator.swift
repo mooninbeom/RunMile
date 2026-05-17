@@ -118,6 +118,7 @@ extension NavigationCoordinator {
         case myPage
         case fitnessConnect
         case hof
+        case hofReport(Shoes)
         case info
         
         case imageDetail(Data)
