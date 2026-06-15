@@ -61,7 +61,8 @@ enum PreviewShoesMockData {
             goalMileage: 600,
             currentMileage: 624,
             workouts: Array(workouts.prefix(2)),
-            isGraduate: true
+            isGraduate: true,
+            graduatedAt: referenceDate.addingTimeInterval(-2 * 24 * 60 * 60)
         ),
         Shoes(
             id: UUID(uuidString: "E947029C-C831-4DE8-9444-925C1B2F3D5F") ?? UUID(),
@@ -71,7 +72,8 @@ enum PreviewShoesMockData {
             goalMileage: 700,
             currentMileage: 732,
             workouts: Array(workouts.suffix(2)),
-            isGraduate: true
+            isGraduate: true,
+            graduatedAt: referenceDate.addingTimeInterval(-14 * 24 * 60 * 60)
         )
     ]
     

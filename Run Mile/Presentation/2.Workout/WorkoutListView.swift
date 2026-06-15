@@ -220,8 +220,10 @@ struct WorkoutListView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         WorkoutListView(viewModel: PreviewDIContainer().makeWorkoutListViewModel())
     }
 }
+#endif

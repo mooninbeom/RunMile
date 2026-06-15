@@ -173,6 +173,8 @@ private struct ScaleButtonStyle: ButtonStyle {
 }
 
 
+#if DEBUG
 #Preview {
     MyPageView(viewModel: PreviewDIContainer().makeMyPageViewModel())
 }
+#endif

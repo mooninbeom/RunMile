@@ -32,7 +32,7 @@ final class DefaultHOFUseCase: HOFUseCase {
     }
     
     func fetchShoes() async throws -> [Shoes] {
-        try await repository.fetchHOFShoes()
+        try await repository.fetchHOFShoes().sorted(by: compareGraduatedShoes)
     }
     
     func fetchAllRunningWorkouts() async throws -> [Workout] {
@@ -66,6 +66,26 @@ final class DefaultHOFUseCase: HOFUseCase {
 
 
 private extension DefaultHOFUseCase {
+    /// 최근 졸업한 신발이 먼저 보이도록 정렬하고, 기존 데이터처럼 졸업일이 없으면 마지막 운동일과 마일리지로 보정합니다.
+    func compareGraduatedShoes(_ lhs: Shoes, _ rhs: Shoes) -> Bool {
+        let lhsDate = graduationSortDate(for: lhs)
+        let rhsDate = graduationSortDate(for: rhs)
+
+        if lhsDate != rhsDate {
+            return lhsDate > rhsDate
+        }
+
+        if lhs.totalMileage != rhs.totalMileage {
+            return lhs.totalMileage > rhs.totalMileage
+        }
+
+        return lhs.nickname.localizedStandardCompare(rhs.nickname) == .orderedAscending
+    }
+
+    func graduationSortDate(for shoes: Shoes) -> Date {
+        shoes.graduatedAt ?? shoes.workouts.map(\.date).max() ?? .distantPast
+    }
+
     struct DistanceRecordSegment {
         let startDistance: Double
         let endDistance: Double

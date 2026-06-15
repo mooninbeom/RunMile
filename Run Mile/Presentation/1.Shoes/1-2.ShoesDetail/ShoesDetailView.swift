@@ -102,6 +102,7 @@ struct ShoesDetailView: View {
 }
 
 
+#if DEBUG
 #Preview {
     NavigationStack {
         ShoesDetailView(
@@ -111,3 +112,4 @@ struct ShoesDetailView: View {
         )
     }
 }
+#endif

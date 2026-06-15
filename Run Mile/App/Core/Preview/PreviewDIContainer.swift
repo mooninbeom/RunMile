@@ -71,10 +71,14 @@ final class PreviewDIContainer: ScreenDependencyProviding {
     }
     
     /// 신발 선택 Sheet Preview용 ViewModel을 샘플 신발 목록이 채워진 상태로 생성합니다.
-    func makeChooseShoesViewModel(workouts: [Workout]) -> ChooseShoesViewModel {
+    func makeChooseShoesViewModel(
+        workouts: [Workout],
+        dismissAction: @escaping () -> Void = {}
+    ) -> ChooseShoesViewModel {
         let viewModel = ChooseShoesViewModel(
             useCase: PreviewChooseShoesUseCase(),
-            workouts: workouts
+            workouts: workouts,
+            dismissAction: dismissAction
         )
         viewModel.shoes = PreviewShoesMockData.shoes
         viewModel.selectedShoe = PreviewShoesMockData.shoes.first

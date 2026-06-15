@@ -36,11 +36,11 @@ final class DefaultHealthBackgroundSyncService: HealthBackgroundSyncService {
     private let healthStore = HKHealthStore()
     private let shoesRepository: ShoesDataRepository
     private var workoutObserverQuery: HKObserverQuery?
-    
+
     init(shoesRepository: ShoesDataRepository) {
         self.shoesRepository = shoesRepository
     }
-    
+
     /// 백그라운드에서 HealthKit workout 변경을 받을 수 있도록 등록합니다.
     func enableBackgroundDelivery() async {
         do {
@@ -49,15 +49,15 @@ final class DefaultHealthBackgroundSyncService: HealthBackgroundSyncService {
             print(error.localizedDescription)
         }
     }
-    
+
     /// HealthKit workout 변경 감지를 위한 observer query를 등록합니다.
     func registerHealthBackgroundQueryTask() {
         if let workoutObserverQuery {
             healthStore.stop(workoutObserverQuery)
         }
-        
+
         prepareWorkoutAnchorIfNeeded()
-        
+
         let observerQuery = HKObserverQuery(
             sampleType: .workoutType(),
             predicate: nil
@@ -66,58 +66,71 @@ final class DefaultHealthBackgroundSyncService: HealthBackgroundSyncService {
                 completionHandler()
                 return
             }
-            
+
             if let error {
                 print(error.localizedDescription)
                 completionHandler()
                 return
             }
-            
+
             self.fetchUpdatedWorkouts {
                 completionHandler()
             }
         }
-        
+
         self.workoutObserverQuery = observerQuery
         healthStore.execute(observerQuery)
     }
-    
+
     /// 이전 백그라운드 실행에서 완료하지 못한 workout 처리를 앱 실행 시 재시도합니다.
     func processPendingRunningWorkoutsIfNeeded() async {
         let pendingIDs = UserDefaults.standard.pendingRunningWorkoutIDs
         guard !pendingIDs.isEmpty else {
             return
         }
-        
+
         var workouts: [HKWorkout] = []
+        var removablePendingIDs = Set<String>()
         for id in pendingIDs {
-            guard let uuid = UUID(uuidString: id) else { continue }
-            
+            guard let uuid = UUID(uuidString: id) else {
+                removablePendingIDs.insert(id)
+                continue
+            }
+
             do {
                 if let workout = try await healthStore.fetchSingleWorkoutData(id: uuid),
                    workout.workoutActivityType == .running {
                     workouts.append(workout)
+                } else {
+                    removablePendingIDs.insert(id)
                 }
             } catch {
                 print(error.localizedDescription)
             }
         }
-        
+
+        if !removablePendingIDs.isEmpty {
+            UserDefaults.standard.pendingRunningWorkoutIDs = Self.remainingPendingRunningWorkoutIDs(
+                currentIDs: pendingIDs,
+                removingIDs: removablePendingIDs
+            )
+        }
+
         guard !workouts.isEmpty else {
             return
         }
-        
+
         await processUpdatedRunningWorkouts(workouts)
         removePendingRunningWorkouts(workouts)
     }
-    
+
     /// HealthKit에 저장된 러닝 workout을 UUID로 조회해 앱 도메인 모델로 변환합니다.
     func fetchRunningWorkout(id: UUID) async throws -> Workout? {
         guard let workout = try await healthStore.fetchSingleWorkoutData(id: id),
               workout.workoutActivityType == .running else {
             return nil
         }
-        
+
         return Workout(workout: workout)
     }
 }
@@ -129,7 +142,7 @@ private extension DefaultHealthBackgroundSyncService {
         guard UserDefaults.standard.lastAnchor == nil else {
             return
         }
-        
+
         let query = HKAnchoredObjectQuery(
             type: .workoutType(),
             predicate: nil,
@@ -140,15 +153,15 @@ private extension DefaultHealthBackgroundSyncService {
                 print(error.localizedDescription)
                 return
             }
-            
+
             if let anchor {
                 UserDefaults.standard.lastAnchor = anchor
             }
         }
-        
+
         healthStore.execute(query)
     }
-    
+
     /// ObserverQuery가 감지한 HealthKit 변경분을 AnchoredObjectQuery로 가져옵니다.
     func fetchUpdatedWorkouts(completion: @escaping () -> Void) {
         guard let currentAnchor = UserDefaults.standard.lastAnchor else {
@@ -156,7 +169,7 @@ private extension DefaultHealthBackgroundSyncService {
             completion()
             return
         }
-        
+
         let query = HKAnchoredObjectQuery(
             type: .workoutType(),
             predicate: nil,
@@ -167,63 +180,64 @@ private extension DefaultHealthBackgroundSyncService {
                 completion()
                 return
             }
-            
+
             if let error {
                 print(error.localizedDescription)
                 completion()
                 return
             }
-            
+
             let workouts = (samples as? [HKWorkout]) ?? []
             let runningWorkouts = workouts.filter {
                 $0.workoutActivityType == .running
             }
-            
+
             guard !runningWorkouts.isEmpty else {
                 if let anchor {
                     UserDefaults.standard.lastAnchor = anchor
                 }
-                
+
                 completion()
                 return
             }
-            
+
             enqueuePendingRunningWorkouts(runningWorkouts)
-            
+
             if let anchor {
                 UserDefaults.standard.lastAnchor = anchor
             }
-            
+
             completion()
-            
+
             Task {
                 await self.processUpdatedRunningWorkouts(runningWorkouts)
                 self.removePendingRunningWorkouts(runningWorkouts)
             }
         }
-        
+
         healthStore.execute(query)
     }
-    
+
     /// 백그라운드 실행 시간이 부족할 때를 대비해 처리 예정 workout UUID를 먼저 저장합니다.
     func enqueuePendingRunningWorkouts(_ workouts: [HKWorkout]) {
         let newIDs = workouts.map { $0.uuid.uuidString }
         let currentIDs = UserDefaults.standard.pendingRunningWorkoutIDs
         let mergedIDs = Array(Set(currentIDs + newIDs))
-        
+
         UserDefaults.standard.pendingRunningWorkoutIDs = mergedIDs
     }
-    
+
     /// 처리가 끝난 workout UUID를 pending 목록에서 제거합니다.
     func removePendingRunningWorkouts(_ workouts: [HKWorkout]) {
         let processedIDs = Set(workouts.map { $0.uuid.uuidString })
-        let remainingIDs = UserDefaults.standard.pendingRunningWorkoutIDs.filter {
-            !processedIDs.contains($0)
-        }
-        
+        let remainingIDs = Self.remainingPendingRunningWorkoutIDs(
+            currentIDs: UserDefaults.standard.pendingRunningWorkoutIDs,
+            removingIDs: processedIDs
+        )
+
         UserDefaults.standard.pendingRunningWorkoutIDs = remainingIDs
     }
-    
+
     /// 새로 추가된 러닝 운동들을 자동 등록 설정에 따라 처리합니다.
     func processUpdatedRunningWorkouts(_ workouts: [HKWorkout]) async {
         for workout in workouts {
@@ -234,23 +248,23 @@ private extension DefaultHealthBackgroundSyncService {
             }
         }
     }
-    
+
     /// 업데이트된 운동을 현재 자동 등록 신발에 연결합니다.
     func autoRegisterShoes(workout: HKWorkout) async {
         let newWorkout = Workout(workout: workout)
-        
+
         do {
             guard let shoesID = UUID(uuidString: UserDefaults.standard.selectedShoesID) else {
                 requestManualRegisterNotification(workout: workout)
                 return
             }
-            
+
             let shoes = try await shoesRepository.fetchSingleShoes(id: shoesID)
-            
+
             guard !shoes.workouts.contains(where: { $0.id == newWorkout.id }) else {
                 return
             }
-            
+
             let newShoes = Shoes(
                 id: shoes.id,
                 image: shoes.image,
@@ -260,7 +274,7 @@ private extension DefaultHealthBackgroundSyncService {
                 currentMileage: shoes.currentMileage,
                 workouts: shoes.workouts + [newWorkout]
             )
-            
+
             try await shoesRepository.updateShoes(shoes: newShoes)
             requestAutoRegisterNotification(workout: workout, shoesName: shoesNotificationName(for: shoes))
         } catch {
@@ -271,7 +285,7 @@ private extension DefaultHealthBackgroundSyncService {
             )
         }
     }
-    
+
     /// 자동 등록 성공 후 사용자에게 완료 알림을 보냅니다.
     func requestAutoRegisterNotification(workout: HKWorkout, shoesName: String) {
         UserNotificationsManager.requestNotification(
@@ -280,29 +294,40 @@ private extension DefaultHealthBackgroundSyncService {
             body: "\(shoesName)에 마일리지가 자동으로 추가됐어요."
         )
     }
-    
+
     /// 자동 등록 신발이 없을 때 수동 등록 안내 알림을 보냅니다.
     func requestManualRegisterNotification(workout: HKWorkout) {
         let entity = Workout(workout: workout)
-        
+
         UserNotificationsManager.requestNotification(
             category: .manualRegister(entity),
             title: notificationTitle(for: workout),
             body: "오늘 함께 달린 신발을 선택해 마일리지를 기록해요."
         )
     }
-    
+
     /// 러닝 완료 노티에서 공통으로 사용할 거리 기반 제목을 생성합니다.
     func notificationTitle(for workout: HKWorkout) -> String {
         guard let distance = workout.getKilometerDistance() else {
             return "러닝 완료🔥"
         }
-        
+
         return String(format: "%.2fkm 러닝 완료🔥", distance)
     }
-    
+
     /// 자동 등록 노티에 표시할 신발 이름을 결정합니다.
     func shoesNotificationName(for shoes: Shoes) -> String {
         shoes.shoesName.isEmpty ? shoes.nickname : shoes.shoesName
+    }
+}
+
+
+extension DefaultHealthBackgroundSyncService {
+    /// pending 목록에서 처리 완료 또는 더 이상 유효하지 않은 workout UUID를 제거합니다.
+    static func remainingPendingRunningWorkoutIDs(
+        currentIDs: [String],
+        removingIDs: Set<String>
+    ) -> [String] {
+        currentIDs.filter { !removingIDs.contains($0) }
     }
 }

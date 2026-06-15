@@ -61,8 +61,10 @@ struct ScreenFactory {
             )
         case let .chooseShoes(workouts, action):
             ChooseShoesView(
-                viewModel: container.makeChooseShoesViewModel(workouts: workouts),
-                dismiss: action
+                viewModel: container.makeChooseShoesViewModel(
+                    workouts: workouts,
+                    dismissAction: action
+                )
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.hidden)

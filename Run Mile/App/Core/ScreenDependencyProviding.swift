@@ -14,7 +14,7 @@ protocol ScreenDependencyProviding {
     func makeAddShoesViewModel() -> AddShoesViewModel
     func makeWorkoutListViewModel() -> WorkoutListViewModel
     func makeWorkoutDetailViewModel(workout: Workout) -> WorkoutDetailViewModel
-    func makeChooseShoesViewModel(workouts: [Workout]) -> ChooseShoesViewModel
+    func makeChooseShoesViewModel(workouts: [Workout], dismissAction: @escaping () -> Void) -> ChooseShoesViewModel
     func makeAutoMileageShoesViewModel() -> AutoMileageShoesViewModel
     func makeMyPageViewModel() -> MyPageViewModel
     func makeHOFViewModel() -> HOFViewModel
