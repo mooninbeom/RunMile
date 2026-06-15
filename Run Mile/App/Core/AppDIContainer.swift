@@ -85,12 +85,16 @@ final class AppDIContainer: ScreenDependencyProviding {
     }
     
     /// 운동 기록을 신발에 연결하는 화면의 ViewModel을 생성합니다.
-    func makeChooseShoesViewModel(workouts: [Workout]) -> ChooseShoesViewModel {
+    func makeChooseShoesViewModel(
+        workouts: [Workout],
+        dismissAction: @escaping () -> Void
+    ) -> ChooseShoesViewModel {
         ChooseShoesViewModel(
             useCase: DefaultChooseShoesUseCase(
                 repository: shoesRepository
             ),
-            workouts: workouts
+            workouts: workouts,
+            dismissAction: dismissAction
         )
     }
     

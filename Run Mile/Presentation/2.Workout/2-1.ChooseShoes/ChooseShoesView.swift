@@ -11,14 +11,8 @@ import SwiftUI
 struct ChooseShoesView: View {
     @State private var viewModel: ChooseShoesViewModel
     
-    let dismiss: () -> Void
-    
-    init(
-        viewModel: ChooseShoesViewModel,
-        dismiss: @escaping () -> Void
-    ) {
+    init(viewModel: ChooseShoesViewModel) {
         self.viewModel = viewModel
-        self.dismiss = dismiss
     }
     
     var body: some View {
@@ -86,7 +80,7 @@ struct ChooseShoesView: View {
             await viewModel.onAppear()
         }
         .onDisappear {
-            dismiss()
+            viewModel.sheetDidDisappear()
         }
     }
     
@@ -106,14 +100,15 @@ struct ChooseShoesView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     ChooseShoesView(
         viewModel: PreviewDIContainer().makeChooseShoesViewModel(
             workouts: Array(PreviewShoesMockData.workouts.prefix(2))
-        ),
-        dismiss: {}
+        )
     )
 }
+#endif
 
 
 private struct ChooseShoesCell: View {

@@ -99,11 +99,13 @@ struct AutoMileageShoesView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     AutoMileageShoesView(
         viewModel: PreviewDIContainer().makeAutoMileageShoesViewModel()
     )
 }
+#endif
 
 
 private struct ChooseShoesCell: View {

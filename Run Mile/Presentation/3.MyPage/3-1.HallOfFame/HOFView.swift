@@ -209,8 +209,10 @@ struct HOFShoesCard: View {
 }
 
 
+#if DEBUG
 #Preview("Hall of Fame") {
     NavigationStack {
         HOFView(viewModel: PreviewDIContainer().makeHOFViewModel())
     }
 }
+#endif

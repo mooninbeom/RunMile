@@ -212,8 +212,10 @@ private enum BrandIcon {
     case linkedIn
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         InformationView(viewModel: PreviewDIContainer().makeInformationViewModel())
     }
 }
+#endif

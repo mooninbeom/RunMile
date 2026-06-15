@@ -248,6 +248,7 @@ struct HOFReportView: View {
 }
 
 
+#if DEBUG
 #Preview("HOF Report") {
     NavigationStack {
         HOFReportView(
@@ -257,3 +258,4 @@ struct HOFReportView: View {
         )
     }
 }
+#endif

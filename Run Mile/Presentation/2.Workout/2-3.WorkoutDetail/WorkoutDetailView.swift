@@ -57,6 +57,7 @@ struct WorkoutDetailView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     NavigationStack {
         WorkoutDetailView(
@@ -66,3 +67,4 @@ struct WorkoutDetailView: View {
         )
     }
 }
+#endif

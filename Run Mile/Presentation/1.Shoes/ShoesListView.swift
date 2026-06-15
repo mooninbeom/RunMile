@@ -100,6 +100,8 @@ struct ShoesListView: View {
     }
 }
 
+#if DEBUG
 #Preview {
     ShoesListView(viewModel: PreviewDIContainer().makeShoesListViewModel())
 }
+#endif
