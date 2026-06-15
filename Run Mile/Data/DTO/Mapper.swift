@@ -40,7 +40,8 @@ enum DTOMapper {
                 goalMileage: shoe.goalMileage,
                 currentMileage: shoe.currentMileage,
                 workouts: workouts,
-                isGraduate: shoe.isGraduated
+                isGraduate: shoe.isGraduated,
+                graduatedAt: shoe.graduatedAt
             )
             
             resultArray.append(result)

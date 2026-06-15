@@ -13,6 +13,10 @@ final class CoreDataManager {
 
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "RunMileModel") // .xcdatamodeld 파일 이름
+        container.persistentStoreDescriptions.forEach {
+            $0.shouldMigrateStoreAutomatically = true
+            $0.shouldInferMappingModelAutomatically = true
+        }
         container.loadPersistentStores { _, error in
             if let error = error {
                 fatalError("Core Data Store 로드 실패: \(error)")

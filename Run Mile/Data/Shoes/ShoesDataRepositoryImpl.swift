@@ -26,9 +26,10 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
 
     public func fetchHOFShoes() async throws -> [Shoes] {
         let request: NSFetchRequest<CDShoesDTO> = CDShoesDTO.fetchRequest()
+        request.predicate = NSPredicate(format: "isGraduated == YES")
         let results = try CoreDataManager.shared.context.fetch(request)
 
-        return try await DTOMapper.CDShoesDTOToEntities(results.filter({ $0.isGraduated }))
+        return try await DTOMapper.CDShoesDTOToEntities(results)
     }
 
     public func fetchSingleShoes(id: UUID) async throws -> Shoes {
@@ -56,6 +57,7 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
             CDShoes.goalMileage = shoes.goalMileage
             CDShoes.currentMileage = shoes.currentMileage
             CDShoes.isGraduated = false
+            CDShoes.graduatedAt = nil
 
             try context.save()
         }
@@ -77,7 +79,13 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
                 entity.nickname = shoes.nickname
                 entity.goalMileage = shoes.goalMileage
                 entity.currentMileage = shoes.currentMileage
+
                 entity.isGraduated = shoes.isGradutate
+                if shoes.isGradutate {
+                    entity.graduatedAt = shoes.graduatedAt ?? entity.graduatedAt ?? Date()
+                } else {
+                    entity.graduatedAt = nil
+                }
 
                 let existingWorkouts = (entity.workouts as? Set<CDWorkoutDTO>) ?? []
                 var workoutMap = Dictionary<UUID, CDWorkoutDTO>(

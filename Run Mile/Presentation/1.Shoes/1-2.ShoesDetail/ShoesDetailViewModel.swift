@@ -142,7 +142,8 @@ extension ShoesDetailViewModel {
             goalMileage: goalMileage,
             currentMileage: shoes.currentMileage,
             workouts: shoes.workouts,
-            isGraduate: shoes.isGradutate
+            isGraduate: shoes.isGradutate,
+            graduatedAt: shoes.graduatedAt
         )
         
         Task {
@@ -241,7 +242,8 @@ extension ShoesDetailViewModel {
             goalMileage: shoes.goalMileage,
             currentMileage: shoes.currentMileage,
             workouts: remainingWorkouts,
-            isGraduate: shoes.isGradutate
+            isGraduate: shoes.isGradutate,
+            graduatedAt: shoes.graduatedAt
         )
     }
     
@@ -299,7 +301,8 @@ extension ShoesDetailViewModel {
             goalMileage: shoes.goalMileage,
             currentMileage: shoes.currentMileage,
             workouts: shoes.workouts,
-            isGraduate: true
+            isGraduate: true,
+            graduatedAt: shoes.graduatedAt ?? .now
         )
         
         Task {
