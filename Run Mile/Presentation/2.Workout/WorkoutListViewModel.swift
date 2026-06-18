@@ -59,15 +59,8 @@ extension WorkoutListViewModel {
         }
 
         do {
-            let isRequested = try await useCase.checkHealthAuthorization()
             let workouts = try await reloadWorkoutData()
-            
-            if !isRequested, workouts.isEmpty {
-                self.viewStatus = .empty
-                self.hasLoadedWorkoutData = true
-                return
-            }
-            
+
             self.classifyWorkoutsByDate(workouts: workouts)
             if workouts.isEmpty {
                 self.viewStatus = .empty
@@ -84,24 +77,14 @@ extension WorkoutListViewModel {
             if showFullLoading {
                 self.viewStatus = hasLoadedWorkoutData ? previousStatus : .empty
             }
-            
-            if let error = error as? HealthError,
-               error == .unknownError || error == .notAvailableDevice {
-                NavigationCoordinator.shared.push(.init(
-                    title: "권한 부여 과정 중 오류가 발생했습니다.",
-                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
-                    firstButton: .cancel(title: "확인", action: {}),
-                    secondButton: nil
-                ))
-            } else {
-                print(error)
-                NavigationCoordinator.shared.push(.init(
-                    title: "데이터 로딩 과정 중 오류가 발생했습니다.",
-                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
-                    firstButton: .cancel(title: "확인", action: {}),
-                    secondButton: nil
-                ))
-            }
+
+            print(error)
+            NavigationCoordinator.shared.push(.init(
+                title: "데이터 로딩 과정 중 오류가 발생했습니다.",
+                message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
+                firstButton: .cancel(title: "확인", action: {}),
+                secondButton: nil
+            ))
         }
     }
     
