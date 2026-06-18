@@ -27,9 +27,9 @@ struct PreviewHealthDataUseCase: HealthDataUseCase {
         PreviewShoesMockData.workouts
     }
 
-    /// 운동 목록 Preview에 사용할 운동-신발 등록 정보를 반환합니다.
-    func fetchWorkoutShoeNames() async throws -> [UUID: String] {
-        PreviewWorkoutMockData.workoutShoeNames
+    /// 운동 목록 Preview에 사용할 운동-신발 등록 상태를 반환합니다.
+    func fetchWorkoutShoeRegistrationInfo() async throws -> [UUID: WorkoutShoeRegistrationInfo] {
+        PreviewWorkoutMockData.workoutShoeRegistrationInfo
     }
 }
 

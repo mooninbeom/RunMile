@@ -72,8 +72,8 @@ final class PreviewDIContainer: ScreenDependencyProviding {
             previousMonthWorkouts.first?.date.yearMonth ?? "2026년 4월"
         ]
         viewModel.workouts = [currentMonthWorkouts, previousMonthWorkouts]
-        viewModel.workoutShoeNames = PreviewWorkoutMockData.workoutShoeNames
-        viewModel.viewStatus = .none
+        viewModel.workoutShoeRegistrationInfo = PreviewWorkoutMockData.workoutShoeRegistrationInfo
+        viewModel.viewStatus = .selection
         return viewModel
     }
     

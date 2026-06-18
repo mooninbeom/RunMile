@@ -15,7 +15,7 @@ final class WorkoutListViewModel {
     
     public var dateHeaders: [String] = []
     public var workouts: [[Workout]] = []
-    public var workoutShoeNames: [UUID: String] = [:]
+    public var workoutShoeRegistrationInfo: [UUID: WorkoutShoeRegistrationInfo] = [:]
     public var viewStatus: ViewStatus = .none
     
     public var selectedWorkout: Set<UUID> = []
@@ -96,6 +96,8 @@ extension WorkoutListViewModel {
     @MainActor
     public func workoutCellTapped(workout: Workout) {
         if case .selection = self.viewStatus {
+            guard !isHOFRestrictedWorkout(workout) else { return }
+
             let id = workout.id
             
             if self.selectedWorkout.contains(id) {
@@ -158,7 +160,11 @@ extension WorkoutListViewModel {
     }
 
     public func registeredShoeName(for workout: Workout) -> String? {
-        workoutShoeNames[workout.id]
+        workoutShoeRegistrationInfo[workout.id]?.shoeName
+    }
+
+    public func isHOFRestrictedWorkout(_ workout: Workout) -> Bool {
+        workoutShoeRegistrationInfo[workout.id]?.isGraduated == true
     }
 }
 
@@ -166,7 +172,7 @@ extension WorkoutListViewModel {
 extension WorkoutListViewModel {
     private func reloadWorkoutData() async throws -> [Workout] {
         let workouts = try await useCase.fetchWorkoutData()
-        workoutShoeNames = try await useCase.fetchWorkoutShoeNames()
+        workoutShoeRegistrationInfo = try await useCase.fetchWorkoutShoeRegistrationInfo()
         return workouts
     }
 

@@ -47,11 +47,20 @@ enum PreviewWorkoutMockData {
         return detail
     }()
     
-    /// 운동 목록 Preview에서 운동별 등록 신발명을 표시하기 위한 샘플 매핑입니다.
-    static let workoutShoeNames: [UUID: String] = [
-        PreviewShoesMockData.workouts[0].id: PreviewShoesMockData.shoes[0].shoesName,
-        PreviewShoesMockData.workouts[1].id: PreviewShoesMockData.shoes[0].shoesName,
-        PreviewShoesMockData.workouts[3].id: PreviewShoesMockData.shoes[1].shoesName
+    /// 운동 목록 Preview에서 운동별 등록 신발 상태를 표시하기 위한 샘플 매핑입니다.
+    static let workoutShoeRegistrationInfo: [UUID: WorkoutShoeRegistrationInfo] = [
+        PreviewShoesMockData.workouts[0].id: WorkoutShoeRegistrationInfo(
+            shoeName: PreviewShoesMockData.hallOfFameShoes[0].shoesName,
+            isGraduated: true
+        ),
+        PreviewShoesMockData.workouts[1].id: WorkoutShoeRegistrationInfo(
+            shoeName: PreviewShoesMockData.shoes[0].shoesName,
+            isGraduated: false
+        ),
+        PreviewShoesMockData.workouts[3].id: WorkoutShoeRegistrationInfo(
+            shoeName: PreviewShoesMockData.shoes[1].shoesName,
+            isGraduated: false
+        )
     ]
     
     private static func makeSample(seconds: Int, startDate: Date) -> WorkoutMetricSample {
