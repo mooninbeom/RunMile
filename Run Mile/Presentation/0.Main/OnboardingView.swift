@@ -11,7 +11,6 @@ import SwiftUI
 struct OnboardingGateView<Content: View>: View {
     @AppStorage(UserDefaults.Key.hasCompletedOnboarding) private var hasCompletedOnboarding = false
     @State private var onboardingViewModel: OnboardingViewModel
-    @State private var hasCompletedDebugOnboardingSession = false
 
     private let content: () -> Content
 
@@ -25,19 +24,11 @@ struct OnboardingGateView<Content: View>: View {
 
     var body: some View {
         Group {
-            #if DEBUG
-            if hasCompletedDebugOnboardingSession {
-                content()
-            } else {
-                onboardingFlow
-            }
-            #else
             if hasCompletedOnboarding {
                 content()
             } else {
                 onboardingFlow
             }
-            #endif
         }
     }
 
@@ -45,7 +36,6 @@ struct OnboardingGateView<Content: View>: View {
         OnboardingView(viewModel: onboardingViewModel) {
             withAnimation(.easeInOut(duration: 0.25)) {
                 hasCompletedOnboarding = true
-                hasCompletedDebugOnboardingSession = true
             }
         }
     }
