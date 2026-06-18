@@ -16,18 +16,21 @@ final class AppDIContainer: ScreenDependencyProviding {
     private let distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository
     private let healthBackgroundSyncService: HealthBackgroundSyncService
     private let notificationPermissionService: NotificationPermissionService
+    private let healthKitSampleSeeder: HealthKitSampleSeeding
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
         shoesRepository: ShoesDataRepository = ShoesDataRepositoryImpl(),
         distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository = WorkoutDistanceRecordCacheRepositoryImpl(),
         healthBackgroundSyncService: HealthBackgroundSyncService? = nil,
-        notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService()
+        notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService(),
+        healthKitSampleSeeder: HealthKitSampleSeeding = HealthKitSampleSeeder()
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
         self.distanceRecordCacheRepository = distanceRecordCacheRepository
         self.notificationPermissionService = notificationPermissionService
+        self.healthKitSampleSeeder = healthKitSampleSeeder
         self.healthBackgroundSyncService = healthBackgroundSyncService
         ?? DefaultHealthBackgroundSyncService(shoesRepository: shoesRepository)
     }
@@ -43,7 +46,8 @@ final class AppDIContainer: ScreenDependencyProviding {
             useCase: DefaultHealthDataUseCase(
                 workoutDataRepository: workoutRepository,
                 shoesDataRepository: shoesRepository
-            )
+            ),
+            healthKitSampleSeeder: healthKitSampleSeeder
         )
     }
     

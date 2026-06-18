@@ -12,7 +12,10 @@ import Foundation
 final class PreviewDIContainer: ScreenDependencyProviding {
     /// 온보딩 Preview용 ViewModel을 HealthKit 권한 요청 없이 생성합니다.
     func makeOnboardingViewModel() -> OnboardingViewModel {
-        OnboardingViewModel(useCase: PreviewHealthDataUseCase())
+        OnboardingViewModel(
+            useCase: PreviewHealthDataUseCase(),
+            healthKitSampleSeeder: PreviewHealthKitSampleSeeder()
+        )
     }
 
     /// 신발 목록 Preview용 ViewModel을 샘플 데이터가 주입된 상태로 생성합니다.

@@ -11,13 +11,18 @@ import Foundation
 @Observable
 final class OnboardingViewModel {
     private let useCase: HealthDataUseCase
+    private let healthKitSampleSeeder: HealthKitSampleSeeding
     private let healthAuthorizationPageIndex = 1
 
     public private(set) var currentIndex = 0
     public private(set) var isRequestingHealthAuthorization = false
 
-    init(useCase: HealthDataUseCase) {
+    init(
+        useCase: HealthDataUseCase,
+        healthKitSampleSeeder: HealthKitSampleSeeding
+    ) {
         self.useCase = useCase
+        self.healthKitSampleSeeder = healthKitSampleSeeder
     }
 }
 
@@ -58,8 +63,10 @@ extension OnboardingViewModel {
         do {
             try await useCase.checkHealthAuthorization()
         } catch {
-            // 권한 요청 실패는 운동 탭에서 재시도할 수 있으므로 온보딩 진행을 막지 않습니다.
+            // 권한 요청 실패는 사용자가 설정에서 다시 허용할 수 있으므로 온보딩 진행을 막지 않습니다.
         }
+
+        await healthKitSampleSeeder.seedSampleIfNeeded()
 
         advance(pageCount: pageCount, onFinish: onFinish)
     }
