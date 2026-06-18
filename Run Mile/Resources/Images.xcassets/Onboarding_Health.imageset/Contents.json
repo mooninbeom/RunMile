@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Onboarding_Health.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

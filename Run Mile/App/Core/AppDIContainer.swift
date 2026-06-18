@@ -15,16 +15,19 @@ final class AppDIContainer: ScreenDependencyProviding {
     private let shoesRepository: ShoesDataRepository
     private let distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository
     private let healthBackgroundSyncService: HealthBackgroundSyncService
+    private let notificationPermissionService: NotificationPermissionService
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
         shoesRepository: ShoesDataRepository = ShoesDataRepositoryImpl(),
         distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository = WorkoutDistanceRecordCacheRepositoryImpl(),
-        healthBackgroundSyncService: HealthBackgroundSyncService? = nil
+        healthBackgroundSyncService: HealthBackgroundSyncService? = nil,
+        notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService()
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
         self.distanceRecordCacheRepository = distanceRecordCacheRepository
+        self.notificationPermissionService = notificationPermissionService
         self.healthBackgroundSyncService = healthBackgroundSyncService
         ?? DefaultHealthBackgroundSyncService(shoesRepository: shoesRepository)
     }
@@ -32,6 +35,16 @@ final class AppDIContainer: ScreenDependencyProviding {
     /// HealthKit 백그라운드 운동 감지와 신발 자동 등록을 담당하는 서비스를 제공합니다.
     func makeHealthBackgroundSyncService() -> HealthBackgroundSyncService {
         healthBackgroundSyncService
+    }
+
+    /// 온보딩 화면의 상태와 건강 데이터 권한 요청 액션을 관리하는 ViewModel을 생성합니다.
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(
+            useCase: DefaultHealthDataUseCase(
+                workoutDataRepository: workoutRepository,
+                shoesDataRepository: shoesRepository
+            )
+        )
     }
     
     /// 신발 목록 화면의 상태와 액션을 관리하는 ViewModel을 생성합니다.
@@ -58,7 +71,17 @@ final class AppDIContainer: ScreenDependencyProviding {
     func makeAddShoesViewModel() -> AddShoesViewModel {
         AddShoesViewModel(
             useCase: DefaultAddShoesUseCase(
-                repository: shoesRepository
+                repository: shoesRepository,
+                notificationPermissionService: notificationPermissionService
+            )
+        )
+    }
+
+    /// 첫 신발 등록 이후 알림 권한 안내 커스텀 시트의 ViewModel을 생성합니다.
+    func makeAddShoesNotificationPermissionSheetViewModel() -> AddShoesNotificationPermissionSheetViewModel {
+        AddShoesNotificationPermissionSheetViewModel(
+            useCase: DefaultNotificationPermissionUseCase(
+                notificationPermissionService: notificationPermissionService
             )
         )
     }

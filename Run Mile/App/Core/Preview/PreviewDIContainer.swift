@@ -10,6 +10,11 @@ import Foundation
 
 
 final class PreviewDIContainer: ScreenDependencyProviding {
+    /// 온보딩 Preview용 ViewModel을 HealthKit 권한 요청 없이 생성합니다.
+    func makeOnboardingViewModel() -> OnboardingViewModel {
+        OnboardingViewModel(useCase: PreviewHealthDataUseCase())
+    }
+
     /// 신발 목록 Preview용 ViewModel을 샘플 데이터가 주입된 상태로 생성합니다.
     func makeShoesListViewModel() -> ShoesListViewModel {
         let viewModel = ShoesListViewModel(
@@ -42,6 +47,13 @@ final class PreviewDIContainer: ScreenDependencyProviding {
         viewModel.usage = "데일리 러닝"
         viewModel.goalMileage = "700"
         return viewModel
+    }
+
+    /// 첫 신발 등록 이후 알림 권한 안내 커스텀 시트 Preview용 ViewModel을 생성합니다.
+    func makeAddShoesNotificationPermissionSheetViewModel() -> AddShoesNotificationPermissionSheetViewModel {
+        AddShoesNotificationPermissionSheetViewModel(
+            useCase: PreviewNotificationPermissionUseCase()
+        )
     }
     
     /// 운동 목록 Preview용 ViewModel을 샘플 운동 기록이 채워진 상태로 생성합니다.

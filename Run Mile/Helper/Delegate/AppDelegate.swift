@@ -21,9 +21,9 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         self.realmMigration()
         FirebaseApp.configure()
         self.registerWorkoutShoesBackgroundSync()
+        self.configureUserNotifications()
         
         Task {
-            await self.userNotificationAuthorize()
             await self.prepareWorkoutShoesBackgroundSync()
             await self.migrateRealmToCD()
         }
@@ -65,21 +65,9 @@ extension AppDelegate {
 // MARK: - UserNotifications
 
 extension AppDelegate {
-    /// UserNotification 권한 허용
-    private func userNotificationAuthorize() async {
-        let notiCenter = UNUserNotificationCenter.current()
-        
-        notiCenter.delegate = self
-        
-        let settings = await notiCenter.notificationSettings()
-        
-        if case .notDetermined = settings.authorizationStatus {
-            do {
-                try await notiCenter.requestAuthorization(options: [.alert, .badge, .sound])
-            } catch {
-                print(error)
-            }
-        }
+    /// 앱 시작 시에는 권한을 요청하지 않고, 수신/탭 처리를 위한 delegate만 설정합니다.
+    private func configureUserNotifications() {
+        UNUserNotificationCenter.current().delegate = self
     }
 }
 

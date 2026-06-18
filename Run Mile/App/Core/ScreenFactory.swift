@@ -57,7 +57,12 @@ struct ScreenFactory {
         case let .addShoes(action):
             AddShoesView(
                 viewModel: container.makeAddShoesViewModel(),
-                dismissAction: action
+                dismissAction: {
+                    action()
+                    Task { @MainActor in
+                        NavigationCoordinator.shared.presentPendingCustomSheetIfNeeded()
+                    }
+                }
             )
         case let .chooseShoes(workouts, action):
             ChooseShoesView(
@@ -72,6 +77,17 @@ struct ScreenFactory {
             AutoMileageShoesView(viewModel: container.makeAutoMileageShoesViewModel())
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.hidden)
+        }
+    }
+
+    /// NavigationCoordinator의 커스텀 Sheet 상태를 앱 루트 overlay 화면으로 변환합니다.
+    @ViewBuilder
+    func makeCustomSheet(for sheet: NavigationCoordinator.CustomSheet) -> some View {
+        switch sheet {
+        case .addShoesNotificationPermission:
+            AddShoesNotificationPermissionSheetContainer(
+                viewModel: container.makeAddShoesNotificationPermissionSheetViewModel()
+            )
         }
     }
 }

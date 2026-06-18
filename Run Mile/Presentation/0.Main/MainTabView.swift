@@ -62,6 +62,9 @@ struct MainTabView: View {
         .sheet(item: $navigationCoordinator.sheet) {
             screenFactory.makeSheet(for: $0)
         }
+        .overlay {
+            customSheetOverlay
+        }
         .alert(
             navigationCoordinator.alert?.title ?? "알 수 없음",
             isPresented: $navigationCoordinator.isAlertPresented,
@@ -88,6 +91,24 @@ struct MainTabView: View {
             if let message = alert.message {
                 Text(message)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var customSheetOverlay: some View {
+        if let customSheet = navigationCoordinator.customSheet {
+            ZStack(alignment: .bottom) {
+                Color.black.opacity(0.24)
+                    .ignoresSafeArea()
+
+                screenFactory.makeCustomSheet(for: customSheet)
+            }
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+            .ignoresSafeArea(edges: .bottom)
+            .animation(
+                .spring(response: 0.28, dampingFraction: 0.86),
+                value: navigationCoordinator.customSheet != nil
+            )
         }
     }
 }

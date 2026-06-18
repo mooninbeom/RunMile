@@ -46,6 +46,14 @@ struct PreviewAddShoesUseCase: AddShoesUseCase {
     }
     
     /// Preview에서는 저장소를 변경하지 않고 저장 완료 흐름만 통과시킵니다.
-    func saveShoes(shoes: Shoes) async throws {}
+    func saveShoes(shoes: Shoes) async throws -> AddShoesSaveResult {
+        AddShoesSaveResult(shouldShowNotificationPermissionSheet: true)
+    }
+}
+
+
+struct PreviewNotificationPermissionUseCase: NotificationPermissionUseCase {
+    /// Preview에서는 실제 알림 권한 요청을 실행하지 않습니다.
+    func requestNotificationAuthorization() async throws {}
 }
 #endif

@@ -9,9 +9,11 @@ import Foundation
 
 
 protocol ScreenDependencyProviding {
+    func makeOnboardingViewModel() -> OnboardingViewModel
     func makeShoesListViewModel() -> ShoesListViewModel
     func makeShoesDetailViewModel(shoes: Shoes) -> ShoesDetailViewModel
     func makeAddShoesViewModel() -> AddShoesViewModel
+    func makeAddShoesNotificationPermissionSheetViewModel() -> AddShoesNotificationPermissionSheetViewModel
     func makeWorkoutListViewModel() -> WorkoutListViewModel
     func makeWorkoutDetailViewModel(workout: Workout) -> WorkoutDetailViewModel
     func makeChooseShoesViewModel(workouts: [Workout], dismissAction: @escaping () -> Void) -> ChooseShoesViewModel
