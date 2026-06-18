@@ -175,12 +175,7 @@ struct AddShoesView: View {
                 .padding(.bottom, 30)
             }
             .overlay {
-                if viewModel.isLoading {
-                    ProgressView()
-                        .progressViewStyle(.circular)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .background(Color.black.opacity(0.2))
-                }
+                loadingOverlay
             }
             .navigationTitle("신발 추가")
             .navigationBarTitleDisplayMode(.inline)
@@ -236,6 +231,16 @@ struct AddShoesView: View {
         )
         .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
             CameraPicker(image: $viewModel.image)
+        }
+    }
+
+    @ViewBuilder
+    private var loadingOverlay: some View {
+        if viewModel.isLoading {
+            ProgressView()
+                .progressViewStyle(.circular)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black.opacity(0.2))
         }
     }
     

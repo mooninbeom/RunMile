@@ -18,7 +18,14 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
         window = UIWindow(frame: windowScene.coordinateSpace.bounds)
         window?.windowScene = windowScene
         
-        window?.rootViewController = UIHostingController(rootView: MainTabView().tint(.primary1))
+        window?.rootViewController = UIHostingController(
+            rootView: OnboardingGateView(
+                viewModel: AppDIContainer.shared.makeOnboardingViewModel()
+            ) {
+                MainTabView()
+            }
+            .tint(.primary1)
+        )
         window?.makeKeyAndVisible()
     }
     

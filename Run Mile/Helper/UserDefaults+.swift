@@ -10,44 +10,61 @@ import HealthKit
 
 
 extension UserDefaults {
+    enum Key {
+        static let selectedShoesID = "selectedShoesID"
+        static let isMigratedToCoreData = "isMigratedToCoreData"
+        static let lastAnchor = "anchor"
+        static let pendingRunningWorkoutIDs = "pendingRunningWorkoutIDs"
+        static let hasCompletedOnboarding = "hasCompletedOnboarding"
+    }
+
     public var selectedShoesID: String {
         get {
-            self.string(forKey: "selectedShoesID") ?? ""
+            self.string(forKey: Key.selectedShoesID) ?? ""
         }
         set {
-            self.set(newValue, forKey: "selectedShoesID")
+            self.set(newValue, forKey: Key.selectedShoesID)
         }
     }
-    
+
     public var isMigratedToCoreData: Bool {
         get {
-            self.bool(forKey: "isMigratedToCoreData")
+            self.bool(forKey: Key.isMigratedToCoreData)
         }
         set {
-            self.set(newValue, forKey: "isMigratedToCoreData")
+            self.set(newValue, forKey: Key.isMigratedToCoreData)
         }
     }
-    
+
     public var lastAnchor: HKQueryAnchor? {
         get {
-            self.data(forKey: "anchor").flatMap {
+            self.data(forKey: Key.lastAnchor).flatMap {
                 try? NSKeyedUnarchiver.unarchivedObject(ofClass: HKQueryAnchor.self, from: $0)
             }
         }
         set {
             if let anchor = newValue,
                let data = try? NSKeyedArchiver.archivedData(withRootObject: anchor, requiringSecureCoding: true) {
-                self.set(data, forKey: "anchor")
+                self.set(data, forKey: Key.lastAnchor)
             }
         }
     }
-    
+
     public var pendingRunningWorkoutIDs: [String] {
         get {
-            self.stringArray(forKey: "pendingRunningWorkoutIDs") ?? []
+            self.stringArray(forKey: Key.pendingRunningWorkoutIDs) ?? []
         }
         set {
-            self.set(newValue, forKey: "pendingRunningWorkoutIDs")
+            self.set(newValue, forKey: Key.pendingRunningWorkoutIDs)
+        }
+    }
+
+    public var hasCompletedOnboarding: Bool {
+        get {
+            self.bool(forKey: Key.hasCompletedOnboarding)
+        }
+        set {
+            self.set(newValue, forKey: Key.hasCompletedOnboarding)
         }
     }
 }

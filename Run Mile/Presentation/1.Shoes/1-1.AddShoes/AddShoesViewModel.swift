@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 import PhotosUI
-import UserNotifications
 
 
 @Observable
@@ -209,6 +208,7 @@ extension AddShoesViewModel {
         }
     }
     
+    @MainActor
     public func saveButtonTapped() {
         let shoes = Shoes(
             id: .init(),
@@ -221,21 +221,37 @@ extension AddShoesViewModel {
         )
         
         Task {
-            do {
-                try await useCase.saveShoes(shoes: shoes)
-            } catch {
-                await NavigationCoordinator.shared.push(.init(
-                    title: "저장 과정 중 오류가 발생했습니다.",
-                    message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
-                    firstButton: .cancel(title: "확인", action: {}),
-                    secondButton: nil
-                ))
-            }
-            
-            await NavigationCoordinator.shared.dismissSheet()
+            await saveShoes(shoes)
         }
     }
-    
+
+    @MainActor
+    private func saveShoes(_ shoes: Shoes) async {
+        isLoading = true
+
+        do {
+            let result = try await useCase.saveShoes(shoes: shoes)
+            isLoading = false
+
+            if result.shouldShowNotificationPermissionSheet {
+                NavigationCoordinator.shared.presentCustomSheetAfterCurrentSheetDismissal(
+                    .addShoesNotificationPermission
+                )
+            } else {
+                NavigationCoordinator.shared.dismissSheet()
+            }
+        } catch {
+            isLoading = false
+
+            NavigationCoordinator.shared.push(.init(
+                title: "저장 과정 중 오류가 발생했습니다.",
+                message: "같은 오류가 계속 발생할 시 문의 부탁드립니다.\n** \(error.localizedDescription)",
+                firstButton: .cancel(title: "확인", action: {}),
+                secondButton: nil
+            ))
+        }
+    }
+
     public func photoPicked() async {
         if let photo = self.photos {
             do {

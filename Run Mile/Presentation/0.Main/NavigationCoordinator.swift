@@ -22,6 +22,8 @@ final class NavigationCoordinator {
     public var myPagePath = NavigationPath()
     
     public var sheet: Sheet?
+    public var customSheet: CustomSheet?
+    private var pendingCustomSheet: CustomSheet?
     public var isAlertPresented: Bool = false
     public var alert: AlertData?
 }
@@ -95,6 +97,24 @@ extension NavigationCoordinator {
     public func dismissSheet() {
         self.sheet = nil
     }
+
+    @MainActor
+    public func presentCustomSheetAfterCurrentSheetDismissal(_ customSheet: CustomSheet) {
+        pendingCustomSheet = customSheet
+        dismissSheet()
+    }
+
+    @MainActor
+    public func presentPendingCustomSheetIfNeeded() {
+        guard let pendingCustomSheet else { return }
+        self.pendingCustomSheet = nil
+        self.customSheet = pendingCustomSheet
+    }
+
+    @MainActor
+    public func dismissCustomSheet() {
+        customSheet = nil
+    }
 }
 
 
@@ -130,6 +150,10 @@ extension NavigationCoordinator {
         case addShoes(() -> Void)
         case chooseShoes([Workout], () -> Void)
         case automaticRegister
+    }
+
+    enum CustomSheet {
+        case addShoesNotificationPermission
     }
 }
 
