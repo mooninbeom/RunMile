@@ -151,17 +151,25 @@ private struct ContactRow: View {
                 }
             }
             .frame(width: 40, height: 40)
-            
-            Text(title)
-                .font(.body)
-                .foregroundStyle(RunMileColor.foreground)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.subheadline)
-                .foregroundStyle(RunMileColor.mutedForeground)
-            
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.body)
+                    .foregroundStyle(RunMileColor.foreground)
+                    .lineLimit(1)
+
+                Text(value)
+                    .font(.subheadline)
+                    .foregroundStyle(RunMileColor.mutedForeground)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                    .allowsTightening(true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .layoutPriority(1)
+
+            Spacer(minLength: 8)
+
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundStyle(RunMileColor.mutedForeground)
