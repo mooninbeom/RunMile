@@ -243,7 +243,7 @@ struct AddShoesView: View {
                 .background(Color.black.opacity(0.2))
         }
     }
-    
+
     // Helper View Builder
     private func inputGroup<Content: View>(title: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -326,10 +326,16 @@ private struct AddShoesTextField: View {
                         text = String(newValue.prefix(maxLength))
                     }
                     
-                    // Max Mileage Limit
-                    if let maxMileage, let num = Int(newValue) {
-                        if num > maxMileage {
-                            text = String(maxMileage)
+                    // Number & Max Mileage Limit
+                    if let maxMileage {
+                        if newValue.isEmpty { return }
+
+                        let isNumber = newValue.allSatisfy { "0123456789".contains($0) }
+                        if isNumber {
+                            let number = Int(newValue) ?? 0
+                            text = number > maxMileage ? String(maxMileage) : "\(number)"
+                        } else {
+                            text.removeAll()
                         }
                     }
                 }
