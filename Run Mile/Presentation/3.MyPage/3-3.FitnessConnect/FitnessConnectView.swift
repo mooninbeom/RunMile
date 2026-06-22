@@ -9,6 +9,9 @@ import SwiftUI
 
 
 struct FitnessConnectView: View {
+    @State private var currentGuideIndex = 0
+    private let guidePageCount = 4
+
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
@@ -55,27 +58,39 @@ struct FitnessConnectView: View {
                         .foregroundStyle(RunMileColor.foreground)
                         .padding(.horizontal, 4)
                     
-                    TabView {
-                        Group {
+                    VStack(spacing: 14) {
+                        TabView(selection: $currentGuideIndex) {
                             Image(.health1)
                                 .resizable()
                                 .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .padding(.horizontal, 20)
+                                .tag(0)
                             Image(.health2)
                                 .resizable()
                                 .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .padding(.horizontal, 20)
+                                .tag(1)
                             Image(.health3)
                                 .resizable()
                                 .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .padding(.horizontal, 20)
+                                .tag(2)
                             Image(.health4)
                                 .resizable()
                                 .scaledToFit()
+                                .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .padding(.horizontal, 20)
+                                .tag(3)
                         }
-                        .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
-                        .padding(.bottom, 20)
-                        .padding(.horizontal, 20)
+                        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+                        .frame(height: 460)
+
+                        FitnessGuidePageIndicator(currentIndex: currentGuideIndex, pageCount: guidePageCount)
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
-                    .frame(height: 500)
+                    .padding(.bottom, 16)
                     .runMileBrutalCard()
                 }
                 
@@ -88,6 +103,28 @@ struct FitnessConnectView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     
+}
+
+
+private struct FitnessGuidePageIndicator: View {
+    let currentIndex: Int
+    let pageCount: Int
+
+    var body: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<pageCount, id: \.self) { index in
+                Capsule()
+                    .fill(index == currentIndex ? RunMileColor.primary : RunMileColor.muted)
+                    .frame(width: index == currentIndex ? 34 : 10, height: 10)
+                    .overlay {
+                        Capsule()
+                            .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
+                    }
+                    .animation(.spring(response: 0.25, dampingFraction: 0.85), value: currentIndex)
+            }
+        }
+        .accessibilityLabel("\(currentIndex + 1) / \(pageCount)")
+    }
 }
 
 
