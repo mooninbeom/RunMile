@@ -95,7 +95,7 @@ struct InformationView: View {
                             .foregroundStyle(RunMileColor.mutedForeground)
                     }
                     
-                    Text("Copyright © 2025 Mooninbeom. All rights reserved.")
+                    Text("Copyright © 2026 Mooninbeom. All rights reserved.")
                         .font(.caption2)
                         .foregroundStyle(RunMileColor.mutedForeground)
                         .padding(.top, 4)
