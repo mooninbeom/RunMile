@@ -8,25 +8,65 @@
 import SwiftUI
 
 
-struct SelectedRouteAnnotationView: View {
-    let pace: String
-    
+enum RouteEndpoint {
+    case start
+    case end
+
+    var color: Color {
+        switch self {
+        case .start:
+            return RunMileColor.success
+        case .end:
+            return RunMileColor.primary
+        }
+    }
+
+    var accessibilityText: String {
+        switch self {
+        case .start:
+            return "시작점"
+        case .end:
+            return "끝점"
+        }
+    }
+}
+
+
+struct RouteEndpointAnnotationView: View {
+    let endpoint: RouteEndpoint
+
     var body: some View {
         ZStack {
             Circle()
+                .fill(RunMileColor.border)
+                .frame(width: 18, height: 18)
+                .offset(x: 1.5, y: 1.5)
+
+            Circle()
                 .fill(RunMileColor.card)
-                .frame(width: 24, height: 24)
+                .frame(width: 18, height: 18)
                 .overlay {
                     Circle()
-                        .fill(RunMileColor.primary)
-                        .frame(width: 12, height: 12)
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
                 }
-                .overlay {
-                    Circle()
-                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
-                }
-                .shadow(color: RunMileColor.border, radius: 0, x: 2, y: 2)
-            
+
+            Circle()
+                .fill(endpoint.color)
+                .frame(width: 11, height: 11)
+        }
+        .frame(width: 20, height: 20)
+        .accessibilityLabel(endpoint.accessibilityText)
+    }
+}
+
+
+struct SelectedRouteAnnotationView: View {
+    let pace: String
+
+    var body: some View {
+        ZStack {
+            SelectedRouteMarkerDot()
+
             Text(pace)
                 .font(.caption2.weight(.black))
                 .monospacedDigit()
@@ -48,9 +88,37 @@ struct SelectedRouteAnnotationView: View {
 }
 
 
+private struct SelectedRouteMarkerDot: View {
+    private let markerSize: CGFloat = 24
+    private let centerSize: CGFloat = 12
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(RunMileColor.border)
+                .frame(width: markerSize, height: markerSize)
+                .offset(x: 2, y: 2)
+
+            Circle()
+                .fill(RunMileColor.card)
+                .frame(width: markerSize, height: markerSize)
+                .overlay {
+                    Circle()
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                }
+
+            Circle()
+                .fill(RunMileColor.primary)
+                .frame(width: centerSize, height: centerSize)
+        }
+        .frame(width: markerSize + 2, height: markerSize + 2)
+    }
+}
+
+
 struct FastestPaceAnnotationView: View {
     let pace: String
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -60,7 +128,7 @@ struct FastestPaceAnnotationView: View {
                     Circle()
                         .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
                 }
-            
+
             HStack(spacing: 6) {
                 Image(systemName: "flame.fill")
                     .font(.caption.weight(.bold))

@@ -17,14 +17,14 @@ struct MapAnalysisBottomPanel: View {
             header
             
             HStack(spacing: 10) {
-                AnalysisMetricPill(title: "페이스", value: viewModel.selectedPaceText, tint: .blue)
-                AnalysisMetricPill(title: "심박", value: viewModel.selectedHeartRateText, unit: "bpm", tint: .red)
+                AnalysisMetricPill(title: "페이스", value: viewModel.selectedPaceText, tint: RunMileColor.accent)
+                AnalysisMetricPill(title: "심박", value: viewModel.selectedHeartRateText, unit: "bpm", tint: RunMileColor.primary)
                 AnalysisMetricPill(
                     title: "고도",
                     value: viewModel.selectedAltitudeText,
                     unit: "m",
                     symbol: viewModel.selectedAltitudeTrendSymbol,
-                    tint: .green
+                    tint: RunMileColor.success
                 )
             }
             
@@ -79,33 +79,33 @@ private struct PaceAnalysisChart: View {
     
     var body: some View {
         Chart {
-            ForEach(viewModel.altitudeSamples) { sample in
+            ForEach(viewModel.analysisMappedAltitudeSamples) { sample in
                 AreaMark(
                     x: .value("Time", sample.seconds),
-                    yStart: .value("Altitude Base", viewModel.paceChartYScale.lowerBound),
-                    yEnd: .value("Altitude", viewModel.mappedAnalysisAltitudeValue(sample.rates))
+                    yStart: .value("Altitude Base", viewModel.analysisPaceChartYScale.lowerBound),
+                    yEnd: .value("Altitude", sample.rates)
                 )
                 .interpolationMethod(.catmullRom)
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.green.opacity(0.045), .green.opacity(0.01)],
+                        colors: [RunMileColor.success.opacity(0.045), RunMileColor.success.opacity(0.01)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
                 )
             }
             
-            ForEach(viewModel.altitudeSamples) { sample in
+            ForEach(viewModel.analysisMappedAltitudeSamples) { sample in
                 LineMark(
                     x: .value("Time", sample.seconds),
-                    y: .value("Altitude", viewModel.mappedAnalysisAltitudeValue(sample.rates))
+                    y: .value("Altitude", sample.rates)
                 )
                 .interpolationMethod(.catmullRom)
                 .lineStyle(.init(lineWidth: 1.5, lineCap: .round, lineJoin: .round))
-                .foregroundStyle(.green.opacity(0.30))
+                .foregroundStyle(RunMileColor.success.opacity(0.30))
             }
             
-            ForEach(viewModel.paceSamples) { sample in
+            ForEach(viewModel.analysisPaceSamples) { sample in
                 LineMark(
                     x: .value("Time", sample.seconds),
                     y: .value("Pace", sample.rates),
@@ -115,21 +115,15 @@ private struct PaceAnalysisChart: View {
                 .lineStyle(.init(lineWidth: 3, lineCap: .round, lineJoin: .round))
                 .foregroundStyle(
                     LinearGradient(
-                        colors: [.blue, .cyan],
+                        colors: [RunMileColor.accent, RunMileColor.accent.opacity(0.72)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
                 )
             }
-            
-            if let selectedSeconds = viewModel.selectedSeconds {
-                RuleMark(x: .value("Selected", selectedSeconds))
-                    .lineStyle(StrokeStyle(lineWidth: 2, dash: [4]))
-                    .foregroundStyle(RunMileColor.foreground.opacity(0.55))
-            }
         }
-        .chartXScale(domain: viewModel.paceChartXScale)
-        .chartYScale(domain: viewModel.paceChartYScale)
+        .chartXScale(domain: viewModel.analysisPaceChartXScale)
+        .chartYScale(domain: viewModel.analysisPaceChartYScale)
         .chartXAxis {
             AxisMarks(values: viewModel.analysisXAxisValues) { value in
                 AxisGridLine()
@@ -174,23 +168,41 @@ private struct PaceAnalysisChart: View {
         }
         .chartOverlay { chartProxy in
             GeometryReader { geometryProxy in
-                Rectangle()
-                    .fill(.clear)
-                    .contentShape(Rectangle())
-                    .gesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { value in
-                                guard let chartPlotFrame = chartProxy.plotFrame else { return }
-                                
-                                let plotFrame = geometryProxy[chartPlotFrame]
-                                let currentX = value.location.x - plotFrame.origin.x
-                                guard currentX >= 0, currentX <= plotFrame.width else { return }
-                                
-                                if let second: Int = chartProxy.value(atX: currentX) {
-                                    viewModel.detailGraphTapped(seconds: second)
+                ZStack {
+                    if let selectedSeconds = viewModel.selectedSeconds,
+                       let chartPlotFrame = chartProxy.plotFrame,
+                       let selectedX = chartProxy.position(forX: selectedSeconds) {
+                        let plotFrame = geometryProxy[chartPlotFrame]
+                        let xPosition = plotFrame.origin.x + selectedX
+
+                        Path { path in
+                            path.move(to: CGPoint(x: xPosition, y: plotFrame.minY))
+                            path.addLine(to: CGPoint(x: xPosition, y: plotFrame.maxY))
+                        }
+                        .stroke(
+                            RunMileColor.foreground.opacity(0.55),
+                            style: StrokeStyle(lineWidth: 2, dash: [4])
+                        )
+                    }
+
+                    Rectangle()
+                        .fill(.clear)
+                        .contentShape(Rectangle())
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    guard let chartPlotFrame = chartProxy.plotFrame else { return }
+
+                                    let plotFrame = geometryProxy[chartPlotFrame]
+                                    let currentX = value.location.x - plotFrame.origin.x
+                                    guard currentX >= 0, currentX <= plotFrame.width else { return }
+
+                                    if let second: Int = chartProxy.value(atX: currentX) {
+                                        viewModel.detailGraphTapped(seconds: second)
+                                    }
                                 }
-                            }
-                    )
+                        )
+                }
             }
         }
         .padding(14)
@@ -248,9 +260,9 @@ private struct AnalysisMetricPill: View {
     private func symbolColor(for symbol: String) -> Color {
         switch symbol {
         case "arrow.up.right":
-            return .orange
+            return RunMileColor.warning
         case "arrow.down.right":
-            return .cyan
+            return RunMileColor.accent
         default:
             return RunMileColor.mutedForeground
         }
