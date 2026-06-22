@@ -15,7 +15,22 @@ struct HeaderSummarySection: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
+            RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                .fill(RunMileColor.border)
+                .offset(x: 4, y: 4)
+                .zIndex(0)
+
+            heroCardContent
+                .zIndex(1)
+        }
+        .padding(.horizontal)
+        .padding(.top, 10)
+    }
+
+    private var heroCardContent: some View {
+        ZStack(alignment: .bottomLeading) {
             mapBackground
+                .zIndex(0)
 
             LinearGradient(
                 colors: [.black.opacity(0.8), .clear],
@@ -24,18 +39,17 @@ struct HeaderSummarySection: View {
             )
             .frame(height: 350)
             .allowsHitTesting(false)
+            .zIndex(1)
 
             headerContent
                 .padding(20)
+                .zIndex(2)
         }
         .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
                 .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
         }
-        .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
-        .padding(.horizontal)
-        .padding(.top, 10)
     }
 
     @ViewBuilder
@@ -110,24 +124,33 @@ struct HeaderSummarySection: View {
     }
 
     private var headerContent: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(viewModel.workoutStartDate)
-                .font(.caption)
-                .fontWeight(.bold)
-                .foregroundStyle(.white.opacity(0.8))
+        GeometryReader { geometry in
+            let valueFontSize = headerMetricValueFontSize(for: geometry.size.width)
 
-            Text(viewModel.workoutTitle)
-                .font(.largeTitle)
-                .fontWeight(.black)
-                .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(viewModel.workoutStartDate)
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundStyle(.white.opacity(0.8))
 
-            HStack(spacing: 20) {
-                HeaderMetric(value: viewModel.distance, label: "킬로미터")
-                HeaderMetric(value: viewModel.elapsedTime, label: "시간")
-                HeaderMetric(value: viewModel.calories, label: "KCAL")
+                Text(viewModel.workoutTitle)
+                    .font(.largeTitle)
+                    .fontWeight(.black)
+                    .foregroundStyle(.white)
+
+                HStack(spacing: 20) {
+                    HeaderMetric(value: viewModel.distance, label: "킬로미터", valueFontSize: valueFontSize)
+                    HeaderMetric(value: viewModel.elapsedTime, label: "시간", valueFontSize: valueFontSize)
+                    HeaderMetric(value: viewModel.calories, label: "KCAL", valueFontSize: valueFontSize)
+                }
+                .padding(.top, 10)
             }
-            .padding(.top, 10)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         }
+    }
+
+    private func headerMetricValueFontSize(for width: CGFloat) -> CGFloat {
+        width < 320 ? 28 : 32
     }
 }
 
@@ -135,11 +158,12 @@ struct HeaderSummarySection: View {
 private struct HeaderMetric: View {
     let value: String
     let label: String
+    let valueFontSize: CGFloat
 
     var body: some View {
         VStack(alignment: .leading) {
             Text(value)
-                .font(.system(size: 32, weight: .bold, design: .rounded))
+                .font(.system(size: valueFontSize, weight: .bold, design: .rounded))
                 .foregroundStyle(.white)
 
             Text(label)

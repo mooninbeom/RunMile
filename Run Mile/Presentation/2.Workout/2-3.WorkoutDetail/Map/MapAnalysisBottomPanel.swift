@@ -260,7 +260,7 @@ private struct AnalysisMetricPill: View {
     private func symbolColor(for symbol: String) -> Color {
         switch symbol {
         case "arrow.up.right":
-            return RunMileColor.warning
+            return RunMileColor.elevationUp
         case "arrow.down.right":
             return RunMileColor.accent
         default:
