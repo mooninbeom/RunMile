@@ -37,7 +37,11 @@ final class MigrationService {
                 cdObject.nickname = object.nickname
                 cdObject.shoesName = object.shoesName
                 
+                var migratedWorkoutIDs: Set<UUID> = []
                 object.workouts.forEach {
+                    guard !migratedWorkoutIDs.contains($0.id) else { return }
+                    migratedWorkoutIDs.insert($0.id)
+
                     let cdWorkout = CDWorkoutDTO(context: context)
                     cdWorkout.id = $0.id
                     cdWorkout.date = $0.date

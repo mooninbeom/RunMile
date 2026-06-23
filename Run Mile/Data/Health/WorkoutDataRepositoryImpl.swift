@@ -110,11 +110,12 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         
         for route in routes {
             let routeResult = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[CLLocation], any Error>) in
+                let oneShotContinuation = OneShotContinuation(continuation)
                 var fetchedLocations: [CLLocation] = []
                 
-                let locationQuery = HKWorkoutRouteQuery(route: route) { query, locations, done, error in
+                let locationQuery = HKWorkoutRouteQuery(route: route) { _, locations, done, error in
                     if let error = error {
-                        continuation.resume(throwing: error)
+                        oneShotContinuation.resume(throwing: error)
                         return
                     }
                     if let locations = locations {
@@ -122,7 +123,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
                     }
                     
                     if done {
-                        continuation.resume(returning: fetchedLocations)
+                        oneShotContinuation.resume(returning: fetchedLocations)
                     }
                 }
                 store.execute(locationQuery)
@@ -414,11 +415,12 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         let predicate = HKQuery.predicateForObject(with: sample.uuid)
         
         return try await withCheckedThrowingContinuation { continuation in
+            let oneShotContinuation = OneShotContinuation(continuation)
             var samples: [WorkoutDistanceSample] = []
             
             let query = HKQuantitySeriesSampleQuery(quantityType: type, predicate: predicate) { _, quantity, dateInterval, _, done, error in
                 if let error {
-                    continuation.resume(throwing: error)
+                    oneShotContinuation.resume(throwing: error)
                     return
                 }
                 
@@ -437,7 +439,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
                 }
                 
                 if done {
-                    continuation.resume(returning: samples)
+                    oneShotContinuation.resume(returning: samples)
                 }
             }
             
@@ -449,11 +451,12 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         let predicate = HKQuery.predicateForObject(with: sample.uuid)
         
         return try await withCheckedThrowingContinuation { continuation in
+            let oneShotContinuation = OneShotContinuation(continuation)
             var points: [RunningMetricPoint] = []
             
             let query = HKQuantitySeriesSampleQuery(quantityType: type, predicate: predicate) { [weak self] _, quantity, dateInterval, _, done, error in
                 if let error {
-                    continuation.resume(throwing: error)
+                    oneShotContinuation.resume(throwing: error)
                     return
                 }
                 
@@ -464,7 +467,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
                 }
                 
                 if done {
-                    continuation.resume(returning: points)
+                    oneShotContinuation.resume(returning: points)
                 }
             }
             
@@ -505,6 +508,37 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         return .init(timestamp: timestamp, value: value, unit: unit)
     }
 }
+
+
+private final class OneShotContinuation<Value>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<Value, any Error>?
+
+    init(_ continuation: CheckedContinuation<Value, any Error>) {
+        self.continuation = continuation
+    }
+
+    func resume(returning value: Value) {
+        resume(with: .success(value))
+    }
+
+    func resume(throwing error: any Error) {
+        resume(with: .failure(error))
+    }
+
+    private func resume(with result: Result<Value, any Error>) {
+        lock.lock()
+        guard let continuation else {
+            lock.unlock()
+            return
+        }
+
+        self.continuation = nil
+        lock.unlock()
+        continuation.resume(with: result)
+    }
+}
+
 
 #if DEBUG
 private extension WorkoutDataRepositoryImpl {

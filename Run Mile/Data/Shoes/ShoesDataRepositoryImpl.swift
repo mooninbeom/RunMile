@@ -88,29 +88,35 @@ actor ShoesDataRepositoryImpl: ShoesDataRepository {
                 }
 
                 let existingWorkouts = (entity.workouts as? Set<CDWorkoutDTO>) ?? []
-                var workoutMap = Dictionary<UUID, CDWorkoutDTO>(
-                    uniqueKeysWithValues: existingWorkouts.compactMap { entity in
-                        guard let id = entity.id else { return nil }
-                        return (id, entity) // Key: UUID, Value: Entity
-                    }
-                )
+                var workoutMap: [UUID: CDWorkoutDTO] = [:]
 
-                for workoutModel in shoes.workouts {
+                for workoutEntity in existingWorkouts {
+                    guard let id = workoutEntity.id else {
+                        context.delete(workoutEntity)
+                        continue
+                    }
+
+                    if workoutMap[id] == nil {
+                        workoutMap[id] = workoutEntity
+                    } else {
+                        context.delete(workoutEntity)
+                    }
+                }
+
+                var updatedWorkoutIDs: Set<UUID> = []
+                for workoutModel in shoes.workouts where !updatedWorkoutIDs.contains(workoutModel.id) {
+                    updatedWorkoutIDs.insert(workoutModel.id)
                     let workoutEntity: CDWorkoutDTO
 
                     if let existing = workoutMap[workoutModel.id] {
-                        // A. 이미 존재하면 -> 가져오고, Map에서 제거 (처리됨 표시)
                         workoutEntity = existing
                         workoutMap.removeValue(forKey: workoutModel.id)
                     } else {
-                        // B. 없으면 -> 새로 생성 및 부모 연결
                         workoutEntity = CDWorkoutDTO(context: context)
                         workoutEntity.id = workoutModel.id
-                        // 관계 연결 (중요)
                         workoutEntity.shoes = entity
                     }
 
-                    // 속성 업데이트 (공통)
                     workoutEntity.distance = workoutModel.distance
                     workoutEntity.date = workoutModel.date
                 }

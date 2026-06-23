@@ -210,9 +210,19 @@ extension AddShoesViewModel {
     
     @MainActor
     public func saveButtonTapped() {
+        guard let image else {
+            NavigationCoordinator.shared.push(.init(
+                title: "신발 사진을 추가해주세요.",
+                message: nil,
+                firstButton: .cancel(title: "확인", action: {}),
+                secondButton: nil
+            ))
+            return
+        }
+
         let shoes = Shoes(
             id: .init(),
-            image: self.image!,
+            image: image,
             shoesName: self.effectiveShoesName,
             nickname: self.usage, // Usage maps to nickname
             goalMileage: Double(self.goalMileage) ?? 0.0,

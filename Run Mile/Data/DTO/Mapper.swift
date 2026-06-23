@@ -16,11 +16,17 @@ enum DTOMapper {
         
         for shoe in dto {
             var workouts = [Workout]()
+            var workoutIDs: Set<UUID> = []
             
             for workout in shoe.workoutDTOArray {
                 guard let workoutID = workout.id else {
                     continue
                 }
+
+                guard !workoutIDs.contains(workoutID) else {
+                    continue
+                }
+                workoutIDs.insert(workoutID)
                 
                 // HealthKit에서 삭제된 운동은 CoreData 연결 정보만 남을 수 있으므로 신발 로딩을 막지 않고 제외합니다.
                 guard let workoutObject = try await healthStore.fetchSingleWorkoutData(id: workoutID) else {
@@ -52,11 +58,17 @@ enum DTOMapper {
     
     public static func CDWorkoutDTOtoEntities(_ dto: [CDWorkoutDTO]) async throws -> [Workout] {
         var resultArray: [Workout] = []
+        var workoutIDs: Set<UUID> = []
         
         for workout in dto {
             guard let workoutId = workout.id else {
                 continue
             }
+
+            guard !workoutIDs.contains(workoutId) else {
+                continue
+            }
+            workoutIDs.insert(workoutId)
             
             if let fetchedResult = try await healthStore.fetchSingleWorkoutData(id: workoutId) {
                 resultArray.append(.init(
