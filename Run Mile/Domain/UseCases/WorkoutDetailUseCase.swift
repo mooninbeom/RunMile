@@ -25,11 +25,12 @@ protocol WorkoutDetailUseCase: Sendable {
 final class DefaultWorkoutDetailUseCase: WorkoutDetailUseCase {
     func fetchWorkoutDetailData(workout: Workout, samplingCount: Int) async throws -> WorkoutDetailData {
         var result = try await workoutRepository.fetchSingleWorkoutData(workout: workout.workout)
+        let rawRunningPace = result.runningPace
         
         if samplingCount == 0 {
             result.routeSegments = self.buildRouteSegments(
                 locations: result.routes,
-                runningPace: result.runningPace,
+                runningPace: rawRunningPace,
                 workoutStartDate: workout.workout.startDate
             )
             return result
@@ -43,7 +44,7 @@ final class DefaultWorkoutDetailUseCase: WorkoutDetailUseCase {
         result.verticalOscillation = self.downsampling(samples: result.verticalOscillation, targetCount: samplingCount)
         result.routeSegments = self.buildRouteSegments(
             locations: result.routes,
-            runningPace: result.runningPace,
+            runningPace: rawRunningPace,
             workoutStartDate: workout.workout.startDate
         )
         
@@ -98,7 +99,7 @@ final class DefaultWorkoutDetailUseCase: WorkoutDetailUseCase {
     ) -> [WorkoutRouteSegment] {
         let cleanedLocations = cleanRouteLocations(locations)
         let smoothedLocations = smoothLocations(cleanedLocations)
-        let simplifiedLocations = simplifyLocations(smoothedLocations, tolerance: 7, maxPointCount: 700)
+        let simplifiedLocations = simplifyLocations(smoothedLocations, tolerance: 7, maxPointCount: 1_200)
         let validPacePoints = runningPace.compactMap { point -> (seconds: Int, speed: Double)? in
             guard let value = point.value,
                   value.isFinite,
@@ -108,6 +109,7 @@ final class DefaultWorkoutDetailUseCase: WorkoutDetailUseCase {
             
             return (seconds: point.seconds, speed: value)
         }
+            .sorted { $0.seconds < $1.seconds }
         
         guard simplifiedLocations.count >= 2,
               !validPacePoints.isEmpty else {
@@ -134,13 +136,16 @@ final class DefaultWorkoutDetailUseCase: WorkoutDetailUseCase {
             return []
         }
         
-        let correctionRange = routePaceCorrectionRange(speeds: segmentCandidates.map(\.2))
-        let correctedSpeeds = segmentCandidates.map { _, _, speed in
+        let smoothedSpeeds = smoothRouteSpeeds(segmentCandidates.map { $0.2 }, radius: 2)
+        let correctionRange = routePaceCorrectionRange(speeds: smoothedSpeeds)
+        let correctedSpeeds = smoothedSpeeds.map { speed in
             correctedRouteSpeed(speed, correctionRange: correctionRange)
         }
         let speedRange = routeSpeedRange(speeds: correctedSpeeds)
         
-        return segmentCandidates.map { start, end, speed in
+        return zip(segmentCandidates, smoothedSpeeds).map { candidate, speed in
+            let start = candidate.0
+            let end = candidate.1
             let correctedSpeed = correctedRouteSpeed(speed, correctionRange: correctionRange)
             
             return WorkoutRouteSegment(
@@ -234,7 +239,7 @@ private extension DefaultWorkoutDetailUseCase {
             return simplifiedLocations
         }
         
-        let strideSize = max(1, simplifiedLocations.count / maxPointCount)
+        let strideSize = max(1, Int(ceil(Double(simplifiedLocations.count) / Double(maxPointCount))))
         var result = simplifiedLocations.enumerated().compactMap { index, location in
             index % strideSize == 0 ? location : nil
         }
@@ -353,11 +358,55 @@ private extension DefaultWorkoutDetailUseCase {
     func correctedRouteSpeed(_ speed: Double, correctionRange: (lowerBound: Double, upperBound: Double)) -> Double {
         min(max(speed, correctionRange.lowerBound), correctionRange.upperBound)
     }
-    
+
+    /// 인접 구간 속도를 함께 평균내어 GPS/샘플 튐이 지도 색상을 과하게 흔들지 않도록 보정합니다.
+    func smoothRouteSpeeds(_ speeds: [Double], radius: Int) -> [Double] {
+        guard speeds.count > 2,
+              radius > 0 else {
+            return speeds
+        }
+
+        return speeds.indices.map { index in
+            let lowerBound = max(speeds.startIndex, index - radius)
+            let upperBound = min(speeds.index(before: speeds.endIndex), index + radius)
+            let values = speeds[lowerBound...upperBound]
+
+            return values.reduce(0, +) / Double(values.count)
+        }
+    }
+
     func closestPaceSpeed(in pacePoints: [(seconds: Int, speed: Double)], at seconds: Int) -> Double? {
-        pacePoints.min {
-            abs($0.seconds - seconds) < abs($1.seconds - seconds)
-        }?.speed
+        guard !pacePoints.isEmpty else {
+            return nil
+        }
+
+        var lowerBound = pacePoints.startIndex
+        var upperBound = pacePoints.endIndex
+
+        while lowerBound < upperBound {
+            let middleIndex = lowerBound + ((upperBound - lowerBound) / 2)
+
+            if pacePoints[middleIndex].seconds < seconds {
+                lowerBound = middleIndex + 1
+            } else {
+                upperBound = middleIndex
+            }
+        }
+
+        if lowerBound == pacePoints.startIndex {
+            return pacePoints[lowerBound].speed
+        }
+
+        if lowerBound == pacePoints.endIndex {
+            return pacePoints[pacePoints.index(before: pacePoints.endIndex)].speed
+        }
+
+        let previousPoint = pacePoints[pacePoints.index(before: lowerBound)]
+        let nextPoint = pacePoints[lowerBound]
+
+        return abs(previousPoint.seconds - seconds) <= abs(nextPoint.seconds - seconds)
+            ? previousPoint.speed
+            : nextPoint.speed
     }
     
     func percentile(sortedValues: [Double], percentile: Double) -> Double {

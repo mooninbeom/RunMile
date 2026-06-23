@@ -35,10 +35,15 @@ protocol HealthBackgroundSyncService {
 final class DefaultHealthBackgroundSyncService: HealthBackgroundSyncService {
     private let healthStore = HKHealthStore()
     private let shoesRepository: ShoesDataRepository
+    private let mileageGoalNotificationService: MileageGoalNotificationService
     private var workoutObserverQuery: HKObserverQuery?
 
-    init(shoesRepository: ShoesDataRepository) {
+    init(
+        shoesRepository: ShoesDataRepository,
+        mileageGoalNotificationService: MileageGoalNotificationService
+    ) {
         self.shoesRepository = shoesRepository
+        self.mileageGoalNotificationService = mileageGoalNotificationService
     }
 
     /// 백그라운드에서 HealthKit workout 변경을 받을 수 있도록 등록합니다.
@@ -260,6 +265,7 @@ private extension DefaultHealthBackgroundSyncService {
             }
 
             let shoes = try await shoesRepository.fetchSingleShoes(id: shoesID)
+            let previousMileage = shoes.totalMileage
 
             guard !shoes.workouts.contains(where: { $0.id == newWorkout.id }) else {
                 return
@@ -276,6 +282,10 @@ private extension DefaultHealthBackgroundSyncService {
             )
 
             try await shoesRepository.updateShoes(shoes: newShoes)
+            let updatedShoes = try await shoesRepository.fetchSingleShoes(id: shoes.id)
+            if updatedShoes.didReachGoal(from: previousMileage) {
+                await mileageGoalNotificationService.requestGoalReachedNotification(shoes: updatedShoes)
+            }
             requestAutoRegisterNotification(workout: workout, shoesName: shoesNotificationName(for: shoes))
         } catch {
             UserNotificationsManager.requestNotification(

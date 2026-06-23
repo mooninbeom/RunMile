@@ -122,20 +122,21 @@ private struct ChooseShoesCell: View {
                 .fill(RunMileColor.muted)
                 .frame(width: 60, height: 60)
                 .overlay {
-                    RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
-                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
-                }
-                .overlay {
                     if let uiImage = UIImage(data: shoe.image) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFit()
-                            .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                            .padding(4)
+                            .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.small, style: .continuous))
                     } else {
                         Image(systemName: "shoe.fill")
                             .font(.title2)
                             .foregroundStyle(RunMileColor.mutedForeground)
                     }
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
                 }
             
             // Text Info

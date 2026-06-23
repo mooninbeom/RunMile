@@ -163,7 +163,9 @@ struct HOFShoesCard: View {
                 Text(card.nickname)
                     .font(.headline)
                     .foregroundStyle(RunMileColor.foreground)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .layoutPriority(1)
 
                 Text(card.shoesName)
                     .font(.caption)
@@ -192,6 +194,7 @@ struct HOFShoesCard: View {
                 }
             }
             .padding(.vertical, 8)
+            .layoutPriority(1)
 
             Spacer()
 
@@ -200,6 +203,7 @@ struct HOFShoesCard: View {
                 .foregroundStyle(RunMileColor.mutedForeground)
         }
         .padding(12)
+        .frame(minHeight: 124)
         .runMileBrutalCard()
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous)

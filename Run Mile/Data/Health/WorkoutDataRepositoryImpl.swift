@@ -195,14 +195,6 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
     }
     
     public func fetchUnsavedWorkoutData() async throws -> [Workout] {
-        #if targetEnvironment(simulator) && DEBUG
-        let isWorkoutSaved = UserDefaults.standard.bool(forKey: "TestSample")
-        if !isWorkoutSaved {
-            let _ = try await HealthKitSampleMethod.createDetailedRunningWorkout()
-            UserDefaults.standard.set(true, forKey: "TestSample")
-        }
-        #endif
-        
         let savedWorkouts = try await fetchSavedWorkoutData()
         let entireWorkouts = try await fetchAllWorkoutData()
         

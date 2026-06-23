@@ -18,9 +18,14 @@ protocol ChooseShoesUseCase: Sendable {
 
 final class DefaultChooseShoesUseCase: ChooseShoesUseCase {
     private let repository: ShoesDataRepository
+    private let mileageGoalNotificationService: MileageGoalNotificationService
 
-    init(repository: ShoesDataRepository) {
+    init(
+        repository: ShoesDataRepository,
+        mileageGoalNotificationService: MileageGoalNotificationService
+    ) {
         self.repository = repository
+        self.mileageGoalNotificationService = mileageGoalNotificationService
     }
 
     public func fetchShoesList() async throws -> [Shoes] {
@@ -61,11 +66,18 @@ final class DefaultChooseShoesUseCase: ChooseShoesUseCase {
             return
         }
 
+        let previousMileage = targetShoes.totalMileage
+
         try await repository.registerWorkouts(
             shoes: targetShoes,
             workouts: registerableWorkouts,
             shouldMoveRegisteredWorkouts: shouldMoveRegisteredWorkouts
         )
+
+        let updatedShoes = try await repository.fetchSingleShoes(id: targetShoes.id)
+        if updatedShoes.didReachGoal(from: previousMileage) {
+            await mileageGoalNotificationService.requestGoalReachedNotification(shoes: updatedShoes)
+        }
     }
 
     private static func registeredWorkoutConflictIDs(

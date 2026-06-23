@@ -11,10 +11,16 @@ import HealthKit
 struct WorkoutHistoryCell: View {
     let workout: Workout
     let registeredShoeName: String?
+    let isHOFRestricted: Bool
 
-    init(workout: Workout, registeredShoeName: String? = nil) {
+    init(
+        workout: Workout,
+        registeredShoeName: String? = nil,
+        isHOFRestricted: Bool = false
+    ) {
         self.workout = workout
         self.registeredShoeName = registeredShoeName
+        self.isHOFRestricted = isHOFRestricted
     }
     
     var body: some View {
@@ -48,6 +54,12 @@ struct WorkoutHistoryCell: View {
         }
         .padding(16)
         .runMileBrutalCard()
+        .overlay {
+            if isHOFRestricted {
+                HOFRestrictedSideRailOverlay()
+                    .allowsHitTesting(false)
+            }
+        }
     }
 
     private var metricLine: some View {
@@ -78,5 +90,33 @@ struct WorkoutHistoryCell: View {
             RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                 .stroke(registeredShoeName == nil ? RunMileColor.primary : RunMileColor.border, lineWidth: RunMileStroke.border)
         }
+    }
+}
+
+
+private struct HOFRestrictedSideRailOverlay: View {
+    var body: some View {
+        HStack(spacing: 0) {
+            VStack(spacing: 5) {
+                Image(systemName: "lock.fill")
+                    .font(.caption2.weight(.black))
+
+                Text("HOF")
+                    .font(.caption2.weight(.black))
+                    .tracking(1)
+            }
+            .foregroundStyle(RunMileColor.secondaryForeground)
+            .frame(width: 42)
+            .frame(maxHeight: .infinity)
+            .background(RunMileColor.secondary.opacity(0.98))
+            .overlay(alignment: .trailing) {
+                Rectangle()
+                    .fill(RunMileColor.border)
+                    .frame(width: RunMileStroke.border)
+            }
+
+            Spacer()
+        }
+        .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous))
     }
 }

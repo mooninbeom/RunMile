@@ -16,20 +16,29 @@ final class AppDIContainer: ScreenDependencyProviding {
     private let distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository
     private let healthBackgroundSyncService: HealthBackgroundSyncService
     private let notificationPermissionService: NotificationPermissionService
+    private let healthKitSampleSeeder: HealthKitSampleSeeding
+    private let mileageGoalNotificationService: MileageGoalNotificationService
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
         shoesRepository: ShoesDataRepository = ShoesDataRepositoryImpl(),
         distanceRecordCacheRepository: WorkoutDistanceRecordCacheRepository = WorkoutDistanceRecordCacheRepositoryImpl(),
         healthBackgroundSyncService: HealthBackgroundSyncService? = nil,
-        notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService()
+        notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService(),
+        healthKitSampleSeeder: HealthKitSampleSeeding = HealthKitSampleSeeder(),
+        mileageGoalNotificationService: MileageGoalNotificationService = UserMileageGoalNotificationService()
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
         self.distanceRecordCacheRepository = distanceRecordCacheRepository
         self.notificationPermissionService = notificationPermissionService
+        self.healthKitSampleSeeder = healthKitSampleSeeder
+        self.mileageGoalNotificationService = mileageGoalNotificationService
         self.healthBackgroundSyncService = healthBackgroundSyncService
-        ?? DefaultHealthBackgroundSyncService(shoesRepository: shoesRepository)
+        ?? DefaultHealthBackgroundSyncService(
+            shoesRepository: shoesRepository,
+            mileageGoalNotificationService: mileageGoalNotificationService
+        )
     }
     
     /// HealthKit 백그라운드 운동 감지와 신발 자동 등록을 담당하는 서비스를 제공합니다.
@@ -43,7 +52,8 @@ final class AppDIContainer: ScreenDependencyProviding {
             useCase: DefaultHealthDataUseCase(
                 workoutDataRepository: workoutRepository,
                 shoesDataRepository: shoesRepository
-            )
+            ),
+            healthKitSampleSeeder: healthKitSampleSeeder
         )
     }
     
@@ -61,7 +71,8 @@ final class AppDIContainer: ScreenDependencyProviding {
     func makeShoesDetailViewModel(shoes: Shoes) -> ShoesDetailViewModel {
         ShoesDetailViewModel(
             useCase: DefaultShoesDetailUseCase(
-                repository: shoesRepository
+                repository: shoesRepository,
+                mileageGoalNotificationService: mileageGoalNotificationService
             ),
             shoes: shoes
         )
@@ -114,7 +125,8 @@ final class AppDIContainer: ScreenDependencyProviding {
     ) -> ChooseShoesViewModel {
         ChooseShoesViewModel(
             useCase: DefaultChooseShoesUseCase(
-                repository: shoesRepository
+                repository: shoesRepository,
+                mileageGoalNotificationService: mileageGoalNotificationService
             ),
             workouts: workouts,
             dismissAction: dismissAction

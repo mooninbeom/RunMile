@@ -10,6 +10,12 @@ import CoreLocation
 import Foundation
 
 
+struct PreviewHealthKitSampleSeeder: HealthKitSampleSeeding {
+    /// Preview에서는 HealthKit 샘플 데이터를 생성하지 않습니다.
+    func seedSampleIfNeeded() async {}
+}
+
+
 struct PreviewHealthDataUseCase: HealthDataUseCase {
     /// Preview에서는 HealthKit 권한 요청 없이 바로 데이터를 표시합니다.
     func checkHealthAuthorization() async throws -> Bool {
@@ -21,9 +27,9 @@ struct PreviewHealthDataUseCase: HealthDataUseCase {
         PreviewShoesMockData.workouts
     }
 
-    /// 운동 목록 Preview에 사용할 운동-신발 등록 정보를 반환합니다.
-    func fetchWorkoutShoeNames() async throws -> [UUID: String] {
-        PreviewWorkoutMockData.workoutShoeNames
+    /// 운동 목록 Preview에 사용할 운동-신발 등록 상태를 반환합니다.
+    func fetchWorkoutShoeRegistrationInfo() async throws -> [UUID: WorkoutShoeRegistrationInfo] {
+        PreviewWorkoutMockData.workoutShoeRegistrationInfo
     }
 }
 

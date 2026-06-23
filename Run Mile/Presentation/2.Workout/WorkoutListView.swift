@@ -132,14 +132,15 @@ struct WorkoutListView: View {
                                 } label: {
                                     HStack(spacing: 12) {
                                         if viewModel.viewStatus == .selection {
-                                            Image(systemName: viewModel.isSelectedWorkout(workout) ? "checkmark.circle.fill" : "circle")
+                                            Image(systemName: selectionIconName(for: workout))
                                                 .font(.title2)
-                                                .foregroundStyle(viewModel.isSelectedWorkout(workout) ? RunMileColor.accent : RunMileColor.mutedForeground)
+                                                .foregroundStyle(selectionIconColor(for: workout))
                                         }
                                         
                                         WorkoutHistoryCell(
                                             workout: workout,
-                                            registeredShoeName: viewModel.registeredShoeName(for: workout)
+                                            registeredShoeName: viewModel.registeredShoeName(for: workout),
+                                            isHOFRestricted: viewModel.viewStatus == .selection && viewModel.isHOFRestrictedWorkout(workout)
                                         )
                                     }
                                 }
@@ -198,7 +199,23 @@ struct WorkoutListView: View {
         .padding(.bottom, 20)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
-    
+
+    private func selectionIconName(for workout: Workout) -> String {
+        if viewModel.isHOFRestrictedWorkout(workout) {
+            return "lock.circle.fill"
+        }
+
+        return viewModel.isSelectedWorkout(workout) ? "checkmark.circle.fill" : "circle"
+    }
+
+    private func selectionIconColor(for workout: Workout) -> Color {
+        if viewModel.isHOFRestrictedWorkout(workout) {
+            return RunMileColor.mutedForeground
+        }
+
+        return viewModel.isSelectedWorkout(workout) ? RunMileColor.accent : RunMileColor.mutedForeground
+    }
+
     private var workoutEmptyView: some View {
         VStack(spacing: 16) {
             Image(systemName: "figure.run.square.stack")
