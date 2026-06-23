@@ -15,43 +15,41 @@ struct ShoesListView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                LazyVStack(spacing: 20) {
-                    monthlySummaryView
-                    
-                    HStack {
-                        Text("내 신발장")
+        ScrollView {
+            LazyVStack(spacing: 20) {
+                monthlySummaryView
+
+                HStack {
+                    Text("내 신발장")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                    Spacer()
+                    Button(action: {
+                        viewModel.addShoesButtonTapped()
+                    }) {
+                        Image(systemName: "plus.circle.fill")
                             .font(.title2)
-                            .fontWeight(.bold)
-                        Spacer()
-                        Button(action: {
-                            viewModel.addShoesButtonTapped()
-                        }) {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title2)
-                                .foregroundStyle(RunMileColor.primary)
-                        }
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 10)
-                    
-                    ForEach(viewModel.shoeCardItems) { item in
-                        ShoeCardView(item: item)
-                            .padding(.horizontal)
-                            .onTapGesture {
-                                viewModel.shoesCellTapped(item.shoe)
-                            }
-                    }
-                    
-                    if viewModel.shoes.isEmpty {
-                        emptyStateView
+                            .foregroundStyle(RunMileColor.primary)
                     }
                 }
-                .padding(.bottom, 20)
+                .padding(.horizontal)
+                .padding(.top, 10)
+
+                ForEach(viewModel.shoeCardItems) { item in
+                    ShoeCardView(item: item)
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            viewModel.shoesCellTapped(item.shoe)
+                        }
+                }
+
+                if viewModel.shoes.isEmpty {
+                    emptyStateView
+                }
             }
-            .background(RunMileColor.background)
+            .padding(.bottom, 20)
         }
+        .background(RunMileColor.background)
         .onAppear {
             viewModel.onAppear()
         }
@@ -102,6 +100,8 @@ struct ShoesListView: View {
 
 #if DEBUG
 #Preview {
-    ShoesListView(viewModel: PreviewDIContainer().makeShoesListViewModel())
+    NavigationStack {
+        ShoesListView(viewModel: PreviewDIContainer().makeShoesListViewModel())
+    }
 }
 #endif
