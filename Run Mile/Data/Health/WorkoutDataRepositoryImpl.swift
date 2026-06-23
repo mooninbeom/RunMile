@@ -53,7 +53,7 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         let unifiedVerticalOscillation = DTOMapper.normalizeData(workout: workout, data: verticalOscillation)
         let unifiedGroundContactTime = DTOMapper.normalizeData(workout: workout, data: groundContactTime)
         let unifiedStrideLength = DTOMapper.normalizeData(workout: workout, data: strideLength)
-        let avgCadence = cadence.reduce(0.0, { $0 + $1.value }) / (workout.duration / 60)
+        let avgCadence = makeAverageCadence(points: cadence, duration: workout.duration)
         
         result.heartRate = unifiedHeartRate
         result.runningPace = unifiedPace
@@ -66,6 +66,27 @@ actor WorkoutDataRepositoryImpl: WorkoutDataRepository {
         result.routes = route
         
         return result
+    }
+
+    /// 케이던스 샘플이 실제로 존재할 때만 분당 보폭 수를 계산합니다.
+    private func makeAverageCadence(points: [RunningMetricPoint], duration: TimeInterval) -> Double? {
+        guard !points.isEmpty,
+              duration > 0 else {
+            return nil
+        }
+
+        let totalStepCount = points
+            .map(\.value)
+            .filter { $0.isFinite && $0 > 0 }
+            .reduce(0.0, +)
+        let durationMinutes = duration / 60
+
+        guard totalStepCount > 0,
+              durationMinutes > 0 else {
+            return nil
+        }
+
+        return totalStepCount / durationMinutes
     }
     
     
