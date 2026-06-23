@@ -1,70 +1,54 @@
 **Privacy Policy**
 
-This privacy policy applies to the Run Mile app (hereby referred to as "Application") for mobile devices that was created by mooninbeom (hereby referred to as "Service Provider") as a Free service. This service is intended for use "AS IS".
+Run Mile is an app that helps users manage running shoe mileage and review workout analysis based on running workout records stored in Apple Health. This Privacy Policy explains what data Run Mile uses and for what purposes.
 
-**Information Collection and Use**
+**Data Used by Run Mile**
 
-The Application collects information when you download and use it. This information may include information such as
+With the user's permission, Run Mile reads the following data from Apple HealthKit:
 
-*   Your device's Internet Protocol address (e.g. IP address)
-*   The pages of the Application that you visit, the time and date of your visit, the time spent on those pages
-*   The time spent on the Application
-*   The operating system you use on your mobile device
+* Running workout records
+* Workout distance, duration, and pace
+* Workout routes
+* Heart rate, running power, stride length, vertical oscillation, ground contact time, and other running analysis metrics
 
-The Application does not gather precise information about the location of your mobile device.
+This data is used to calculate shoe mileage, display workout history, show workout detail charts, display workout routes on maps, and provide pace and elevation analysis.
 
-The Application collects your device's location, which helps the Service Provider determine your approximate geographical location and make use of in below ways:
+**Health Data and Workout Routes**
 
-*   Geolocation Services: The Service Provider utilizes location data to provide features such as personalized content, relevant recommendations, and location-based services.
-*   Analytics and Improvements: Aggregated and anonymized location data helps the Service Provider to analyze user behavior, identify trends, and improve the overall performance and functionality of the Application.
-*   Third-Party Services: Periodically, the Service Provider may transmit anonymized location data to external services. These services assist them in enhancing the Application and optimizing their offerings.
+Run Mile processes HealthKit running workout records, health data, and workout routes on the user's device. This data is not transmitted to Run Mile's own server and is not used for advertising tracking or third-party marketing purposes.
 
-The Service Provider may use the information you provided to contact you from time to time to provide you with important information, required notices and marketing promotions.
+Users can change or revoke Run Mile's HealthKit access at any time in the iOS Settings app or Apple Health app.
 
-For a better experience, while using the Application, the Service Provider may require you to provide us with certain personally identifiable information. The information that the Service Provider request will be retained by them and used as described in this privacy policy.
+**Diagnostic Data**
 
-**Third Party Access**
+Run Mile uses Firebase Crashlytics to improve app stability. If the app crashes or encounters an error, diagnostic information such as crash logs, stack traces, device model, OS version, and app version may be sent to Google Firebase.
 
-Only aggregated, anonymized data is periodically transmitted to external services to aid the Service Provider in improving the Application and their service. The Service Provider may share your information with third parties in the ways that are described in this privacy statement.
+Diagnostic data collected through Crashlytics is used only to analyze app errors and improve stability. It is not used for advertising tracking.
 
-The Service Provider may disclose User Provided and Automatically Collected Information:
+**Notifications**
 
-*   as required by law, such as to comply with a subpoena, or similar legal process;
-*   when they believe in good faith that disclosure is necessary to protect their rights, protect your safety or the safety of others, investigate fraud, or respond to a government request;
-*   with their trusted services providers who work on their behalf, do not have an independent use of the information we disclose to them, and have agreed to adhere to the rules set forth in this privacy statement.
+If the user allows notifications, Run Mile may use local notifications to remind the user to record shoe mileage after a workout, notify the user when automatic mileage registration is complete, or notify the user when a shoe reaches its target mileage. Notification permissions can be changed at any time in the iOS Settings app.
 
-**Opt-Out Rights**
+**Data Retention**
 
-You can stop all collection of information by the Application easily by uninstalling it. You may use the standard uninstall processes as may be available as part of your mobile device or via the mobile application marketplace or network.
+Shoe information, workout-to-shoe registration data, and automatic registration settings are stored on the user's device. If the user deletes the app, the app data stored on the device is also deleted. Original HealthKit workout records are managed by Apple Health and are not deleted when Run Mile is deleted.
 
-**Data Retention Policy**
+**Third-Party Services**
 
-The Service Provider will retain User Provided data for as long as you use the Application and for a reasonable time thereafter. If you'd like them to delete User Provided Data that you have provided via the Application, please contact them at dlsqja567@naver.com and they will respond in a reasonable time.
+Run Mile uses Firebase Crashlytics to improve app stability. Firebase's data handling is governed by Google's Firebase policies.
 
-**Children**
+**Children's Privacy**
 
-The Service Provider does not use the Application to knowingly solicit data from or market to children under the age of 13.
+Run Mile does not knowingly collect personal information from children under the age of 13. If you have any related concerns, please contact us using the email address below.
 
-The Service Provider does not knowingly collect personally identifiable information from children. The Service Provider encourages all children to never submit any personally identifiable information through the Application and/or Services. The Service Provider encourage parents and legal guardians to monitor their children's Internet usage and to help enforce this Policy by instructing their children never to provide personally identifiable information through the Application and/or Services without their permission. If you have reason to believe that a child has provided personally identifiable information to the Service Provider through the Application and/or Services, please contact the Service Provider (dlsqja567@naver.com) so that they will be able to take the necessary actions. You must also be at least 16 years of age to consent to the processing of your personally identifiable information in your country (in some countries we may allow your parent or guardian to do so on your behalf).
+**Changes to This Privacy Policy**
 
-**Security**
-
-The Service Provider is concerned about safeguarding the confidentiality of your information. The Service Provider provides physical, electronic, and procedural safeguards to protect information the Service Provider processes and maintains.
-
-**Changes**
-
-This Privacy Policy may be updated from time to time for any reason. The Service Provider will notify you of any changes to the Privacy Policy by updating this page with the new Privacy Policy. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
-
-This privacy policy is effective as of 2025-06-11
-
-**Your Consent**
-
-By using the Application, you are consenting to the processing of your information as set forth in this Privacy Policy now and as amended by us.
+This Privacy Policy may be updated from time to time due to changes in app functionality or legal requirements. Any changes will be posted in this document.
 
 **Contact Us**
 
-If you have any questions regarding privacy while using the Application, or have questions about the practices, please contact the Service Provider via email at dlsqja567@naver.com.
+If you have any questions about this Privacy Policy or Run Mile's data practices, please contact us at:
 
-* * *
+dlsqja567@naver.com
 
-This privacy policy page was generated by [App Privacy Policy Generator](https://app-privacy-policy-generator.nisrulz.com/)
+Effective date: June 23, 2026
