@@ -96,19 +96,22 @@ struct MainTabView: View {
 
     @ViewBuilder
     private var customSheetOverlay: some View {
-        if let customSheet = navigationCoordinator.customSheet {
-            ZStack(alignment: .bottom) {
+        ZStack(alignment: .bottom) {
+            if navigationCoordinator.customSheet != nil {
                 Color.black.opacity(0.24)
                     .ignoresSafeArea()
-
-                screenFactory.makeCustomSheet(for: customSheet)
+                    .transition(.opacity)
             }
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-            .ignoresSafeArea(edges: .bottom)
-            .animation(
-                .spring(response: 0.28, dampingFraction: 0.86),
-                value: navigationCoordinator.customSheet != nil
-            )
+
+            if let customSheet = navigationCoordinator.customSheet {
+                screenFactory.makeCustomSheet(for: customSheet)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
         }
+        .ignoresSafeArea(edges: .bottom)
+        .animation(
+            .spring(response: 0.34, dampingFraction: 0.88),
+            value: navigationCoordinator.customSheet != nil
+        )
     }
 }

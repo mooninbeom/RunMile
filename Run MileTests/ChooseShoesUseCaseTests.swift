@@ -17,7 +17,7 @@ struct ChooseShoesUseCaseTests {
         let firstShoes = makeShoes(nickname: "이전 신발", workouts: [workout])
         let targetShoes = makeShoes(nickname: "새 신발")
         let repository = FakeChooseShoesRepository(shoes: [firstShoes, targetShoes])
-        let useCase = DefaultChooseShoesUseCase(repository: repository)
+        let useCase = makeUseCase(repository: repository)
 
         let conflictCount = try await useCase.registeredWorkoutConflictCount(
             targetShoes: targetShoes,
@@ -32,7 +32,7 @@ struct ChooseShoesUseCaseTests {
         let firstShoes = makeShoes(nickname: "이전 신발", workouts: [workout])
         let targetShoes = makeShoes(nickname: "새 신발")
         let repository = FakeChooseShoesRepository(shoes: [firstShoes, targetShoes])
-        let useCase = DefaultChooseShoesUseCase(repository: repository)
+        let useCase = makeUseCase(repository: repository)
 
         try await useCase.registerWorkouts(
             shoes: targetShoes,
@@ -52,7 +52,7 @@ struct ChooseShoesUseCaseTests {
         let workout = makeWorkout()
         let targetShoes = makeShoes(nickname: "현재 신발", workouts: [workout])
         let repository = FakeChooseShoesRepository(shoes: [targetShoes])
-        let useCase = DefaultChooseShoesUseCase(repository: repository)
+        let useCase = makeUseCase(repository: repository)
 
         try await useCase.registerWorkouts(
             shoes: targetShoes,
@@ -71,7 +71,7 @@ struct ChooseShoesUseCaseTests {
         let firstShoes = makeShoes(nickname: "이전 신발", workouts: [workout])
         let targetShoes = makeShoes(nickname: "새 신발")
         let repository = FakeChooseShoesRepository(shoes: [firstShoes, targetShoes])
-        let useCase = DefaultChooseShoesUseCase(repository: repository)
+        let useCase = makeUseCase(repository: repository)
 
         try await useCase.registerWorkouts(
             shoes: targetShoes,
@@ -86,6 +86,14 @@ struct ChooseShoesUseCaseTests {
         #expect(updatedFirstShoes.workouts.map(\.id) == [workout.id])
         #expect(updatedTargetShoes.workouts.isEmpty)
     }
+}
+
+
+private func makeUseCase(repository: ShoesDataRepository) -> DefaultChooseShoesUseCase {
+    DefaultChooseShoesUseCase(
+        repository: repository,
+        mileageGoalNotificationService: FakeMileageGoalNotificationService()
+    )
 }
 
 
@@ -156,6 +164,15 @@ private actor FakeChooseShoesRepository: ShoesDataRepository {
     }
 
     func updateSelectedShoes(shoes: Shoes) async {}
+}
+
+
+private actor FakeMileageGoalNotificationService: MileageGoalNotificationService {
+    private(set) var requestedShoes: [Shoes] = []
+
+    func requestGoalReachedNotification(shoes: Shoes) async {
+        requestedShoes.append(shoes)
+    }
 }
 
 

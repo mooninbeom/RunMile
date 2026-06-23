@@ -630,16 +630,7 @@ extension WorkoutDetailViewModel {
 extension WorkoutDetailViewModel {
     public var avgHeartRate: String? {
         guard let workoutDetail = workoutDetail else { return nil }
-
-        var count = 0
-        let results = workoutDetail.heartRate
-            .compactMap { $0.value }
-            .reduce(0) {
-                count += 1
-                return $0 + $1
-            }
-
-        return String(format: "%.0f", results / Double(count))
+        return formattedAverageMetricValue(from: workoutDetail.heartRate, format: "%.0f")
     }
 
     public var avgPace: String {
@@ -647,74 +638,53 @@ extension WorkoutDetailViewModel {
     }
 
     public var avgPower: String? {
-        guard let workoutDetail = workoutDetail,
-              !workoutDetail.power.isEmpty else { return nil }
-
-        var count = 0
-        let results = workoutDetail.power
-            .compactMap { $0.value }
-            .reduce(0) {
-                count += 1
-                return $0 + $1
-            }
-
-        return String(format: "%.0f", results / Double(count))
+        guard let workoutDetail = workoutDetail else { return nil }
+        return formattedAverageMetricValue(from: workoutDetail.power, format: "%.0f")
     }
 
     public var avgCadence: String? {
-        guard let cadence = workoutDetail?.cadence else { return nil }
+        guard let cadence = workoutDetail?.cadence,
+              cadence.isFinite,
+              cadence > 0 else { return nil }
 
         return String(format: "%.0f", cadence)
     }
 
     public var avgVerticalOscillation: String? {
-        guard let workoutDetail = workoutDetail,
-              !workoutDetail.verticalOscillation.isEmpty else { return nil }
-
-        var count = 0
-        let results = workoutDetail.verticalOscillation
-            .compactMap { $0.value }
-            .reduce(0) {
-                count += 1
-                return $0 + $1
-            }
-
-        return String(format: "%.1f", results / Double(count))
+        guard let workoutDetail = workoutDetail else { return nil }
+        return formattedAverageMetricValue(from: workoutDetail.verticalOscillation, format: "%.1f")
     }
 
     public var avgGroundContactTime: String? {
-        guard let workoutDetail = workoutDetail,
-              !workoutDetail.groundContactTime.isEmpty else { return nil }
-
-        var count = 0
-        let results = workoutDetail.groundContactTime
-            .compactMap { $0.value }
-            .reduce(0) {
-                count += 1
-                return $0 + $1
-            }
-
-        return String(format: "%.0f", results / Double(count))
+        guard let workoutDetail = workoutDetail else { return nil }
+        return formattedAverageMetricValue(from: workoutDetail.groundContactTime, format: "%.0f")
     }
 
     public var avgStrideLength: String? {
-        guard let workoutDetail = workoutDetail,
-              !workoutDetail.strideLength.isEmpty else { return nil }
-
-        var count = 0
-        let results = workoutDetail.strideLength
-            .compactMap { $0.value }
-            .reduce(0) {
-                count += 1
-                return $0 + $1
-            }
-
-        return String(format: "%.1f", results / Double(count))
+        guard let workoutDetail = workoutDetail else { return nil }
+        return formattedAverageMetricValue(from: workoutDetail.strideLength, format: "%.1f")
     }
 
     public var elevationGain: String? {
-        guard let routeData = workoutDetail?.routes else { return nil }
-        return routeData.calculateTotalElevationGain()
+        guard let routeData = workoutDetail?.routes,
+              !routeData.isEmpty else { return nil }
+
+        let elevationGain = routeData.calculateTotalElevationGain()
+        return elevationGain.isEmpty ? nil : elevationGain
+    }
+
+    /// 선택 metric의 평균 표시값을 계산하고, 유효한 값이 없으면 카드를 숨길 수 있도록 nil을 반환합니다.
+    private func formattedAverageMetricValue(from samples: [UnifiedWorkoutDetailData], format: String) -> String? {
+        let values = samples
+            .compactMap(\.value)
+            .filter { $0.isFinite }
+
+        guard !values.isEmpty else {
+            return nil
+        }
+
+        let average = values.reduce(0, +) / Double(values.count)
+        return String(format: format, average)
     }
 }
 
