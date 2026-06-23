@@ -125,7 +125,7 @@ struct HeaderSummarySection: View {
 
     private var headerContent: some View {
         GeometryReader { geometry in
-            let valueFontSize = headerMetricValueFontSize(for: geometry.size.width)
+            let metricLayout = HeaderMetricLayout(width: geometry.size.width)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(viewModel.workoutStartDate)
@@ -138,19 +138,48 @@ struct HeaderSummarySection: View {
                     .fontWeight(.black)
                     .foregroundStyle(.white)
 
-                HStack(spacing: 20) {
-                    HeaderMetric(value: viewModel.distance, label: "킬로미터", valueFontSize: valueFontSize)
-                    HeaderMetric(value: viewModel.elapsedTime, label: "시간", valueFontSize: valueFontSize)
-                    HeaderMetric(value: viewModel.calories, label: "KCAL", valueFontSize: valueFontSize)
+                HStack(alignment: .bottom, spacing: metricLayout.spacing) {
+                    HeaderMetric(value: viewModel.distance, label: "킬로미터", layout: metricLayout)
+                    HeaderMetric(value: viewModel.elapsedTime, label: "시간", layout: metricLayout)
+                        .layoutPriority(1)
+                    HeaderMetric(value: viewModel.calories, label: "KCAL", layout: metricLayout)
                 }
-                .padding(.top, 10)
+                .padding(.top, metricLayout.topPadding)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
         }
     }
+}
 
-    private func headerMetricValueFontSize(for width: CGFloat) -> CGFloat {
-        width < 320 ? 28 : 32
+private struct HeaderMetricLayout {
+    let valueFontSize: CGFloat
+    let labelFont: Font
+    let spacing: CGFloat
+    let topPadding: CGFloat
+
+    init(width: CGFloat) {
+        switch width {
+        case ..<285:
+            valueFontSize = 22
+            labelFont = .caption2
+            spacing = RunMileSpacing.small
+            topPadding = RunMileSpacing.small
+        case ..<325:
+            valueFontSize = 24
+            labelFont = .caption2
+            spacing = RunMileSpacing.small
+            topPadding = RunMileSpacing.small
+        case ..<365:
+            valueFontSize = 28
+            labelFont = .caption
+            spacing = RunMileSpacing.medium
+            topPadding = RunMileSpacing.small
+        default:
+            valueFontSize = 32
+            labelFont = .caption
+            spacing = RunMileSpacing.large
+            topPadding = RunMileSpacing.medium
+        }
     }
 }
 
@@ -158,18 +187,23 @@ struct HeaderSummarySection: View {
 private struct HeaderMetric: View {
     let value: String
     let label: String
-    let valueFontSize: CGFloat
+    let layout: HeaderMetricLayout
 
     var body: some View {
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
             Text(value)
-                .font(.system(size: valueFontSize, weight: .bold, design: .rounded))
+                .font(Font(UIFont.systemFont(ofSize: layout.valueFontSize, weight: .bold, width: .condensed)))
                 .foregroundStyle(.white)
+                .lineLimit(1)
+                .minimumScaleFactor(0.82)
+                .allowsTightening(true)
 
             Text(label)
-                .font(.caption)
+                .font(layout.labelFont)
                 .fontWeight(.medium)
                 .foregroundStyle(.white.opacity(0.8))
+                .lineLimit(1)
+                .minimumScaleFactor(0.9)
         }
     }
 }
