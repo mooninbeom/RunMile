@@ -280,9 +280,11 @@ private extension OnboardingPage {
 }
 
 
+#if DEBUG
 #Preview("Run Mile Onboarding") {
     OnboardingView(
         viewModel: PreviewDIContainer().makeOnboardingViewModel(),
         onFinish: {}
     )
 }
+#endif
