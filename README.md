@@ -14,9 +14,8 @@
 
 ## 앱 미리보기
 
-| 신발 관리 | 운동 기록 | 운동 상세 | 페이스 지도 | 명예의 전당 |
-| :--: | :--: | :--: | :--: | :--: |
-| ![신발 관리](./Docs/Screenshots/01-shoes.png) | ![운동 기록](./Docs/Screenshots/02-workouts.png) | ![운동 상세](./Docs/Screenshots/03-workout-detail.png) | ![페이스 지도](./Docs/Screenshots/04-route-analysis.png) | ![명예의 전당](./Docs/Screenshots/05-hall-of-fame.png) |
+<img width="6420" height="2778" alt="Group 1" src="https://github.com/user-attachments/assets/720fefc2-2e6f-4e27-a2dc-57ef56a5b05c" />
+
 
 ## Run Mile로 할 수 있는 일
 
