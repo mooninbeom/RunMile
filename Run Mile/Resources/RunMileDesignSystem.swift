@@ -69,6 +69,7 @@ enum RunMileSize {
     static let myPageCellHeight: CGFloat = 70
     static let hallOfFameCellHeight: CGFloat = 115
     static let photoPicker: CGFloat = 170
+    static let compactButtonHeight: CGFloat = 44
     static let primaryButtonHeight: CGFloat = 50
     static let hallOfFameButtonHeight: CGFloat = 60
     static let dividerHeight: CGFloat = 2

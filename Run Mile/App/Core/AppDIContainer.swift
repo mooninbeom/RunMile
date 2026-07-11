@@ -18,6 +18,7 @@ final class AppDIContainer: ScreenDependencyProviding {
     private let notificationPermissionService: NotificationPermissionService
     private let healthKitSampleSeeder: HealthKitSampleSeeding
     private let mileageGoalNotificationService: MileageGoalNotificationService
+    private let imageProcessingService: ShoeImageProcessingService
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
@@ -26,7 +27,8 @@ final class AppDIContainer: ScreenDependencyProviding {
         healthBackgroundSyncService: HealthBackgroundSyncService? = nil,
         notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService(),
         healthKitSampleSeeder: HealthKitSampleSeeding = HealthKitSampleSeeder(),
-        mileageGoalNotificationService: MileageGoalNotificationService = UserMileageGoalNotificationService()
+        mileageGoalNotificationService: MileageGoalNotificationService = UserMileageGoalNotificationService(),
+        imageProcessingService: ShoeImageProcessingService = VisionShoeImageProcessingService()
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
@@ -34,6 +36,7 @@ final class AppDIContainer: ScreenDependencyProviding {
         self.notificationPermissionService = notificationPermissionService
         self.healthKitSampleSeeder = healthKitSampleSeeder
         self.mileageGoalNotificationService = mileageGoalNotificationService
+        self.imageProcessingService = imageProcessingService
         self.healthBackgroundSyncService = healthBackgroundSyncService
         ?? DefaultHealthBackgroundSyncService(
             shoesRepository: shoesRepository,
@@ -72,7 +75,8 @@ final class AppDIContainer: ScreenDependencyProviding {
         ShoesDetailViewModel(
             useCase: DefaultShoesDetailUseCase(
                 repository: shoesRepository,
-                mileageGoalNotificationService: mileageGoalNotificationService
+                mileageGoalNotificationService: mileageGoalNotificationService,
+                imageProcessingService: imageProcessingService
             ),
             shoes: shoes
         )

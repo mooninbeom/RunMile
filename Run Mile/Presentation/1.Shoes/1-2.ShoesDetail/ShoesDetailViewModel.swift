@@ -26,44 +26,11 @@ final class ShoesDetailViewModel {
     public var editCustomModel = ""
     public var editUsage = ""
     public var editGoalMileage = ""
+    public let imageEditorViewModel: ShoeImageEditorViewModel
     public var selectedWorkoutIDs: Set<UUID> = []
     
-    public var averageDistance: String {
-        let count = shoes.workouts.count
-        guard count > 0 else { return "0.0km" }
-        let avg = shoes.totalMileage / Double(count)
-        return String(format: "%.1fkm", avg)
-    }
-    
-    private var shoePresentationInfo: ShoePresentationInfo {
-        ShoePresentationInfo(shoe: shoes)
-    }
-    
-    public var shoeBrand: String {
-        shoePresentationInfo.brand
-    }
-    
-    public var shoeModel: String {
-        shoePresentationInfo.model
-    }
-    
-    public var lifeSpanRatio: Double {
-        shoePresentationInfo.lifeSpanRatio
-    }
-    
-    public var remainingPercentText: String {
-        shoePresentationInfo.remainingPercentText
-    }
-    
-    public var statusColor: Color {
-        shoePresentationInfo.statusColor
-    }
-    
-    public var statusForegroundColor: Color {
-        shoePresentationInfo.statusForegroundColor
-    }
-    
     public var isEditSaveEnabled: Bool {
+        !imageEditorViewModel.isProcessing &&
         !effectiveEditedShoesName.isEmpty &&
         !editUsage.trimmed.isEmpty &&
         editGoalMileageValue != nil
@@ -80,25 +47,13 @@ final class ShoesDetailViewModel {
     init(useCase: ShoesDetailUseCase, shoes: Shoes) {
         self.useCase = useCase
         self.shoes = shoes
+        self.imageEditorViewModel = ShoeImageEditorViewModel(
+            imageData: shoes.image,
+            normalizeImage: useCase.normalizeImage,
+            removeBackground: useCase.removeImageBackground
+        )
     }
     
-    /// 신발 상세 관리 액션에서 표시할 시트를 구분합니다.
-    enum ManagementSheet: Identifiable {
-        case editInfo
-        case workouts
-        case delete
-        
-        var id: String {
-            switch self {
-            case .editInfo:
-                "editInfo"
-            case .workouts:
-                "workouts"
-            case .delete:
-                "delete"
-            }
-        }
-    }
 }
 
 
@@ -126,7 +81,13 @@ extension ShoesDetailViewModel {
     /// 현재 표시 중인 신발 관리 시트를 닫습니다.
     @MainActor
     public func dismissManagementSheet() {
+        imageEditorViewModel.cancelEditing()
         activeManagementSheet = nil
+    }
+
+    @MainActor
+    public func managementSheetDismissed() {
+        imageEditorViewModel.cancelEditing()
     }
     
     /// 편집 시트의 입력값으로 신발 정보를 저장합니다.
@@ -136,7 +97,7 @@ extension ShoesDetailViewModel {
         
         let modified = Shoes(
             id: shoes.id,
-            image: shoes.image,
+            image: imageEditorViewModel.imageData,
             shoesName: effectiveEditedShoesName,
             nickname: editUsage.trimmed,
             goalMileage: goalMileage,
@@ -202,6 +163,7 @@ extension ShoesDetailViewModel {
 
 // MARK: - Internal Function
 extension ShoesDetailViewModel {
+    @MainActor
     private func prepareEditSheet() {
         let selection = ShoeCatalog.selection(for: shoes.shoesName)
         
@@ -211,6 +173,7 @@ extension ShoesDetailViewModel {
         editCustomModel = selection.customModel
         editUsage = shoes.nickname
         editGoalMileage = shoes.getGoalMileage
+        imageEditorViewModel.reset(imageData: shoes.image)
     }
     
     private var effectiveEditedShoesName: String {
@@ -253,6 +216,7 @@ extension ShoesDetailViewModel {
         do {
             try await useCase.editShoes(shoes: modified)
             self.shoes = modified
+            self.imageEditorViewModel.cancelEditing()
             self.activeManagementSheet = nil
         } catch {
             NavigationCoordinator.shared.push(.init(

@@ -57,7 +57,11 @@ struct ShoesDetailView: View {
         .background(RunMileColor.background)
         .navigationTitle(viewModel.shoeModel)
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(item: $viewModel.activeManagementSheet, content: managementSheet)
+        .sheet(
+            item: $viewModel.activeManagementSheet,
+            onDismiss: viewModel.managementSheetDismissed,
+            content: managementSheet
+        )
     }
     
     @ViewBuilder
@@ -65,6 +69,7 @@ struct ShoesDetailView: View {
         switch sheet {
         case .editInfo:
             ShoesEditSheetView(
+                imageEditorViewModel: viewModel.imageEditorViewModel,
                 brand: $viewModel.editBrand,
                 model: $viewModel.editModel,
                 customBrand: $viewModel.editCustomBrand,
