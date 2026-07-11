@@ -35,6 +35,7 @@ final class PreviewDIContainer: ScreenDependencyProviding {
     }
     
     /// 신발 상세 Preview용 ViewModel을 샘플 액션 UseCase와 함께 생성합니다.
+    @MainActor
     func makeShoesDetailViewModel(shoes: Shoes) -> ShoesDetailViewModel {
         ShoesDetailViewModel(
             useCase: PreviewShoesDetailUseCase(),
@@ -43,6 +44,7 @@ final class PreviewDIContainer: ScreenDependencyProviding {
     }
     
     /// 신발 추가 Preview용 ViewModel을 기본 입력값이 채워진 상태로 생성합니다.
+    @MainActor
     func makeAddShoesViewModel() -> AddShoesViewModel {
         let viewModel = AddShoesViewModel(useCase: PreviewAddShoesUseCase())
         viewModel.selectedBrand = "Nike"

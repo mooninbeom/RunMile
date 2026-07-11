@@ -36,6 +36,14 @@ struct PreviewShoesDetailUseCase: ShoesDetailUseCase {
     
     /// Preview에서는 저장소를 변경하지 않고 명예의 전당 등록 흐름만 통과시킵니다.
     func graduateShoes(shoes: Shoes) async throws {}
+
+    func normalizeImage(from imageData: Data) async throws -> Data {
+        imageData
+    }
+
+    func removeImageBackground(from imageData: Data) async throws -> Data {
+        imageData
+    }
 }
 
 
@@ -44,7 +52,15 @@ struct PreviewAddShoesUseCase: AddShoesUseCase {
     func photoToData(photo: PhotosPickerItem) async throws -> Data {
         Data()
     }
-    
+
+    func normalizeImage(from imageData: Data) async throws -> Data {
+        imageData
+    }
+
+    func removeImageBackground(from imageData: Data) async throws -> Data {
+        imageData
+    }
+
     /// Preview에서는 저장소를 변경하지 않고 저장 완료 흐름만 통과시킵니다.
     func saveShoes(shoes: Shoes) async throws -> AddShoesSaveResult {
         AddShoesSaveResult(shouldShowNotificationPermissionSheet: true)

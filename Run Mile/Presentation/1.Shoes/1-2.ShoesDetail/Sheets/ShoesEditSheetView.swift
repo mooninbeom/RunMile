@@ -6,9 +6,12 @@
 //
 
 import SwiftUI
+import PhotosUI
+import UIKit
 
 
 struct ShoesEditSheetView: View {
+    @Bindable var imageEditorViewModel: ShoeImageEditorViewModel
     @Binding var brand: String
     @Binding var model: String
     @Binding var customBrand: String
@@ -26,6 +29,13 @@ struct ShoesEditSheetView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 22) {
                     headerView
+                    ShoeImageEditorView(
+                        imageData: imageEditorViewModel.imageData,
+                        isBackgroundRemoved: imageEditorViewModel.isBackgroundRemoved,
+                        isProcessing: imageEditorViewModel.isProcessing,
+                        onChangePhoto: imageEditorViewModel.photoButtonTapped,
+                        onRemoveBackground: imageEditorViewModel.backgroundButtonTapped
+                    )
                     inputFieldsView
                     recommendedMileageView
                     doneButton
@@ -40,6 +50,23 @@ struct ShoesEditSheetView: View {
                 }
             }
         }
+        .confirmationDialog(
+            "사진 선택",
+            isPresented: $imageEditorViewModel.isPhotoSourcePresented
+        ) {
+            Button("사진 찍기", action: imageEditorViewModel.cameraButtonTapped)
+                .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
+            Button("앨범에서 선택", action: imageEditorViewModel.photoLibraryButtonTapped)
+            Button("취소", role: .cancel, action: {})
+        }
+        .photosPicker(
+            isPresented: $imageEditorViewModel.isPhotoPickerPresented,
+            selection: $imageEditorViewModel.photo,
+            matching: .images
+        )
+        .fullScreenCover(isPresented: $imageEditorViewModel.isCameraPresented) {
+            CameraPicker(onImagePicked: imageEditorViewModel.cameraImagePicked)
+        }
     }
     
     private var headerView: some View {
@@ -48,7 +75,7 @@ struct ShoesEditSheetView: View {
                 .font(.title2.weight(.black))
                 .foregroundStyle(RunMileColor.foreground)
             
-            Text("브랜드, 이름, 용도, 목표 마일리지를 한 번에 관리합니다.")
+            Text("사진과 신발 정보를 함께 관리합니다.")
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(RunMileColor.mutedForeground)
         }

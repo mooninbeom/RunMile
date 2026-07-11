@@ -9,7 +9,7 @@ import Foundation
 
 
 final class AppDIContainer: ScreenDependencyProviding {
-    static let shared = AppDIContainer()
+    @MainActor static let shared = AppDIContainer()
     
     private let workoutRepository: WorkoutDataRepository
     private let shoesRepository: ShoesDataRepository
@@ -18,6 +18,7 @@ final class AppDIContainer: ScreenDependencyProviding {
     private let notificationPermissionService: NotificationPermissionService
     private let healthKitSampleSeeder: HealthKitSampleSeeding
     private let mileageGoalNotificationService: MileageGoalNotificationService
+    private let imageProcessingService: ShoeImageProcessingService
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
@@ -26,7 +27,8 @@ final class AppDIContainer: ScreenDependencyProviding {
         healthBackgroundSyncService: HealthBackgroundSyncService? = nil,
         notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService(),
         healthKitSampleSeeder: HealthKitSampleSeeding = HealthKitSampleSeeder(),
-        mileageGoalNotificationService: MileageGoalNotificationService = UserMileageGoalNotificationService()
+        mileageGoalNotificationService: MileageGoalNotificationService = UserMileageGoalNotificationService(),
+        imageProcessingService: ShoeImageProcessingService = VisionShoeImageProcessingService()
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
@@ -34,6 +36,7 @@ final class AppDIContainer: ScreenDependencyProviding {
         self.notificationPermissionService = notificationPermissionService
         self.healthKitSampleSeeder = healthKitSampleSeeder
         self.mileageGoalNotificationService = mileageGoalNotificationService
+        self.imageProcessingService = imageProcessingService
         self.healthBackgroundSyncService = healthBackgroundSyncService
         ?? DefaultHealthBackgroundSyncService(
             shoesRepository: shoesRepository,
@@ -68,22 +71,26 @@ final class AppDIContainer: ScreenDependencyProviding {
     }
     
     /// 신발 상세 화면의 상태와 액션을 관리하는 ViewModel을 생성합니다.
+    @MainActor
     func makeShoesDetailViewModel(shoes: Shoes) -> ShoesDetailViewModel {
         ShoesDetailViewModel(
             useCase: DefaultShoesDetailUseCase(
                 repository: shoesRepository,
-                mileageGoalNotificationService: mileageGoalNotificationService
+                mileageGoalNotificationService: mileageGoalNotificationService,
+                imageProcessingService: imageProcessingService
             ),
             shoes: shoes
         )
     }
     
     /// 신발 추가 화면의 상태와 액션을 관리하는 ViewModel을 생성합니다.
+    @MainActor
     func makeAddShoesViewModel() -> AddShoesViewModel {
         AddShoesViewModel(
             useCase: DefaultAddShoesUseCase(
                 repository: shoesRepository,
-                notificationPermissionService: notificationPermissionService
+                notificationPermissionService: notificationPermissionService,
+                imageProcessingService: imageProcessingService
             )
         )
     }
