@@ -3,10 +3,11 @@ import SwiftUI
 import PhotosUI
 
 
+@MainActor
 @Observable
 final class ShoeImageEditorViewModel {
-    typealias ImageNormalization = (Data) async throws -> Data
-    typealias BackgroundRemoval = (Data) async throws -> Data
+    typealias ImageNormalization = @Sendable (Data) async throws -> Data
+    typealias BackgroundRemoval = @Sendable (Data) async throws -> Data
 
     var imageData: Data
     var photo: PhotosPickerItem? {

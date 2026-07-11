@@ -5,10 +5,11 @@
 //  Created by 문인범 on 5/28/25.
 //
 
+import Foundation
 import Vision
 import CoreImage
 import ImageIO
-import UIKit.UIImage
+import UIKit
 
 
 /**
@@ -47,9 +48,12 @@ enum ImageVisionManager {
     public static func removeImageBackground(
         from imageData: Data
     ) async throws -> Data {
-        let request = VNGenerateForegroundInstanceMaskRequest()
+        let cancellationToken = VisionRequestCancellationToken()
         let processingTask = Task.detached(priority: .userInitiated) {
             try Task.checkCancellation()
+            let request = VNGenerateForegroundInstanceMaskRequest()
+            cancellationToken.register(request)
+            defer { cancellationToken.clear() }
             guard let sourceImage = UIImage(data: imageData),
                   let sourceCIImage = CIImage(data: imageData)
             else {
@@ -88,9 +92,41 @@ enum ImageVisionManager {
         return try await withTaskCancellationHandler {
             try await processingTask.value
         } onCancel: {
-            request.cancel()
+            cancellationToken.cancel()
             processingTask.cancel()
         }
+    }
+}
+
+
+private final class VisionRequestCancellationToken: @unchecked Sendable {
+    private let lock = NSLock()
+    private var request: VNRequest?
+    private var isCancelled = false
+
+    func register(_ request: VNRequest) {
+        lock.lock()
+        if isCancelled {
+            lock.unlock()
+            request.cancel()
+            return
+        }
+        self.request = request
+        lock.unlock()
+    }
+
+    func cancel() {
+        lock.lock()
+        isCancelled = true
+        let request = request
+        lock.unlock()
+        request?.cancel()
+    }
+
+    func clear() {
+        lock.lock()
+        request = nil
+        lock.unlock()
     }
 }
 

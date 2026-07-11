@@ -53,7 +53,9 @@ struct ShoeImageEditorViewModelTests {
         let normalizer = DeferredImageNormalizer()
         let viewModel = ShoeImageEditorViewModel(
             imageData: originalImage,
-            normalizeImage: normalizer.normalize,
+            normalizeImage: { imageData in
+                try await normalizer.normalize(imageData)
+            },
             removeBackground: { $0 }
         )
 

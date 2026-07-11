@@ -53,6 +53,14 @@ struct PreviewAddShoesUseCase: AddShoesUseCase {
         Data()
     }
 
+    func normalizeImage(from imageData: Data) async throws -> Data {
+        imageData
+    }
+
+    func removeImageBackground(from imageData: Data) async throws -> Data {
+        imageData
+    }
+
     /// Preview에서는 저장소를 변경하지 않고 저장 완료 흐름만 통과시킵니다.
     func saveShoes(shoes: Shoes) async throws -> AddShoesSaveResult {
         AddShoesSaveResult(shouldShowNotificationPermissionSheet: true)

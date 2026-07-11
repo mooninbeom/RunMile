@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 
+@MainActor
 @Observable
 final class ShoesDetailViewModel {
     private let useCase: ShoesDetailUseCase
@@ -49,8 +50,12 @@ final class ShoesDetailViewModel {
         self.shoes = shoes
         self.imageEditorViewModel = ShoeImageEditorViewModel(
             imageData: shoes.image,
-            normalizeImage: useCase.normalizeImage,
-            removeBackground: useCase.removeImageBackground
+            normalizeImage: { [useCase] imageData in
+                try await useCase.normalizeImage(from: imageData)
+            },
+            removeBackground: { [useCase] imageData in
+                try await useCase.removeImageBackground(from: imageData)
+            }
         )
     }
     
@@ -272,7 +277,7 @@ extension ShoesDetailViewModel {
         Task {
             do {
                 try await self.useCase.graduateShoes(shoes: modified)
-                await NavigationCoordinator.shared.pop(.shoes)
+                NavigationCoordinator.shared.pop(.shoes)
             } catch {
                 await NavigationCoordinator.shared.push(.init(
                     title: "저장 과정 중 오류가 발생했습니다.",

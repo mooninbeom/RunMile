@@ -214,6 +214,7 @@ struct AddShoesView: View {
             }
         }
         .onDisappear {
+            viewModel.viewDidDisappear()
             dismissAction()
         }
         .confirmationDialog(
@@ -230,7 +231,7 @@ struct AddShoesView: View {
             matching: .images
         )
         .fullScreenCover(isPresented: $viewModel.isCameraPresented) {
-            CameraPicker(image: $viewModel.image)
+            CameraPicker(onImagePicked: viewModel.cameraImagePicked)
         }
     }
 

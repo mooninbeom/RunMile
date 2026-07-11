@@ -8,7 +8,7 @@
 import Foundation
 
 
-protocol ShoesDetailUseCase {
+protocol ShoesDetailUseCase: Sendable {
     func editShoes(shoes: Shoes) async throws
     func deleteShoes(shoes: Shoes) async throws
     func graduateShoes(shoes: Shoes) async throws

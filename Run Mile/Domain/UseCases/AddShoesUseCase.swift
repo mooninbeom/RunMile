@@ -17,6 +17,8 @@ struct AddShoesSaveResult: Sendable {
 
 protocol AddShoesUseCase: Sendable {
     func photoToData(photo: PhotosPickerItem) async throws -> Data
+    func normalizeImage(from imageData: Data) async throws -> Data
+    func removeImageBackground(from imageData: Data) async throws -> Data
     func saveShoes(shoes: Shoes) async throws -> AddShoesSaveResult
 }
 
@@ -24,22 +26,33 @@ protocol AddShoesUseCase: Sendable {
 final class DefaultAddShoesUseCase: AddShoesUseCase {
     private let repository: ShoesDataRepository
     private let notificationPermissionService: NotificationPermissionService
+    private let imageProcessingService: ShoeImageProcessingService
     
     init(
         repository: ShoesDataRepository,
-        notificationPermissionService: NotificationPermissionService
+        notificationPermissionService: NotificationPermissionService,
+        imageProcessingService: ShoeImageProcessingService
     ) {
         self.repository = repository
         self.notificationPermissionService = notificationPermissionService
+        self.imageProcessingService = imageProcessingService
     }
     
     
     public func photoToData(photo: PhotosPickerItem) async throws -> Data {
         if let image = try await photo.loadTransferable(type: Data.self) {
-            return image
+            return try await normalizeImage(from: image)
         } else {
             throw AddShoesError.transferFailed
         }
+    }
+
+    public func normalizeImage(from imageData: Data) async throws -> Data {
+        try await imageProcessingService.normalizeImage(from: imageData)
+    }
+
+    public func removeImageBackground(from imageData: Data) async throws -> Data {
+        try await imageProcessingService.removeBackground(from: imageData)
     }
     
     public func saveShoes(shoes: Shoes) async throws -> AddShoesSaveResult {

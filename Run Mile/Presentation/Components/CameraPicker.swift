@@ -13,10 +13,6 @@ struct CameraPicker: UIViewControllerRepresentable {
     let onImagePicked: (Data) -> Void
     @Environment(\.dismiss) var dismiss
 
-    init(image: Binding<Data?>) {
-        self.onImagePicked = { image.wrappedValue = $0 }
-    }
-
     init(onImagePicked: @escaping (Data) -> Void) {
         self.onImagePicked = onImagePicked
     }
@@ -47,7 +43,7 @@ struct CameraPicker: UIViewControllerRepresentable {
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]
         ) {
             if let image = info[.originalImage] as? UIImage,
-               let data = image.pngData() {
+               let data = image.jpegData(compressionQuality: 0.85) {
                 parent.onImagePicked(data)
             }
             

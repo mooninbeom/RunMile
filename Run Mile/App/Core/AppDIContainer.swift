@@ -9,7 +9,7 @@ import Foundation
 
 
 final class AppDIContainer: ScreenDependencyProviding {
-    static let shared = AppDIContainer()
+    @MainActor static let shared = AppDIContainer()
     
     private let workoutRepository: WorkoutDataRepository
     private let shoesRepository: ShoesDataRepository
@@ -71,6 +71,7 @@ final class AppDIContainer: ScreenDependencyProviding {
     }
     
     /// 신발 상세 화면의 상태와 액션을 관리하는 ViewModel을 생성합니다.
+    @MainActor
     func makeShoesDetailViewModel(shoes: Shoes) -> ShoesDetailViewModel {
         ShoesDetailViewModel(
             useCase: DefaultShoesDetailUseCase(
@@ -83,11 +84,13 @@ final class AppDIContainer: ScreenDependencyProviding {
     }
     
     /// 신발 추가 화면의 상태와 액션을 관리하는 ViewModel을 생성합니다.
+    @MainActor
     func makeAddShoesViewModel() -> AddShoesViewModel {
         AddShoesViewModel(
             useCase: DefaultAddShoesUseCase(
                 repository: shoesRepository,
-                notificationPermissionService: notificationPermissionService
+                notificationPermissionService: notificationPermissionService,
+                imageProcessingService: imageProcessingService
             )
         )
     }
