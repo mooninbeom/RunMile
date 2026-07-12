@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A70CAC8300312820098C371 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 1A70CAC7300312820098C371 /* FirebaseRemoteConfig */; };
 		2C079A5C2DAF9F7F00B1EE0D /* Run_MileApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C079A562DAF9F7F00B1EE0D /* Run_MileApp.swift */; };
 		2C079FBF2DB2505700B1EE0D /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C079FBE2DB2505700B1EE0D /* RealmSwift */; };
 		2C079FC02DB2507700B1EE0D /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 2C079FBE2DB2505700B1EE0D /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -96,6 +97,7 @@
 				2CEF993F2E925A5700CBA323 /* FirebaseCore in Frameworks */,
 				2CEF99412E925A5700CBA323 /* FirebaseCrashlytics in Frameworks */,
 				2C079FBF2DB2505700B1EE0D /* RealmSwift in Frameworks */,
+				1A70CAC8300312820098C371 /* FirebaseRemoteConfig in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -116,6 +118,13 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A70CAC6300312820098C371 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		2CE46DEA2DAE7780008C6FBC = {
 			isa = PBXGroup;
 			children = (
@@ -131,6 +140,7 @@
 				2CE46DF52DAE7780008C6FBC /* Run Mile */,
 				2CE46E032DAE7782008C6FBC /* Run MileTests */,
 				2CE46E0D2DAE7782008C6FBC /* Run MileUITests */,
+				1A70CAC6300312820098C371 /* Frameworks */,
 				2CE46DF42DAE7780008C6FBC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -170,6 +180,7 @@
 				2C079FBE2DB2505700B1EE0D /* RealmSwift */,
 				2CEF993E2E925A5700CBA323 /* FirebaseCore */,
 				2CEF99402E925A5700CBA323 /* FirebaseCrashlytics */,
+				1A70CAC7300312820098C371 /* FirebaseRemoteConfig */,
 			);
 			productName = "Run Mile";
 			productReference = 2CE46DF32DAE7780008C6FBC /* Run Mile.app */;
@@ -702,6 +713,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		1A70CAC7300312820098C371 /* FirebaseRemoteConfig */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CEF98852E92584900CBA323 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseRemoteConfig;
+		};
 		2C079FBE2DB2505700B1EE0D /* RealmSwift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 2C079FBD2DB2505700B1EE0D /* XCRemoteSwiftPackageReference "realm-swift" */;
