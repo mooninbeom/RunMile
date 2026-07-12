@@ -11,7 +11,9 @@ import Foundation
 protocol ScreenDependencyProviding {
     func makeOnboardingViewModel() -> OnboardingViewModel
     func makeShoesListViewModel() -> ShoesListViewModel
+    @MainActor
     func makeShoesDetailViewModel(shoes: Shoes) -> ShoesDetailViewModel
+    @MainActor
     func makeAddShoesViewModel() -> AddShoesViewModel
     func makeAddShoesNotificationPermissionSheetViewModel() -> AddShoesNotificationPermissionSheetViewModel
     func makeWorkoutListViewModel() -> WorkoutListViewModel

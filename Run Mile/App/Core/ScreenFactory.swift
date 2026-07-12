@@ -16,6 +16,7 @@ struct ScreenFactory {
     }
     
     /// NavigationCoordinator의 화면 상태를 실제 SwiftUI 화면으로 변환합니다.
+    @MainActor
     @ViewBuilder
     func makeView(for screen: NavigationCoordinator.Screen) -> some View {
         switch screen {
@@ -51,6 +52,7 @@ struct ScreenFactory {
     }
     
     /// NavigationCoordinator의 Sheet 상태를 실제 SwiftUI sheet 화면으로 변환합니다.
+    @MainActor
     @ViewBuilder
     func makeSheet(for sheet: NavigationCoordinator.Sheet) -> some View {
         switch sheet {
@@ -81,6 +83,7 @@ struct ScreenFactory {
     }
 
     /// NavigationCoordinator의 커스텀 Sheet 상태를 앱 루트 overlay 화면으로 변환합니다.
+    @MainActor
     @ViewBuilder
     func makeCustomSheet(for sheet: NavigationCoordinator.CustomSheet) -> some View {
         switch sheet {

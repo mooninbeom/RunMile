@@ -16,6 +16,7 @@ enum ImageVisionError: Error {
     case noSubjectFound
     case createciImageFailed
     case createPNGDataFailed
+    case createJPEGDataFailed
 }
 
 
@@ -30,6 +31,8 @@ extension ImageVisionError: LocalizedError {
             NSLocalizedString("CIImage 생성 실패", comment: "Create CIimage Failed")
         case .createPNGDataFailed:
             NSLocalizedString("PNG데이터 생성 실패", comment: "Create PNG Data Failed")
+        case .createJPEGDataFailed:
+            NSLocalizedString("JPEG데이터 생성 실패", comment: "Create JPEG Data Failed")
         }
     }
 }
