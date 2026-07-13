@@ -91,6 +91,13 @@ struct ScreenFactory {
             AddShoesNotificationPermissionSheetContainer(
                 viewModel: container.makeAddShoesNotificationPermissionSheetViewModel()
             )
+        case let .appUpdate(info):
+            AppUpdateDetailSheet(
+                viewModel: container.makeAppUpdateDetailSheetViewModel(
+                    info: info,
+                    dismissAction: NavigationCoordinator.shared.dismissCustomSheet
+                )
+            )
         }
     }
 }

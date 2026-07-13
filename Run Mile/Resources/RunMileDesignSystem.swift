@@ -38,6 +38,7 @@ enum RunMileColor {
     static let danger = primary
     static let selection = accent
     static let disabled = muted
+    static let scrim = Color.black.opacity(0.24)
 }
 
 enum RunMileSpacing {
@@ -60,6 +61,7 @@ enum RunMileRadius {
     static let button: CGFloat = 4
     static let image: CGFloat = 6
     static let progress: CGFloat = 2
+    static let sheet: CGFloat = 28
 }
 
 enum RunMileSize {
@@ -79,6 +81,11 @@ enum RunMileSize {
     static let iconLarge: CGFloat = 24
     static let photoIcon: CGFloat = 48
     static let trophyIcon: CGFloat = 40
+    static let appUpdateSheetMaxHeight: CGFloat = 620
+    static let appUpdateCardIcon: CGFloat = 52
+    static let appUpdateCardSymbol: CGFloat = 24
+    static let appUpdateSheetIcon: CGFloat = 64
+    static let appUpdateSheetSymbol: CGFloat = 28
 }
 
 enum RunMileStroke {
@@ -88,12 +95,29 @@ enum RunMileStroke {
     static let selection: CGFloat = 2
 }
 
+enum RunMileTracking {
+    static let kicker: CGFloat = 1.6
+}
+
+enum RunMileShadow {
+    static let offset: CGFloat = 4
+    static let compactOffset: CGFloat = 3
+}
+
 extension View {
-    func runMileBrutalCard(cornerRadius: CGFloat = RunMileRadius.card) -> some View {
+    func runMileBrutalCard(
+        cornerRadius: CGFloat = RunMileRadius.card,
+        fill: Color = RunMileColor.card
+    ) -> some View {
         background {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .fill(RunMileColor.card)
-                .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
+                .fill(fill)
+                .shadow(
+                    color: RunMileColor.border,
+                    radius: 0,
+                    x: RunMileShadow.offset,
+                    y: RunMileShadow.offset
+                )
         }
             .foregroundStyle(RunMileColor.cardForeground)
             .overlay {
@@ -113,8 +137,8 @@ extension View {
                     .shadow(
                         color: RunMileColor.border.opacity(isEnabled ? 1 : 0.35),
                         radius: 0,
-                        x: 4,
-                        y: 4
+                        x: RunMileShadow.offset,
+                        y: RunMileShadow.offset
                     )
             }
             .foregroundStyle(isEnabled ? RunMileColor.primaryForeground : RunMileColor.mutedForeground)
@@ -132,7 +156,12 @@ extension View {
             .background {
                 RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                     .fill(RunMileColor.secondary)
-                    .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
+                    .shadow(
+                        color: RunMileColor.border,
+                        radius: 0,
+                        x: RunMileShadow.offset,
+                        y: RunMileShadow.offset
+                    )
             }
             .foregroundStyle(RunMileColor.secondaryForeground)
             .overlay {

@@ -98,14 +98,21 @@ struct MainTabView: View {
     private var customSheetOverlay: some View {
         ZStack(alignment: .bottom) {
             if navigationCoordinator.customSheet != nil {
-                Color.black.opacity(0.24)
+                RunMileColor.scrim
                     .ignoresSafeArea()
+                    .contentShape(Rectangle())
+                    .onTapGesture(perform: navigationCoordinator.dismissCustomSheet)
+                    .accessibilityLabel("시트 닫기")
+                    .accessibilityAddTraits(.isButton)
                     .transition(.opacity)
             }
 
             if let customSheet = navigationCoordinator.customSheet {
-                screenFactory.makeCustomSheet(for: customSheet)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                VStack(spacing: 0) {
+                    screenFactory.makeCustomSheet(for: customSheet)
+                }
+                .geometryGroup()
+                .transition(.move(edge: .bottom))
             }
         }
         .ignoresSafeArea(edges: .bottom)

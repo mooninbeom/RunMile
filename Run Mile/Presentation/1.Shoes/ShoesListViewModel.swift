@@ -12,12 +12,18 @@ import Foundation
 final class ShoesListViewModel {
     public var shoes: [Shoes] = []
     public var monthlyDistanceText: String = "연동 후 표시"
+    public private(set) var appUpdateInfo: AppUpdatePresentationInfo?
     
+    private let useCase: ShoesListUseCase
+    private let appUpdateUseCase: AppUpdateUseCase
+    private var isCheckingForUpdate = false
     
-    let useCase: ShoesListUseCase
-    
-    init(useCase: ShoesListUseCase) {
+    init(
+        useCase: ShoesListUseCase,
+        appUpdateUseCase: AppUpdateUseCase
+    ) {
         self.useCase = useCase
+        self.appUpdateUseCase = appUpdateUseCase
     }
     
     public var shoeCardItems: [ShoePresentationInfo] {
@@ -39,7 +45,29 @@ extension ShoesListViewModel {
         NavigationCoordinator.shared
             .push(.shoesDetail(shoes), tab: .shoes)
     }
-    
+
+    @MainActor
+    public func appUpdateButtonTapped() {
+        guard let appUpdateInfo else { return }
+        NavigationCoordinator.shared.presentCustomSheet(.appUpdate(appUpdateInfo))
+    }
+
+    @MainActor
+    public func appUpdateDismissButtonTapped() {
+        guard let appUpdateInfo else { return }
+        self.appUpdateInfo = nil
+
+        Task {
+            await appUpdateUseCase.markUpdateAsDismissed(version: appUpdateInfo.version)
+        }
+    }
+
+    @MainActor
+    public func appDidBecomeActive() {
+        fetchAvailableUpdate()
+    }
+
+    @MainActor
     public func onAppear() {
         Task {
             do {
@@ -57,6 +85,8 @@ extension ShoesListViewModel {
         Task {
             await fetchMonthlyRunningDistance()
         }
+
+        fetchAvailableUpdate()
     }
     
     /// HealthKit 권한이 준비되지 않은 경우 알럿 없이 월간 거리 플레이스홀더를 유지합니다.
@@ -71,6 +101,23 @@ extension ShoesListViewModel {
             #if DEBUG
             print("[ShoesListViewModel] monthly distance unavailable: \(error.localizedDescription)")
             #endif
+        }
+    }
+
+    @MainActor
+    private func fetchAvailableUpdate() {
+        guard !isCheckingForUpdate else { return }
+        isCheckingForUpdate = true
+
+        Task {
+            defer { isCheckingForUpdate = false }
+
+            do {
+                appUpdateInfo = try await appUpdateUseCase.fetchAvailableUpdate()
+                    .map(AppUpdatePresentationInfo.init(update:))
+            } catch {
+                appUpdateInfo = nil
+            }
         }
     }
 }

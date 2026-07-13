@@ -105,6 +105,11 @@ extension NavigationCoordinator {
     }
 
     @MainActor
+    public func presentCustomSheet(_ customSheet: CustomSheet) {
+        self.customSheet = customSheet
+    }
+
+    @MainActor
     public func presentPendingCustomSheetIfNeeded() {
         guard let pendingCustomSheet else { return }
         self.pendingCustomSheet = nil
@@ -154,6 +159,7 @@ extension NavigationCoordinator {
 
     enum CustomSheet {
         case addShoesNotificationPermission
+        case appUpdate(AppUpdatePresentationInfo)
     }
 }
 

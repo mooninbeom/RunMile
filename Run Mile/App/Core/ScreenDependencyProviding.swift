@@ -16,6 +16,10 @@ protocol ScreenDependencyProviding {
     @MainActor
     func makeAddShoesViewModel() -> AddShoesViewModel
     func makeAddShoesNotificationPermissionSheetViewModel() -> AddShoesNotificationPermissionSheetViewModel
+    func makeAppUpdateDetailSheetViewModel(
+        info: AppUpdatePresentationInfo,
+        dismissAction: @escaping @MainActor () -> Void
+    ) -> AppUpdateDetailSheetViewModel
     func makeWorkoutListViewModel() -> WorkoutListViewModel
     func makeWorkoutDetailViewModel(workout: Workout) -> WorkoutDetailViewModel
     func makeChooseShoesViewModel(workouts: [Workout], dismissAction: @escaping () -> Void) -> ChooseShoesViewModel

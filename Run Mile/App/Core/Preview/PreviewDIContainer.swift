@@ -24,7 +24,8 @@ final class PreviewDIContainer: ScreenDependencyProviding {
             useCase: PreviewShoesListUseCase(
                 shoes: PreviewShoesMockData.shoes,
                 monthlyDistance: PreviewShoesMockData.monthlyRunningDistance
-            )
+            ),
+            appUpdateUseCase: PreviewAppUpdateUseCase()
         )
         viewModel.shoes = PreviewShoesMockData.shoes
         viewModel.monthlyDistanceText = String(
@@ -58,6 +59,18 @@ final class PreviewDIContainer: ScreenDependencyProviding {
     func makeAddShoesNotificationPermissionSheetViewModel() -> AddShoesNotificationPermissionSheetViewModel {
         AddShoesNotificationPermissionSheetViewModel(
             useCase: PreviewNotificationPermissionUseCase()
+        )
+    }
+
+    /// 앱 업데이트 안내 커스텀 시트 Preview용 ViewModel을 생성합니다.
+    func makeAppUpdateDetailSheetViewModel(
+        info: AppUpdatePresentationInfo,
+        dismissAction: @escaping @MainActor () -> Void
+    ) -> AppUpdateDetailSheetViewModel {
+        AppUpdateDetailSheetViewModel(
+            info: info,
+            useCase: PreviewAppUpdateUseCase(),
+            dismissAction: dismissAction
         )
     }
     
@@ -138,5 +151,24 @@ private final class PreviewHealthBackgroundSyncService: HealthBackgroundSyncServ
     func registerHealthBackgroundQueryTask() {}
     func processPendingRunningWorkoutsIfNeeded() async {}
     func fetchRunningWorkout(id: UUID) async throws -> Workout? { nil }
+}
+
+
+private struct PreviewAppUpdateUseCase: AppUpdateUseCase {
+    func fetchAvailableUpdate() async throws -> AppUpdateInfo? {
+        AppUpdateInfo(
+            version: AppUpdatePresentationInfo.preview.version,
+            summary: AppUpdatePresentationInfo.preview.summary,
+            highlights: AppUpdatePresentationInfo.preview.highlights,
+            appStoreURL: AppUpdatePresentationInfo.preview.appStoreURL
+        )
+    }
+
+    func markUpdateAsDismissed(version: String) async {}
+
+    @MainActor
+    func openAppStore(at url: URL) async -> Bool {
+        true
+    }
 }
 #endif

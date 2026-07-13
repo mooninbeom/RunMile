@@ -16,6 +16,7 @@ extension UserDefaults {
         static let lastAnchor = "anchor"
         static let pendingRunningWorkoutIDs = "pendingRunningWorkoutIDs"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static let dismissedAppUpdateVersion = "dismissedAppUpdateVersion"
     }
 
     public var selectedShoesID: String {

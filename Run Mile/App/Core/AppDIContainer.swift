@@ -19,6 +19,7 @@ final class AppDIContainer: ScreenDependencyProviding {
     private let healthKitSampleSeeder: HealthKitSampleSeeding
     private let mileageGoalNotificationService: MileageGoalNotificationService
     private let imageProcessingService: ShoeImageProcessingService
+    private let appUpdateUseCase: AppUpdateUseCase
     
     init(
         workoutRepository: WorkoutDataRepository = WorkoutDataRepositoryImpl(),
@@ -28,7 +29,8 @@ final class AppDIContainer: ScreenDependencyProviding {
         notificationPermissionService: NotificationPermissionService = UserNotificationPermissionService(),
         healthKitSampleSeeder: HealthKitSampleSeeding = HealthKitSampleSeeder(),
         mileageGoalNotificationService: MileageGoalNotificationService = UserMileageGoalNotificationService(),
-        imageProcessingService: ShoeImageProcessingService = VisionShoeImageProcessingService()
+        imageProcessingService: ShoeImageProcessingService = VisionShoeImageProcessingService(),
+        appUpdateUseCase: AppUpdateUseCase? = nil
     ) {
         self.workoutRepository = workoutRepository
         self.shoesRepository = shoesRepository
@@ -37,6 +39,12 @@ final class AppDIContainer: ScreenDependencyProviding {
         self.healthKitSampleSeeder = healthKitSampleSeeder
         self.mileageGoalNotificationService = mileageGoalNotificationService
         self.imageProcessingService = imageProcessingService
+        self.appUpdateUseCase = appUpdateUseCase ?? DefaultAppUpdateUseCase(
+            configurationRepository: FirebaseRemoteConfigAppUpdateRepository(),
+            preferenceStore: UserDefaultsAppUpdatePreferenceStore(),
+            versionProvider: BundleAppVersionProvider(),
+            appStoreOpener: SystemAppStoreOpener()
+        )
         self.healthBackgroundSyncService = healthBackgroundSyncService
         ?? DefaultHealthBackgroundSyncService(
             shoesRepository: shoesRepository,
@@ -66,7 +74,8 @@ final class AppDIContainer: ScreenDependencyProviding {
             useCase: DefaultShoesViewUseCase(
                 repository: shoesRepository,
                 workoutRepository: workoutRepository
-            )
+            ),
+            appUpdateUseCase: appUpdateUseCase
         )
     }
     
@@ -101,6 +110,18 @@ final class AppDIContainer: ScreenDependencyProviding {
             useCase: DefaultNotificationPermissionUseCase(
                 notificationPermissionService: notificationPermissionService
             )
+        )
+    }
+
+    /// 앱 업데이트 안내 커스텀 시트의 상태와 액션을 관리하는 ViewModel을 생성합니다.
+    func makeAppUpdateDetailSheetViewModel(
+        info: AppUpdatePresentationInfo,
+        dismissAction: @escaping @MainActor () -> Void
+    ) -> AppUpdateDetailSheetViewModel {
+        AppUpdateDetailSheetViewModel(
+            info: info,
+            useCase: appUpdateUseCase,
+            dismissAction: dismissAction
         )
     }
     

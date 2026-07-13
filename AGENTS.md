@@ -22,6 +22,9 @@ Run Mile의 현재 UI 무드는 밝고 선명한 네오 브루탈리즘입니다
 - 색상은 `RunMileColor`를 사용합니다. 임의의 `Color.red`, `Color.gray`, hex 값을 뷰에 직접 추가하지 마세요.
 - 주요 색상은 `primary #FF3333`, `secondary #FFFF00`, `accent #0066FF`, `background white`, `border black`입니다.
 - 카드와 버튼은 검은 border, 작은 radius, 하드 shadow를 유지합니다. `runMileBrutalCard`, `runMilePrimaryButton`, `runMileSecondaryButton`를 우선 고려하세요.
+- 네오 브루탈 하드 섀도우용 도형은 반드시 전경 뷰보다 뒤에 배치합니다. `ZStack`에서는 offset을 적용한 섀도우 도형을 먼저 선언하고, 실제 배경과 border를 가진 전경 도형을 그 위에 선언하세요.
+- 하드 섀도우 도형은 검은색 fill만 사용하고 별도의 border를 추가하지 않습니다. 섀도우용 `RoundedRectangle`을 `overlay`나 높은 `zIndex`에 두어 전경 외곽선과 겹치게 만들지 마세요. 이 경우 상단과 좌측에도 선이 노출되어 이중 외곽선처럼 보입니다.
+- 하드 섀도우가 적용된 카드, 버튼, 아이콘은 최종 화면에서 전경 외곽선이 한 줄인지 확인합니다. 검은 섀도우는 의도한 offset 방향인 오른쪽과 아래쪽에서만 보여야 합니다.
 - 간격, radius, 크기, stroke는 `RunMileSpacing`, `RunMileRadius`, `RunMileSize`, `RunMileStroke`를 사용합니다.
 - 타이포그래피는 system condensed 계열의 bold/heavy/black 무드입니다. 기존 `FontStyle` 또는 현재 화면의 폰트 패턴을 먼저 따르세요.
 - 문구는 한국어 기준으로 짧고 명확하게 작성합니다. 러너를 격려하되 과장된 마케팅 문구보다 “지금 무엇을 할 수 있는지”가 바로 보이게 씁니다.

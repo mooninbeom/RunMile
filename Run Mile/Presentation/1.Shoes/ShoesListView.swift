@@ -8,16 +8,27 @@
 import SwiftUI
 
 struct ShoesListView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @State private var viewModel: ShoesListViewModel
-    
+
     init(viewModel: ShoesListViewModel) {
-        self.viewModel = viewModel
+        _viewModel = State(initialValue: viewModel)
     }
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 20) {
                 monthlySummaryView
+
+                if let appUpdateInfo = viewModel.appUpdateInfo {
+                    AppUpdateCardView(
+                        info: appUpdateInfo,
+                        onOpen: viewModel.appUpdateButtonTapped,
+                        onDismiss: viewModel.appUpdateDismissButtonTapped
+                    )
+                    .padding(.horizontal)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
 
                 HStack {
                     Text("내 신발장")
@@ -53,6 +64,11 @@ struct ShoesListView: View {
         .onAppear {
             viewModel.onAppear()
         }
+        .onChange(of: scenePhase) { _, newScenePhase in
+            guard newScenePhase == .active else { return }
+            viewModel.appDidBecomeActive()
+        }
+        .animation(.easeOut(duration: 0.2), value: viewModel.appUpdateInfo)
     }
     
     private var monthlySummaryView: some View {
