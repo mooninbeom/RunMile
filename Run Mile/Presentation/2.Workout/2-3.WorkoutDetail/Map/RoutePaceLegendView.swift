@@ -42,8 +42,8 @@ struct RoutePaceLegendView: View {
         .padding(.horizontal, 10)
         .background {
             RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
-                .fill(RunMileColor.card)
-                .shadow(color: RunMileColor.border, radius: 0, x: 3, y: 3)
+                .fill(RunMileColor.mapOverlaySurface)
+                .shadow(color: RunMileColor.hardShadow, radius: 0, x: 3, y: 3)
         }
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)

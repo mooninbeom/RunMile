@@ -46,7 +46,7 @@ struct HOFReportView: View {
                 Text("LEGENDARY")
                     .font(.caption)
                     .fontWeight(.black)
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryText)
                     .tracking(2)
 
                 Text(viewModel.shoeNickname)
@@ -72,7 +72,7 @@ struct HOFReportView: View {
                 Text("목표 \(viewModel.goalMileageText)의 \(viewModel.report.achievementRate)%")
                     .font(.headline)
                     .fontWeight(.black)
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryText)
             }
 
             HStack(spacing: 8) {
@@ -123,7 +123,7 @@ struct HOFReportView: View {
             RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
                 .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
         }
-        .shadow(color: RunMileColor.border, radius: 0, x: 5, y: 5)
+        .shadow(color: RunMileColor.hardShadow, radius: 0, x: 5, y: 5)
     }
 
     private var aiSummarySection: some View {
@@ -186,7 +186,7 @@ struct HOFReportView: View {
                 Text("이 신발과의 한 줄 메모")
                     .font(.caption)
                     .fontWeight(.black)
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryText)
 
                 Text(viewModel.report.graduationMemoTitle)
                     .font(.title3)
@@ -220,7 +220,7 @@ struct HOFReportView: View {
 
                     Text(viewModel.report.totalMileageText)
                         .font(.system(size: 44, weight: .black))
-                        .foregroundStyle(RunMileColor.primary)
+                        .foregroundStyle(RunMileColor.primaryText)
 
                     Text(viewModel.report.shareCaptionText)
                         .font(.caption)

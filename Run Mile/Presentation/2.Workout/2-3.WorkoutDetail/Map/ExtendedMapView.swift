@@ -105,7 +105,7 @@ struct ExtendedMapView: View {
                                 .background {
                                     RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                                         .fill(RunMileColor.secondary)
-                                        .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
+                                        .shadow(color: RunMileColor.hardShadow, radius: 0, x: 4, y: 4)
                                 }
                                 .overlay {
                                     RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)

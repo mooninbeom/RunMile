@@ -59,7 +59,7 @@ struct ShoePresentationInfo: Identifiable {
     }
     
     var statusForegroundColor: Color {
-        lifeSpanRatio >= 0.5 && lifeSpanRatio < 0.8
+        lifeSpanRatio < 0.8
         ? RunMileColor.secondaryForeground
         : RunMileColor.primaryForeground
     }

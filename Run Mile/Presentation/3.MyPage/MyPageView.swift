@@ -67,7 +67,7 @@ private struct HallOfFameCard: View {
             trophyBadge(size: 72)
 
             VStack(alignment: .leading, spacing: 8) {
-                legendaryLabel(foreground: RunMileColor.primary)
+                legendaryLabel(foreground: RunMileColor.primaryText)
 
                 Text("명예의 전당")
                     .font(.title2.weight(.heavy))

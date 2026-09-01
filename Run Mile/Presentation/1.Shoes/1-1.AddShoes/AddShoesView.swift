@@ -43,9 +43,9 @@ struct AddShoesView: View {
                                         viewModel.removeBackgroundButtonTapped()
                                     } label: {
                                         Image(systemName: viewModel.isImageBackgroundRemoved ? "eraser.fill" : "eraser")
-                                            .foregroundStyle(.white)
+                                            .foregroundStyle(RunMileColor.primaryForeground)
                                             .padding(8)
-                                            .background(Color.black.opacity(0.6))
+                                            .background(RunMileColor.mediaControlBackground)
                                             .clipShape(Circle())
                                     }
                                     .padding(8)
@@ -107,14 +107,7 @@ struct AddShoesView: View {
                             .tint(RunMileColor.foreground)
                             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                             .padding(.horizontal, 14)
-                            .background {
-                                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                                    .fill(RunMileColor.card)
-                            }
-                            .overlay {
-                                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                                    .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
-                            }
+                            .runMileInputSurface()
                         }
                         
                         // Model Picker
@@ -129,14 +122,7 @@ struct AddShoesView: View {
                                 .tint(RunMileColor.foreground)
                                 .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
                                 .padding(.horizontal, 14)
-                                .background {
-                                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                                        .fill(RunMileColor.card)
-                                }
-                                .overlay {
-                                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                                        .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
-                                }
+                                .runMileInputSurface()
                             }
                         }
                         
@@ -185,7 +171,7 @@ struct AddShoesView: View {
                     Button("취소") {
                         viewModel.cancelButtonTapped()
                     }
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryText)
                 }
                 
                 ToolbarItemGroup(placement: .keyboard) {
@@ -241,7 +227,7 @@ struct AddShoesView: View {
             ProgressView()
                 .progressViewStyle(.circular)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color.black.opacity(0.2))
+                .background(RunMileColor.loadingScrim)
         }
     }
 
@@ -291,7 +277,7 @@ private struct AddShoesTextField: View {
                 if let maxLength {
                     Text("\(text.count) / \(maxLength)")
                         .font(.caption2)
-                        .foregroundStyle(text.count > maxLength ? RunMileColor.primary : RunMileColor.mutedForeground)
+                        .foregroundStyle(text.count > maxLength ? RunMileColor.primaryText : RunMileColor.mutedForeground)
                 }
                 
                 if let maxMileage {
@@ -311,14 +297,7 @@ private struct AddShoesTextField: View {
                     .foregroundStyle(RunMileColor.foreground)
             }
                 .padding()
-                .background {
-                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                        .fill(RunMileColor.card)
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                        .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
-                }
+                .runMileInputSurface(isFocused: focusState.wrappedValue == category)
                 .keyboardType(keyboardType)
                 .focused(focusState, equals: category)
                 .onChange(of: text) { _, newValue in

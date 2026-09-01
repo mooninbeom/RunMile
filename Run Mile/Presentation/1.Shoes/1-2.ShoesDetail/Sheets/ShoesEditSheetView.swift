@@ -42,11 +42,11 @@ struct ShoesEditSheetView: View {
                 }
                 .padding(20)
             }
-            .background(RunMileColor.background)
+            .background(RunMileColor.sheetSurface)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("닫기", action: onCancel)
-                        .foregroundStyle(RunMileColor.primary)
+                        .foregroundStyle(RunMileColor.primaryText)
                 }
             }
         }
@@ -67,6 +67,7 @@ struct ShoesEditSheetView: View {
         .fullScreenCover(isPresented: $imageEditorViewModel.isCameraPresented) {
             CameraPicker(onImagePicked: imageEditorViewModel.cameraImagePicked)
         }
+        .presentationBackground(RunMileColor.sheetSurface)
     }
     
     private var headerView: some View {
@@ -137,7 +138,7 @@ struct ShoesEditSheetView: View {
                             .foregroundStyle(goalMileage == mileage ? RunMileColor.secondaryForeground : RunMileColor.foreground)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 10)
-                            .background(goalMileage == mileage ? RunMileColor.secondary : RunMileColor.card)
+                            .background(goalMileage == mileage ? RunMileColor.secondary : RunMileColor.surfaceElevated)
                             .overlay {
                                 RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                                     .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
@@ -181,11 +182,7 @@ private struct ShoesEditPickerField: View {
             .tint(RunMileColor.foreground)
             .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
             .padding(.horizontal, 14)
-            .background(RunMileColor.card, in: RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous))
-            .overlay {
-                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                    .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
-            }
+            .runMileInputSurface()
         }
     }
 }
@@ -211,7 +208,7 @@ private struct ShoesEditField: View {
                     Text("\(text.count) / \(maxLength)")
                         .font(.caption2)
                         .fontWeight(.semibold)
-                        .foregroundStyle(text.count > maxLength ? RunMileColor.primary : RunMileColor.mutedForeground)
+                        .foregroundStyle(text.count > maxLength ? RunMileColor.primaryText : RunMileColor.mutedForeground)
                 }
             }
             
@@ -219,11 +216,7 @@ private struct ShoesEditField: View {
                 .font(.body.weight(.semibold))
                 .foregroundStyle(RunMileColor.foreground)
                 .padding()
-                .background(RunMileColor.card, in: RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous))
-                .overlay {
-                    RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
-                        .stroke(RunMileColor.input, lineWidth: RunMileStroke.border)
-                }
+                .runMileInputSurface()
                 .keyboardType(keyboardType)
                 .onChange(of: text) { _, newValue in
                     if let maxLength, newValue.count > maxLength {

@@ -73,7 +73,7 @@ struct HOFView: View {
             Text("LEGENDARY")
                 .font(.caption)
                 .fontWeight(.black)
-                .foregroundStyle(RunMileColor.primary)
+                .foregroundStyle(RunMileColor.primaryText)
                 .tracking(2)
 
             Text("명예의 전당")
@@ -189,7 +189,7 @@ struct HOFShoesCard: View {
                     Text("· \(card.achievementRateText)")
                         .font(.caption)
                         .fontWeight(.bold)
-                        .foregroundStyle(RunMileColor.primary)
+                        .foregroundStyle(RunMileColor.primaryText)
                         .padding(.bottom, 2)
                 }
             }

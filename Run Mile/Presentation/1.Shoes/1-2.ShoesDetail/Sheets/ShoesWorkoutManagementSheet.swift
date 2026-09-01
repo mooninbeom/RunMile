@@ -28,14 +28,15 @@ struct ShoesWorkoutManagementSheet: View {
             .safeAreaInset(edge: .bottom) {
                 removeButtonContainer
             }
-            .background(RunMileColor.background)
+            .background(RunMileColor.sheetSurface)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("닫기", action: onCancel)
-                        .foregroundStyle(RunMileColor.primary)
+                        .foregroundStyle(RunMileColor.primaryText)
                 }
             }
         }
+        .presentationBackground(RunMileColor.sheetSurface)
     }
     
     private var headerView: some View {
@@ -99,7 +100,7 @@ struct ShoesWorkoutManagementSheet: View {
             .disabled(selectedWorkoutIDs.isEmpty)
         }
         .padding(20)
-        .background(RunMileColor.background)
+        .background(RunMileColor.sheetSurface)
     }
     
     private func toggleWorkout(_ id: UUID) {
@@ -127,7 +128,7 @@ private struct LinkedWorkoutRow: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(workout.date.koreanMonthDay)
                         .font(.caption.weight(.black))
-                        .foregroundStyle(RunMileColor.primary)
+                        .foregroundStyle(RunMileColor.primaryText)
                     
                     Text("\(workout.calculatedDistance) km")
                         .font(.title3.weight(.black))
@@ -145,7 +146,7 @@ private struct LinkedWorkoutRow: View {
                 
                 Text("연결 해제")
                     .font(.caption.weight(.black))
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryText)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 8)
                     .overlay {
@@ -154,7 +155,7 @@ private struct LinkedWorkoutRow: View {
                     }
             }
             .padding(16)
-            .runMileBrutalCard()
+            .runMileBrutalCard(fill: RunMileColor.surfaceElevated)
         }
         .buttonStyle(.plain)
     }

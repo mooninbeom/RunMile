@@ -6,9 +6,54 @@
 //
 
 import SwiftUI
+import UIKit
 
 
 extension Color {
+    init(hex: String) {
+        let components = RunMileRGBA(hex: hex)
+
+        self.init(
+            .sRGB,
+            red: components.red,
+            green: components.green,
+            blue: components.blue,
+            opacity: components.alpha
+        )
+    }
+
+    init(lightHex: String, darkHex: String) {
+        self.init(uiColor: UIColor { traits in
+            UIColor(
+                runMileHex: traits.userInterfaceStyle == .dark
+                    ? darkHex
+                    : lightHex
+            )
+        })
+    }
+}
+
+
+private extension UIColor {
+    convenience init(runMileHex hex: String) {
+        let components = RunMileRGBA(hex: hex)
+
+        self.init(
+            red: CGFloat(components.red),
+            green: CGFloat(components.green),
+            blue: CGFloat(components.blue),
+            alpha: CGFloat(components.alpha)
+        )
+    }
+}
+
+
+private struct RunMileRGBA {
+    let red: Double
+    let green: Double
+    let blue: Double
+    let alpha: Double
+
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -25,12 +70,9 @@ extension Color {
             (a, r, g, b) = (1, 1, 1, 0)
         }
 
-        self.init(
-            .sRGB,
-            red: Double(r) / 255,
-            green: Double(g) / 255,
-            blue:  Double(b) / 255,
-            opacity: Double(a) / 255
-        )
+        red = Double(r) / 255
+        green = Double(g) / 255
+        blue = Double(b) / 255
+        alpha = Double(a) / 255
     }
 }

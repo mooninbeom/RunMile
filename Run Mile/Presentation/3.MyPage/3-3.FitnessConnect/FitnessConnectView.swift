@@ -20,7 +20,7 @@ struct FitnessConnectView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     HStack(alignment: .top) {
                         Image(systemName: "exclamationmark.triangle.fill")
-                            .foregroundStyle(RunMileColor.primary)
+                            .foregroundStyle(RunMileColor.primaryText)
                             .font(.title3)
                         
                         VStack(alignment: .leading, spacing: 4) {
@@ -36,6 +36,7 @@ struct FitnessConnectView: View {
                     }
                     
                     Divider()
+                        .overlay(RunMileColor.borderSubtle)
                     
                     // Steps
                     VStack(alignment: .leading, spacing: 12) {
@@ -63,25 +64,45 @@ struct FitnessConnectView: View {
                             Image(.health1)
                                 .resizable()
                                 .scaledToFit()
+                                .background(RunMileColor.fixedMediaSurface)
                                 .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                                        .stroke(RunMileColor.fixedMediaBorder, lineWidth: RunMileStroke.hairline)
+                                }
                                 .padding(.horizontal, 20)
                                 .tag(0)
                             Image(.health2)
                                 .resizable()
                                 .scaledToFit()
+                                .background(RunMileColor.fixedMediaSurface)
                                 .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                                        .stroke(RunMileColor.fixedMediaBorder, lineWidth: RunMileStroke.hairline)
+                                }
                                 .padding(.horizontal, 20)
                                 .tag(1)
                             Image(.health3)
                                 .resizable()
                                 .scaledToFit()
+                                .background(RunMileColor.fixedMediaSurface)
                                 .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                                        .stroke(RunMileColor.fixedMediaBorder, lineWidth: RunMileStroke.hairline)
+                                }
                                 .padding(.horizontal, 20)
                                 .tag(2)
                             Image(.health4)
                                 .resizable()
                                 .scaledToFit()
+                                .background(RunMileColor.fixedMediaSurface)
                                 .clipShape(RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+                                .overlay {
+                                    RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                                        .stroke(RunMileColor.fixedMediaBorder, lineWidth: RunMileStroke.hairline)
+                                }
                                 .padding(.horizontal, 20)
                                 .tag(3)
                         }

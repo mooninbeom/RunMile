@@ -108,7 +108,7 @@ struct HOFDistanceRecordTile: View {
                 Text(record.title)
                     .font(.caption)
                     .fontWeight(.black)
-                    .foregroundStyle(record.isAvailable ? RunMileColor.primary : RunMileColor.mutedForeground)
+                    .foregroundStyle(record.isAvailable ? RunMileColor.primaryText : RunMileColor.mutedForeground)
                 
                 Spacer(minLength: 4)
                 

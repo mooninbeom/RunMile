@@ -26,9 +26,9 @@ struct InformationView: View {
                             .frame(width: 160, height: 160)
                             .overlay {
                                 RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
-                                    .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                                    .stroke(RunMileColor.fixedMediaBorder, lineWidth: RunMileStroke.border)
                             }
-                            .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
+                            .shadow(color: RunMileColor.hardShadow, radius: 0, x: 4, y: 4)
                         
                         Image(.memoji)
                             .resizable()
@@ -65,6 +65,7 @@ struct InformationView: View {
                         }
                         
                         Divider()
+                            .overlay(RunMileColor.borderSubtle)
                             .padding(.leading, 56)
                         
                         // GitHub
@@ -73,6 +74,7 @@ struct InformationView: View {
                         }
                         
                         Divider()
+                            .overlay(RunMileColor.borderSubtle)
                             .padding(.leading, 56)
                         
                         // LinkedIn
@@ -134,7 +136,7 @@ private struct SectionHeader: View {
 private struct ContactRow: View {
     var icon: String? = nil
     var brandIcon: BrandIcon? = nil
-    var color: Color = .primary
+    var color: Color = RunMileColor.foreground
     let title: String
     let value: String
     
@@ -198,6 +200,7 @@ private struct ContactRow: View {
             Image(.github)
                 .resizable()
                 .renderingMode(.template)
+                .foregroundStyle(RunMileColor.foreground)
                 .frame(width: 24, height: 24)
 
         case .linkedIn:

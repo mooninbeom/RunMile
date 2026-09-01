@@ -10,35 +10,59 @@ import SwiftUI
 enum RunMileColor {
     static let primary = Color(hex: "FF3333")
     static let primaryForeground = Color.white
+    static let primaryText = Color(lightHex: "C61A2B", darkHex: "FF6666")
+    static let primaryStrong = Color(hex: "C61A2B")
     static let secondary = Color(hex: "FFFF00")
     static let secondaryForeground = Color.black
-    static let background = Color.white
-    static let foreground = Color.black
-    static let card = Color.white
-    static let cardForeground = Color.black
+    static let secondaryMutedForeground = Color(hex: "4A4A48")
+    static let onMedia = Color.white
+    static let mediaScrim = Color.black.opacity(0.8)
+    static let fixedMediaSurface = Color.white
+    static let fixedMediaBorder = Color.black
+    static let background = Color(lightHex: "FFFFFF", darkHex: "101113")
+    static let surface = Color(lightHex: "FFFFFF", darkHex: "1D1F22")
+    static let surfaceElevated = Color(lightHex: "F7F7F5", darkHex: "282A2E")
+    static let foreground = Color(lightHex: "101010", darkHex: "F6F4EF")
+    static let muted = Color(lightHex: "F0F0F0", darkHex: "34373C")
+    static let mutedForeground = Color(lightHex: "4A4A48", darkHex: "B9B9B4")
+    static let border = Color(lightHex: "101010", darkHex: "F1EFE9")
+    static let borderSubtle = Color(lightHex: "C6C6C2", darkHex: "5A5D62")
+    static let hardShadow = Color(lightHex: "101010", darkHex: "030304")
+
+    static let card = surface
+    static let cardForeground = foreground
+    static let sheetSurface = surface
     static let accent = Color(hex: "0066FF")
     static let accentForeground = Color.white
-    static let muted = Color(hex: "F0F0F0")
-    static let mutedForeground = Color(hex: "333333")
-    static let border = Color.black
-    static let input = Color.black
-    static let ring = Color(hex: "FF3333")
+    static let selectionSurface = Color(lightHex: "EAF1FF", darkHex: "162C52")
+    static let inputBorder = border
+    static let input = inputBorder
+    static let focusRing = primary
+    static let ring = focusRing
 
     static let chart1 = Color(hex: "FF3333")
-    static let chart2 = Color(hex: "FFFF00")
+    static let chart2 = Color(lightHex: "887400", darkHex: "FFFF00")
     static let chart3 = Color(hex: "0066FF")
-    static let chart4 = Color(hex: "00CC00")
-    static let chart5 = Color(hex: "CC00CC")
+    static let chart4 = Color(lightHex: "00882D", darkHex: "31D66F")
+    static let chart5 = Color(lightHex: "A600A6", darkHex: "E85CE8")
+    static let chartGrid = Color(lightHex: "D5D5D2", darkHex: "464A50")
+    static let chartAxis = mutedForeground
 
-    static let power = Color(hex: "8A4B00")
-    static let elevationUp = Color(hex: "FF8A00")
+    static let power = Color(lightHex: "8A4B00", darkHex: "FFBE55")
+    static let elevationUp = Color(lightHex: "B45309", darkHex: "FF9A3D")
+    static let routeHalo = Color(lightHex: "101010", darkHex: "F1EFE9")
+    static let mapOverlaySurface = Color(lightHex: "F2FFFFFF", darkHex: "E61D1F22")
 
     static let success = chart4
     static let warning = chart2
-    static let danger = primary
+    static let danger = primaryStrong
     static let selection = accent
     static let disabled = muted
-    static let scrim = Color.black.opacity(0.24)
+    static let disabledForeground = mutedForeground
+    static let modalScrim = Color(lightHex: "3D000000", darkHex: "8A000000")
+    static let loadingScrim = Color(lightHex: "33000000", darkHex: "73000000")
+    static let mediaControlBackground = Color.black.opacity(0.6)
+    static let scrim = modalScrim
 }
 
 enum RunMileSpacing {
@@ -113,7 +137,7 @@ extension View {
             RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                 .fill(fill)
                 .shadow(
-                    color: RunMileColor.border,
+                    color: RunMileColor.hardShadow,
                     radius: 0,
                     x: RunMileShadow.offset,
                     y: RunMileShadow.offset
@@ -135,7 +159,7 @@ extension View {
                 RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                     .fill(isEnabled ? RunMileColor.primary : RunMileColor.muted)
                     .shadow(
-                        color: RunMileColor.border.opacity(isEnabled ? 1 : 0.35),
+                        color: RunMileColor.hardShadow.opacity(isEnabled ? 1 : 0.35),
                         radius: 0,
                         x: RunMileShadow.offset,
                         y: RunMileShadow.offset
@@ -157,7 +181,7 @@ extension View {
                 RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                     .fill(RunMileColor.secondary)
                     .shadow(
-                        color: RunMileColor.border,
+                        color: RunMileColor.hardShadow,
                         radius: 0,
                         x: RunMileShadow.offset,
                         y: RunMileShadow.offset
@@ -177,5 +201,20 @@ extension View {
                 .foregroundStyle(RunMileColor.selection)
                 .opacity(isVisible ? 1 : 0)
         }
+    }
+
+    func runMileInputSurface(isFocused: Bool = false) -> some View {
+        foregroundStyle(RunMileColor.foreground)
+            .background {
+                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                    .fill(RunMileColor.surfaceElevated)
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: RunMileRadius.input, style: .continuous)
+                    .stroke(
+                        isFocused ? RunMileColor.focusRing : RunMileColor.inputBorder,
+                        lineWidth: RunMileStroke.border
+                    )
+            }
     }
 }

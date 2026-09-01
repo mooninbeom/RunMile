@@ -16,7 +16,7 @@ struct HeaderSummarySection: View {
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
-                .fill(RunMileColor.border)
+                .fill(RunMileColor.hardShadow)
                 .offset(x: 4, y: 4)
                 .zIndex(0)
 
@@ -33,7 +33,7 @@ struct HeaderSummarySection: View {
                 .zIndex(0)
 
             LinearGradient(
-                colors: [.black.opacity(0.8), .clear],
+                colors: [RunMileColor.mediaScrim, .clear],
                 startPoint: .bottom,
                 endPoint: .top
             )
@@ -131,12 +131,12 @@ struct HeaderSummarySection: View {
                 Text(viewModel.workoutStartDate)
                     .font(.caption)
                     .fontWeight(.bold)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(RunMileColor.onMedia.opacity(0.8))
 
                 Text(viewModel.workoutTitle)
                     .font(.largeTitle)
                     .fontWeight(.black)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(RunMileColor.onMedia)
 
                 HStack(alignment: .bottom, spacing: metricLayout.spacing) {
                     HeaderMetric(value: viewModel.distance, label: "킬로미터", layout: metricLayout)
@@ -193,7 +193,7 @@ private struct HeaderMetric: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(value)
                 .font(Font(UIFont.systemFont(ofSize: layout.valueFontSize, weight: .bold, width: .condensed)))
-                .foregroundStyle(.white)
+                .foregroundStyle(RunMileColor.onMedia)
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
                 .allowsTightening(true)
@@ -201,7 +201,7 @@ private struct HeaderMetric: View {
             Text(label)
                 .font(layout.labelFont)
                 .fontWeight(.medium)
-                .foregroundStyle(.white.opacity(0.8))
+                .foregroundStyle(RunMileColor.onMedia.opacity(0.8))
                 .lineLimit(1)
                 .minimumScaleFactor(0.9)
         }
