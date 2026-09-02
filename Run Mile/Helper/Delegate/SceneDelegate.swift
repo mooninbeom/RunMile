@@ -24,7 +24,7 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
             ) {
                 MainTabView()
             }
-            .tint(.primary1)
+            .tint(RunMileColor.primary)
         )
         window?.makeKeyAndVisible()
     }

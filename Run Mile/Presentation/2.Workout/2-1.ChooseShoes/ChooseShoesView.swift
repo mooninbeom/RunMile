@@ -75,7 +75,8 @@ struct ChooseShoesView: View {
                 }
             }
         }
-        .background(RunMileColor.background)
+        .background(RunMileColor.sheetSurface)
+        .presentationBackground(RunMileColor.sheetSurface)
         .task {
             await viewModel.onAppear()
         }

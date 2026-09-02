@@ -21,14 +21,15 @@ struct ShoesDeleteSheetView: View {
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(RunMileColor.background)
+        .background(RunMileColor.sheetSurface)
+        .presentationBackground(RunMileColor.sheetSurface)
     }
     
     private var messageView: some View {
         VStack(alignment: .leading, spacing: 10) {
             Image(systemName: "trash.fill")
                 .font(.title.weight(.black))
-                .foregroundStyle(RunMileColor.primary)
+                .foregroundStyle(RunMileColor.primaryText)
                 .frame(width: 52, height: 52)
                 .background(RunMileColor.muted, in: RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
                 .overlay {

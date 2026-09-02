@@ -9,14 +9,14 @@ struct AppUpdateIconView: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: RunMileRadius.small, style: .continuous)
-                .fill(RunMileColor.border)
+                .fill(RunMileColor.hardShadow)
                 .offset(x: shadowOffset, y: shadowOffset)
 
             RoundedRectangle(cornerRadius: RunMileRadius.small, style: .continuous)
                 .fill(RunMileColor.primary)
                 .overlay {
                     RoundedRectangle(cornerRadius: RunMileRadius.small, style: .continuous)
-                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+                        .stroke(RunMileColor.fixedMediaBorder, lineWidth: RunMileStroke.border)
                 }
 
             Image(systemName: "arrow.down")

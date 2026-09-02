@@ -17,7 +17,7 @@ struct AppUpdateDetailSheet: View {
             }
             .frame(maxHeight: RunMileSize.appUpdateSheetMaxHeight)
         }
-        .background(RunMileColor.background)
+        .background(RunMileColor.sheetSurface)
         .clipShape(
             UnevenRoundedRectangle(
                 topLeadingRadius: RunMileRadius.sheet,
@@ -90,7 +90,7 @@ struct AppUpdateDetailSheet: View {
                 HStack(alignment: .firstTextBaseline, spacing: RunMileSpacing.medium) {
                     Image(systemName: "checkmark")
                         .font(.caption.weight(.black))
-                        .foregroundStyle(RunMileColor.primary)
+                        .foregroundStyle(RunMileColor.primaryText)
                         .frame(width: RunMileSize.iconSmall)
 
                     Text(viewModel.info.highlights[index])

@@ -57,10 +57,12 @@ struct CustomChartView: View {
 
                 AxisMarks(values: xAxisValues) { axis in
                     AxisGridLine()
+                        .foregroundStyle(RunMileColor.chartGrid)
                     let value = xAxisValues[axis.index]
                     let duration = Duration.seconds(value)
                     let formattedString = duration.formatted(.time(pattern: .hourMinuteSecond))
                     AxisValueLabel(formattedString, centered: false)
+                        .foregroundStyle(RunMileColor.chartAxis)
                 }
             }
             .chartYAxis {
@@ -68,15 +70,19 @@ struct CustomChartView: View {
 
                 AxisMarks(position: .trailing, values: yAxisValues) { axis in
                     AxisGridLine()
+                        .foregroundStyle(RunMileColor.chartGrid)
                     let value = yAxisValues[axis.index]
 
                     switch self.category {
                     case .heart, .power, .groundContactTime:
                         AxisValueLabel(String(format: "%.0f", value), centered: false)
+                            .foregroundStyle(RunMileColor.chartAxis)
                     case .pace:
                         AxisValueLabel(value.meterPerSecondToPace(), centered: false)
+                            .foregroundStyle(RunMileColor.chartAxis)
                     case .verticalOscillation, .strideLength:
                         AxisValueLabel(String(format: "%.1f", value), centered: false)
+                            .foregroundStyle(RunMileColor.chartAxis)
                     }
                 }
             }

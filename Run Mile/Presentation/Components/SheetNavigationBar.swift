@@ -16,12 +16,14 @@ struct SheetNavigationBar: View {
             Spacer()
             Text("신발 추가")
                 .font(FontStyle.cellDistance())
+                .foregroundStyle(RunMileColor.foreground)
             Spacer()
         }
         .overlay(alignment: .leading) {
             Button("취소") {
                 action()
             }
+            .foregroundStyle(RunMileColor.primaryText)
         }
         .padding(.top, 20)
     }

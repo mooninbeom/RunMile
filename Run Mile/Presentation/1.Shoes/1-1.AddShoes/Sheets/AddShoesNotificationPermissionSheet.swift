@@ -30,14 +30,14 @@ struct AddShoesNotificationPermissionSheet: View {
     var body: some View {
         VStack(spacing: 22) {
             Capsule()
-                .fill(RunMileColor.border.opacity(0.28))
+                .fill(RunMileColor.borderSubtle)
                 .frame(width: 54, height: 6)
 
             VStack(alignment: .leading, spacing: 14) {
                 Text("신발 등록 완료")
                     .font(.caption.weight(.black))
                     .tracking(1.4)
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryText)
 
                 Text("러닝 후 기록을\n놓치지 않게 알려드릴게요")
                     .font(.system(size: 29, weight: .black))
@@ -64,7 +64,7 @@ struct AddShoesNotificationPermissionSheet: View {
                     icon: "bolt.fill",
                     title: "마일리지 확인",
                     description: "거리 기록이 쌓이면 바로 확인할 수 있어요.",
-                    tint: RunMileColor.secondary
+                    tint: RunMileColor.chart2
                 )
 
                 NotificationBenefitRow(
@@ -85,12 +85,13 @@ struct AddShoesNotificationPermissionSheet: View {
         .padding(.top, 12)
         .padding(.bottom, 30)
         .frame(maxWidth: .infinity)
-        .background(RunMileColor.background)
+        .background(RunMileColor.sheetSurface)
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: 28, style: .continuous)
                 .stroke(RunMileColor.border, lineWidth: RunMileStroke.strong)
         }
+        .presentationBackground(RunMileColor.sheetSurface)
     }
 }
 
@@ -127,7 +128,7 @@ private struct NotificationBenefitRow: View {
             Spacer(minLength: 0)
         }
         .padding(10)
-        .background(RunMileColor.card)
+        .background(RunMileColor.surfaceElevated)
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous)
                 .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)

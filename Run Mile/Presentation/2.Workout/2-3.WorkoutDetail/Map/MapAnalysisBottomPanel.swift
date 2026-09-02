@@ -36,8 +36,8 @@ struct MapAnalysisBottomPanel: View {
         .padding(.bottom, 16)
         .background {
             RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
-                .fill(RunMileColor.card)
-                .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
+                .fill(RunMileColor.mapOverlaySurface)
+                .shadow(color: RunMileColor.hardShadow, radius: 0, x: 4, y: 4)
         }
         .foregroundStyle(RunMileColor.cardForeground)
         .overlay {
@@ -127,17 +127,19 @@ private struct PaceAnalysisChart: View {
         .chartXAxis {
             AxisMarks(values: viewModel.analysisXAxisValues) { value in
                 AxisGridLine()
-                    .foregroundStyle(RunMileColor.border.opacity(0.12))
+                    .foregroundStyle(RunMileColor.chartGrid)
                 
                 AxisValueLabel {
                     if let seconds = value.as(Int.self) {
                         Text(viewModel.analysisTimeLabel(seconds: seconds))
                             .font(.caption2)
                             .monospacedDigit()
+                            .foregroundStyle(RunMileColor.chartAxis)
                     } else if let seconds = value.as(Double.self) {
                         Text(viewModel.analysisTimeLabel(seconds: Int(seconds)))
                             .font(.caption2)
                             .monospacedDigit()
+                            .foregroundStyle(RunMileColor.chartAxis)
                     }
                 }
             }
@@ -145,7 +147,7 @@ private struct PaceAnalysisChart: View {
         .chartYAxis {
             AxisMarks(position: .leading, values: viewModel.analysisAltitudeYAxisValues) { value in
                 AxisGridLine()
-                    .foregroundStyle(RunMileColor.chart4.opacity(0.12))
+                    .foregroundStyle(RunMileColor.chartGrid)
                 
                 AxisValueLabel {
                     if let mappedValue = value.as(Double.self) {
@@ -157,11 +159,12 @@ private struct PaceAnalysisChart: View {
             
             AxisMarks(position: .trailing, values: viewModel.analysisPaceYAxisValues) { value in
                 AxisGridLine()
-                    .foregroundStyle(RunMileColor.border.opacity(0.12))
+                    .foregroundStyle(RunMileColor.chartGrid)
                 
                 AxisValueLabel {
                     if let speed = value.as(Double.self) {
                         Text(speed.meterPerSecondToPace())
+                            .foregroundStyle(RunMileColor.chartAxis)
                     }
                 }
             }
@@ -206,7 +209,7 @@ private struct PaceAnalysisChart: View {
             }
         }
         .padding(14)
-        .background(RunMileColor.muted, in: RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
+        .background(RunMileColor.surfaceElevated, in: RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous))
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
                 .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)

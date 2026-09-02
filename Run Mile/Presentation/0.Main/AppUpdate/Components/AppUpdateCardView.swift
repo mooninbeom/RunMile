@@ -15,7 +15,7 @@ struct AppUpdateCardView: View {
                     message
 
                     Rectangle()
-                        .fill(RunMileColor.border)
+                        .fill(RunMileColor.secondaryForeground)
                         .frame(height: RunMileStroke.hairline)
 
                     HStack(spacing: RunMileSpacing.small) {
@@ -72,7 +72,7 @@ struct AppUpdateCardView: View {
 
                 Text(info.summary)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(RunMileColor.mutedForeground)
+                    .foregroundStyle(RunMileColor.secondaryMutedForeground)
                     .fixedSize(horizontal: false, vertical: true)
             }
 

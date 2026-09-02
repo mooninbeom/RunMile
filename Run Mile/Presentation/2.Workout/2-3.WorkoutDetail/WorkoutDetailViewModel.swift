@@ -172,6 +172,31 @@ extension WorkoutDetailViewModel {
 }
 
 
+#if DEBUG
+extension WorkoutDetailViewModel {
+    /// 지도 분석 Preview에서 경로 카메라는 유지하면서 샘플 선택 지표를 동기 구성합니다.
+    func configureMapAnalysisPreview(
+        detail: WorkoutDetailData,
+        selectedSeconds: Int
+    ) {
+        workoutDetail = detail
+        prepareAnalysisCaches(from: detail)
+
+        let selection = makeAnalysisSelection(seconds: selectedSeconds)
+        self.selectedSeconds = selectedSeconds
+        selectedAnalysis = WorkoutAnalysisSelection(
+            marker: nil,
+            paceText: selection.paceText,
+            heartRateText: selection.heartRateText,
+            altitudeText: selection.altitudeText,
+            altitudeTrendSymbol: selection.altitudeTrendSymbol
+        )
+        sortedPacePoints = []
+    }
+}
+#endif
+
+
 // MARK: - 요약 및 지도 섹션
 extension WorkoutDetailViewModel {
     public var workoutStartDate: String {

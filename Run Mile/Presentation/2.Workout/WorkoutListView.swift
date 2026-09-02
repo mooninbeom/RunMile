@@ -102,7 +102,7 @@ struct WorkoutListView: View {
             } label: {
                 Text(viewModel.viewStatus == .selection ? "취소" : "선택")
                     .font(.headline.weight(.black))
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryText)
                     .frame(minWidth: 62)
                     .frame(height: 38)
             }
@@ -112,7 +112,7 @@ struct WorkoutListView: View {
         .background {
             RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                 .fill(RunMileColor.card)
-                .shadow(color: RunMileColor.border, radius: 0, x: 2, y: 2)
+                .shadow(color: RunMileColor.hardShadow, radius: 0, x: 2, y: 2)
         }
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
@@ -190,7 +190,7 @@ struct WorkoutListView: View {
         .background {
             RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                 .fill(RunMileColor.primary)
-                .shadow(color: RunMileColor.border, radius: 0, x: 4, y: 4)
+                .shadow(color: RunMileColor.hardShadow, radius: 0, x: 4, y: 4)
         }
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)

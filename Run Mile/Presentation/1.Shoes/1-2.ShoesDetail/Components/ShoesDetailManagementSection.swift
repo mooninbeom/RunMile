@@ -122,7 +122,7 @@ private struct ShoesManagementActionRow: View {
 private struct RunMileDivider: View {
     var body: some View {
         Rectangle()
-            .fill(RunMileColor.border.opacity(0.12))
+            .fill(RunMileColor.borderSubtle)
             .frame(height: 1)
             .padding(.leading, 66)
     }

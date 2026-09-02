@@ -38,9 +38,11 @@ struct ShoesListView: View {
                     Button(action: {
                         viewModel.addShoesButtonTapped()
                     }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(RunMileColor.primary)
+                        Image(systemName: "plus")
+                            .font(.title3.weight(.black))
+                            .foregroundStyle(RunMileColor.primaryForeground)
+                            .frame(width: RunMileSize.compactButtonHeight, height: RunMileSize.compactButtonHeight)
+                            .background(RunMileColor.primary, in: Circle())
                     }
                 }
                 .padding(.horizontal)

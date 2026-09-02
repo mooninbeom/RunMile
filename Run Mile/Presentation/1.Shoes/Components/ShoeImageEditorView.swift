@@ -19,7 +19,10 @@ struct ShoeImageEditorView: View {
                 actionView
             }
             .padding(RunMileSpacing.regular)
-            .runMileBrutalCard(cornerRadius: RunMileRadius.image)
+            .runMileBrutalCard(
+                cornerRadius: RunMileRadius.image,
+                fill: RunMileColor.surfaceElevated
+            )
         }
     }
 
@@ -101,7 +104,7 @@ struct ShoeImageEditorView: View {
                     RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
                         .fill(configuration.backgroundColor)
                         .shadow(
-                            color: RunMileColor.border,
+                            color: RunMileColor.hardShadow,
                             radius: 0,
                             x: RunMileStroke.border,
                             y: RunMileStroke.border
@@ -132,13 +135,13 @@ private struct ImageActionConfiguration {
     static let removeBackground = ImageActionConfiguration(
         title: "배경 제거",
         symbolName: "eraser.fill",
-        backgroundColor: RunMileColor.card
+        backgroundColor: RunMileColor.surface
     )
 
     static let restoreBackground = ImageActionConfiguration(
         title: "원본 복원",
         symbolName: "arrow.uturn.backward",
-        backgroundColor: RunMileColor.card
+        backgroundColor: RunMileColor.surface
     )
 }
 

@@ -26,12 +26,14 @@ struct SplitSection: View {
                         if let last = viewModel.visibleSplits.last,
                            last.id != split.id {
                             Divider()
+                                .overlay(RunMileColor.borderSubtle)
                                 .padding(.leading)
                         }
                     }
                     
                     if viewModel.shouldShowSplitMoreButton {
                         Divider()
+                            .overlay(RunMileColor.borderSubtle)
                             .padding(.leading)
                         
                         Button {

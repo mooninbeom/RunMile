@@ -29,7 +29,7 @@ struct WorkoutHistoryCell: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(workout.date.koreanMonthDay)
                         .font(.caption.weight(.black))
-                        .foregroundStyle(RunMileColor.primary)
+                        .foregroundStyle(RunMileColor.primaryText)
 
                     Text("\(workout.calculatedDistance) km")
                         .font(.title2.weight(.black))
@@ -81,14 +81,14 @@ struct WorkoutHistoryCell: View {
                 .font(.caption.weight(.black))
                 .lineLimit(1)
         }
-        .foregroundStyle(registeredShoeName == nil ? RunMileColor.primary : RunMileColor.secondaryForeground)
+        .foregroundStyle(registeredShoeName == nil ? RunMileColor.primaryText : RunMileColor.secondaryForeground)
         .padding(.horizontal, 10)
         .frame(height: 30)
         .frame(maxWidth: 132, alignment: .leading)
         .background(registeredShoeName == nil ? RunMileColor.card : RunMileColor.secondary)
         .overlay {
             RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
-                .stroke(registeredShoeName == nil ? RunMileColor.primary : RunMileColor.border, lineWidth: RunMileStroke.border)
+                .stroke(registeredShoeName == nil ? RunMileColor.primaryText : RunMileColor.border, lineWidth: RunMileStroke.border)
         }
     }
 }

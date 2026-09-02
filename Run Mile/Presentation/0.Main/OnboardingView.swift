@@ -88,7 +88,7 @@ struct OnboardingView: View {
                 Text(pages[viewModel.currentIndex].buttonTitle)
                     .frame(maxWidth: .infinity)
             }
-            .runMilePrimaryButton()
+            .runMilePrimaryButton(isEnabled: !viewModel.isRequestingHealthAuthorization)
             .disabled(viewModel.isRequestingHealthAuthorization)
         }
     }
@@ -166,10 +166,10 @@ private struct OnboardingHeroBackground: View {
                 .offset(x: 8, y: 8)
 
             RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous)
-                .fill(RunMileColor.card)
+                .fill(RunMileColor.fixedMediaSurface)
                 .overlay {
                     RoundedRectangle(cornerRadius: RunMileRadius.card, style: .continuous)
-                        .stroke(RunMileColor.border, lineWidth: RunMileStroke.strong)
+                        .stroke(RunMileColor.fixedMediaBorder, lineWidth: RunMileStroke.strong)
                 }
         }
     }
@@ -204,7 +204,7 @@ private struct OnboardingContentCard: View {
                     Spacer(minLength: 0)
                 }
                 .padding(10)
-                .background(RunMileColor.background)
+                .background(RunMileColor.surfaceElevated)
                 .overlay {
                     RoundedRectangle(cornerRadius: RunMileRadius.small, style: .continuous)
                         .stroke(RunMileColor.border, lineWidth: RunMileStroke.hairline)
@@ -245,7 +245,7 @@ private extension OnboardingPage {
             title: "러닝화 수명,\n거리로 관리",
             subtitle: "신발마다 누적 km를 쌓아 교체 시점을 확인해요.",
             buttonTitle: "시작하기",
-            accent: RunMileColor.primary,
+            accent: RunMileColor.primaryText,
             imageName: "Onboarding_Mileage",
             items: [
                 OnboardingItem(symbolName: "shoe.2.fill", title: "누적 거리", description: "러닝화별 사용 거리를 기록합니다.", tint: RunMileColor.primary),
@@ -269,7 +269,7 @@ private extension OnboardingPage {
             title: "신발을 연결하면\n자동으로 쌓여요",
             subtitle: "운동 후 신발만 선택하면 누적 거리가 기록돼요.",
             buttonTitle: "시작하기",
-            accent: RunMileColor.primary,
+            accent: RunMileColor.primaryText,
             imageName: "Onboarding_Ready",
             items: [
                 OnboardingItem(symbolName: "shoe.2.fill", title: "신발 연결", description: "운동 기록에 러닝화를 연결해요.", tint: RunMileColor.primary),

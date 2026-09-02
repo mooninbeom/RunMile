@@ -38,7 +38,7 @@ struct RouteEndpointAnnotationView: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(RunMileColor.border)
+                .fill(RunMileColor.hardShadow)
                 .frame(width: 18, height: 18)
                 .offset(x: 1.5, y: 1.5)
 
@@ -75,8 +75,8 @@ struct SelectedRouteAnnotationView: View {
                 .padding(.horizontal, 9)
                 .background {
                     RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
-                        .fill(RunMileColor.card)
-                        .shadow(color: RunMileColor.border, radius: 0, x: 2, y: 2)
+                        .fill(RunMileColor.mapOverlaySurface)
+                        .shadow(color: RunMileColor.hardShadow, radius: 0, x: 2, y: 2)
                 }
                 .overlay {
                     RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
@@ -95,7 +95,7 @@ private struct SelectedRouteMarkerDot: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(RunMileColor.border)
+                .fill(RunMileColor.hardShadow)
                 .frame(width: markerSize, height: markerSize)
                 .offset(x: 2, y: 2)
 
@@ -132,7 +132,7 @@ struct FastestPaceAnnotationView: View {
             HStack(spacing: 6) {
                 Image(systemName: "flame.fill")
                     .font(.caption.weight(.bold))
-                    .foregroundStyle(RunMileColor.primary)
+                    .foregroundStyle(RunMileColor.primaryStrong)
 
                 Text("최고 \(pace)")
                     .font(.caption.weight(.bold))
@@ -142,9 +142,9 @@ struct FastestPaceAnnotationView: View {
             .padding(.vertical, 8)
             .padding(.horizontal, 10)
             .background {
-                RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
-                    .fill(RunMileColor.secondary.opacity(0.86))
-                    .shadow(color: RunMileColor.border.opacity(0.72), radius: 0, x: 2, y: 2)
+                    RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)
+                        .fill(RunMileColor.secondary.opacity(0.86))
+                        .shadow(color: RunMileColor.hardShadow.opacity(0.72), radius: 0, x: 2, y: 2)
             }
             .overlay {
                 RoundedRectangle(cornerRadius: RunMileRadius.button, style: .continuous)

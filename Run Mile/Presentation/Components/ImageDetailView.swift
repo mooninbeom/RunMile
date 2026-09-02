@@ -13,12 +13,39 @@ struct ImageDetailView: View {
     let image: Data
     
     var body: some View {
-        VStack {
-            if let image = image.toImage() {
-                image
-                    .resizable()
-                    .scaledToFit()
+        ZStack {
+            RunMileColor.background
+                .ignoresSafeArea()
+
+            Group {
+                if let image = image.toImage() {
+                    image
+                        .resizable()
+                        .scaledToFit()
+                } else {
+                    Image(systemName: "photo")
+                        .font(.system(size: 52, weight: .bold))
+                        .foregroundStyle(RunMileColor.mutedForeground)
+                }
             }
+            .padding(RunMileSpacing.large)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                    .fill(RunMileColor.surfaceElevated)
+                    .shadow(
+                        color: RunMileColor.hardShadow,
+                        radius: 0,
+                        x: RunMileShadow.offset,
+                        y: RunMileShadow.offset
+                    )
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: RunMileRadius.image, style: .continuous)
+                    .stroke(RunMileColor.border, lineWidth: RunMileStroke.border)
+            }
+            .padding(RunMileSpacing.screenHorizontal)
+            .padding(.vertical, RunMileSpacing.large)
         }
     }
 }
